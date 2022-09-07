@@ -23,6 +23,9 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define SCREEN_WIDTH 1000
 #define SCREEN_HEIGHT 1000
 #define OUTSCREEN_W 500
+#define MAX_TIME_ESC 500
+#define COLOR_RED SDL_MapRGB(screen->format, 245,10,10)
+#define COLOR_WHITE SDL_MapRGB(screen->format, 255,255,255)
 
 #define FPS 40.0
 
@@ -31,16 +34,16 @@ struct Line{
     int x2,y2;
 };
 
-bool saveDataInFile(const char* filename, vector<Line> &liste);
-void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2);
-void drawLine(SDL_Surface *screen, Line line);
+bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2);
+void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color);
+void drawLine(SDL_Surface *screen, Line line, Uint32 color);
 void setPixel(SDL_Surface *screen, int x, int y, Uint32 color);
 
 
 int main(int argc, char **argv){
     cout << "DESSIN DE LA CARTE" << endl;
 
-    vector<Line> carte;
+    vector<Line> carte, carte_red;
 
     srand(time(NULL));
 
@@ -90,6 +93,20 @@ int main(int argc, char **argv){
     line.y2 = -1;
     int state_line = 0;
 
+    Line line_red;
+    line_red.x1 = -1;
+    line_red.y1 = -1;
+    line_red.x2 = -1;
+    line_red.y2 = -1;
+    int state_line_red = 0;
+
+
+    //button
+    bool status_esc = 0, status_enter = 0;
+
+    int counter_esc = 0;
+    time_point start_point_esc;
+
     while(continuer){
         start_point = chrono::high_resolution_clock::now();
         //on gere les events
@@ -99,53 +116,168 @@ int main(int argc, char **argv){
                     continuer = false;
                     break;
                 case SDL_MOUSEMOTION:
-                    rectMouse.x = event.motion.x-5;
-                    rectMouse.y = event.motion.y-5;
+                    rectMouse.x = event.motion.x;
+                    rectMouse.y = event.motion.y;
+                    break;
+                case SDL_KEYDOWN:
+                    if(event.key.keysym.sym==SDLK_RETURN){
+                        if(status_enter==0){
+                            //on enregistre le fichier
+                            if(!saveDataInFile("../resources/map/map.level", carte, carte_red)){
+                                cout << "Enregistrement fait avec succes" << endl;
+                            }else{
+                                cout << "Erreur d'enregistrement du fichier" << endl;
+                            }
+
+                            status_enter=1;
+                        }
+                    }else if(event.key.keysym.sym==SDLK_ESCAPE){
+                        if(status_esc==0){
+                            //on initialise les line et line_red
+                            state_line = 0;
+                            line.x1 = -1;
+                            line.y1 = -1;
+                            line.x2 = -1;
+                            line.y2 = -1;
+
+                            state_line_red = 0;
+                            line_red.x1 = -1;
+                            line_red.y1 = -1;
+                            line_red.x2 = -1;
+                            line_red.y2 = -1;
+
+                            //on lance le chrono
+                            counter_esc++;
+                            if(counter_esc-1==0){
+                                start_point_esc = chrono::high_resolution_clock::now();
+                                //cout << "init time" << endl;
+                            }
+                            time_point tmp_point = chrono::high_resolution_clock::now();
+                            double duration_time = chrono::duration_cast<chrono::milliseconds>(tmp_point-start_point_esc).count();
+                            if(duration_time>MAX_TIME_ESC){
+                                counter_esc = 1;
+                            }
+                            //counter_esc valeur correcte
+
+                            //cout << counter_esc << " t: " << duration_time/1000.0 << endl;
+                            if(counter_esc==2){
+                                carte.clear();
+                                carte_red.clear();
+                                counter_esc = 0;
+                            }
+
+                            //plus de valeur correcte
+                            if(duration_time>MAX_TIME_ESC){
+                                counter_esc = 0;
+                            }
+
+                            status_esc=1;
+                        }
+                    }
+                    break;
+                case SDL_KEYUP:
+                    if(event.key.keysym.sym==SDLK_RETURN){
+                        if(status_enter==1){
+                            status_enter=0;
+                        }
+                    }else if(event.key.keysym.sym==SDLK_ESCAPE){
+                        if(status_esc==1){
+                            status_esc = 0;
+                        }
+                    }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
-                    switch(state_line){
-                        case 0:
-                            line.x1 = event.motion.x;
-                            line.y1 = event.motion.y;
-                            break;
-                        case 1:
-                            line.x2 = event.motion.x;
-                            line.y2 = event.motion.y;
-                            break;
+                    if(event.button.button == SDL_BUTTON_LEFT){
+                        switch(state_line){
+                            case 0:
+                                line.x1 = event.motion.x;
+                                line.y1 = event.motion.y;
+                                break;
+                            case 1:
+                                line.x2 = event.motion.x;
+                                line.y2 = event.motion.y;
+                                break;
+                        }
+                    }else if(event.button.button==SDL_BUTTON_RIGHT){
+                         switch(state_line_red){
+                            case 0:
+                                line_red.x1 = event.motion.x;
+                                line_red.y1 = event.motion.y;
+                                break;
+                            case 1:
+                                line_red.x2 = event.motion.x;
+                                line_red.y2 = event.motion.y;
+                                break;
+                        }
                     }
                     break;
                 
                 case SDL_MOUSEBUTTONUP:
-                    if(state_line==0&&line.x1!=-1&&line.y1!=-1){
-                        state_line++;
-                        cout << "click 1" << endl;
-                    }
-                    if(state_line==1&&line.x2!=-1&&line.y2!=-1){
-                        //on enregistre
-                        carte.push_back(Line(line));
-                        cout << "click 2" << endl;
+                    if(event.button.button == SDL_BUTTON_LEFT){
+                        if(state_line==0&&line.x1!=-1&&line.y1!=-1){
+                            state_line++;
+                            //cout << "click 1" << endl;
+                        }
+                        if(state_line==1&&line.x2!=-1&&line.y2!=-1){
+                            //on enregistre
+                            carte.push_back(Line(line));
+                            //cout << "click 2" << endl;
 
-                        //on initialise
-                        state_line = 0;
-                        line.x1 = -1;
-                        line.y1 = -1;
-                        line.x2 = -1;
-                        line.y2 = -1;
+                            //on initialise
+                            state_line = 0;
+                            line.x1 = -1;
+                            line.y1 = -1;
+                            line.x2 = -1;
+                            line.y2 = -1;
+                        }
+                    }else if(event.button.button == SDL_BUTTON_RIGHT){
+                        if(state_line_red==0&&line_red.x1!=-1&&line_red.y1!=-1){
+                            state_line_red++;
+                            //cout << "click 1" << endl;
+                        }
+                        if(state_line_red==1&&line_red.x2!=-1&&line_red.y2!=-1){
+                            //on enregistre
+                            carte_red.push_back(Line(line_red));
+                            //cout << "click 2" << endl;
+
+                            //on initialise
+                            state_line_red = 0;
+                            line_red.x1 = -1;
+                            line_red.y1 = -1;
+                            line_red.x2 = -1;
+                            line_red.y2 = -1;
+                        }
                     }
                     break;
             }
         }
         //affichage
-        SDL_FillRect(screen, NULL, SDL_MapRGB(screen->format, 0,0,0));
+        SDL_FillRect(screen, NULL, COLOR_BLACK);
 
-        SDL_FillRect(screen, &rectMouse, SDL_MapRGB(screen->format,100,100,100));
+        //SDL_FillRect(screen, &rectMouse, SDL_MapRGB(screen->format,100,100,100));
 
+        //ligne actuel
         if(line.x1!=-1&&line.y1!=-1){
-            drawLine(screen, line.x1, line.y1, rectMouse.x, rectMouse.y);
+            drawLine(screen, line.x1, line.y1, rectMouse.x, rectMouse.y, COLOR_WHITE);
         }
-        drawLine(screen, 0,0,500,500);
+
+        //même chose mais rouge
+        if(line_red.x1!=-1&&line_red.y1!=-1){
+            drawLine(screen, line_red.x1, line_red.y1, rectMouse.x, rectMouse.y, COLOR_RED);
+        }
+
+        //affichage de carte
+        for(int i(0);i<carte.size();i++){
+            drawLine(screen, carte[i], COLOR_WHITE);
+        }
+
+        //même chose mais rouge
+        for(int i(0);i<carte_red.size();i++){
+            drawLine(screen, carte_red[i], COLOR_RED);
+        }
 
         SDL_Flip(screen);
+
         //on gere les fps
         end_point = chrono::high_resolution_clock::now();
         duration = chrono::duration_cast<chrono::milliseconds>(end_point-start_point).count();
@@ -159,19 +291,34 @@ int main(int argc, char **argv){
     return 0;
 }
 
-bool saveDataInFile(const char* filename, vector<Line> &liste){
-    ofstream file("resources/map/carte.level", ios::binary);
+bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2){
+    ofstream file(filename, ios::binary);
+    if(!file.is_open()){
+        return true;
+    }
 
     int cursor = 0;
-    int size = liste.size();
+    int size = liste1.size();
     file.write((const char*)(&size), sizeof(size));
     cursor+=sizeof(size);
 
-    for(int i(0);i<liste.size();i++){
-        Line line(liste[i]);
+    for(int i(0);i<liste1.size();i++){
+        Line line(liste1[i]);
         file.write((const char*)(&line), sizeof(line));
-        cursor+=sizeof(Line);
+        cursor+=sizeof(line);
     }
+
+    size = liste2.size();
+    file.write((const char*)(&size), sizeof(size));
+    cursor+=sizeof(size);
+
+    for(int i(0);i<liste2.size();i++){
+        Line line(liste2[i]);
+        file.write((const char*)(&line), sizeof(line));
+        cursor+=sizeof(line);
+    }
+
+
     return false;
 }
 
@@ -180,7 +327,7 @@ void setPixel(SDL_Surface *screen, int x, int y, Uint32 color){
 }
 
 
-void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2){
+void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color){
     int deltaX = x2-x1;
     int deltaY = y2-y1;
     int h = (int)sqrt(deltaX*deltaX + deltaY*deltaY) + 1;
@@ -190,10 +337,10 @@ void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2){
         for(int i(0);i<h;i++){
             int x = int(x1+rapportX*i),
                 y =  int(y1+rapportY*i);
-            setPixel(screen, x,y, SDL_MapRGB(screen->format, 255,255,255));
+            setPixel(screen, x,y, color);
         }
     }
 }
-void drawLine(SDL_Surface *screen, Line line){
-    drawLine(screen, line.x1, line.y1, line.x2, line.y2);
+void drawLine(SDL_Surface *screen, Line line, Uint32 color){
+    drawLine(screen, line.x1, line.y1, line.x2, line.y2, color);
 }
