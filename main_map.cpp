@@ -20,9 +20,8 @@ using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
 
-#define SCREEN_WIDTH 1000
+#define SCREEN_WIDTH 1500
 #define SCREEN_HEIGHT 1000
-#define OUTSCREEN_W 500
 #define MAX_TIME_ESC 500
 #define COLOR_RED SDL_MapRGB(screen->format, 245,10,10)
 #define COLOR_WHITE SDL_MapRGB(screen->format, 255,255,255)
