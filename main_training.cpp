@@ -19,36 +19,30 @@
 //machine learning
 #include "src/m_learning.h"
 
+//world
+#include "src/world.h"
+#include "src/draw.h"
+
 using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
 
-#define SCREEN_WIDTH 1000
+#define SCREEN_WIDTH 1500
 #define SCREEN_HEIGHT 1000
-#define OUTSCREEN_W 500
+#define OUTSCREEN_W 300
 #define MAX_TIME_ESC 500
-#define COLOR_RED SDL_MapRGB(screen->format, 245,10,10)
-#define COLOR_WHITE SDL_MapRGB(screen->format, 255,255,255)
-#define COLOR_BLACK SDL_MapRGB(screen->format, 0,0,0)
 
 #define RANDOM_VALUE_W 10
 #define RANDOM_VALUE_B 10
 
 #define FPS 40.0
 
-struct Line{
-    int x1,y1;
-    int x2,y2;
-};
-
 bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2);
-void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color);
-void drawLine(SDL_Surface *screen, Line line, Uint32 color);
-void setPixel(SDL_Surface *screen, int x, int y, Uint32 color);
 void drawNeuralNetwork(SDL_Surface *screen, MachineLearning &m);
-void drawSquare(SDL_Surface *screen, int x, int y, int w, int h, Uint32 color);
 
 int main(int argc, char **argv){
+
+	srand(time(NULL));
 
 	if(SDL_Init(SDL_INIT_VIDEO) < 0){
 		cout << "Erreur de lancement de la sdl: " << SDL_GetError() << endl;
@@ -64,11 +58,56 @@ int main(int argc, char **argv){
 	atexit(SDL_Quit);
 
 	SDL_Surface *screen = NULL;
-	screen = SDL_SetVideoMode(SCREEN_WIDTH+OUTSCREEN_W)
+	screen = SDL_SetVideoMode(SCREEN_WIDTH+OUTSCREEN_W, SCREEN_HEIGHT, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
+	if(screen == NULL){
+		cout << "Erreur d'initialisation d'une fenetre : " << SDL_GetError() << endl;
+		return 1;
+	}
 
 	SDL_WM_SetCaption("NETWORK TRAINING", NULL);
 
 
+	World world;
+	if(!world.loadMap("../resources/map/map.level")){
+		cout << "Erreur de chargement de la map" << endl;
+	}
+
+	MachineLearning machine(2);
+	machine.addColumn(10);
+	machine.addColumn(2);
+
+	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
+
+
+	//boucle
+	bool continuer = true;
+	time_point start_point, end_point;
+	SDL_Event event;
+	double duration;
+	while(continuer){
+		start_point = chrono::high_resolution_clock::now();
+		while(SDL_PollEvent(&event)){
+			switch(event.type){
+				case SDL_QUIT:
+					continuer = false;
+					break;
+			}
+		}
+		//affichage
+		SDL_FillRect(screen, NULL, COLOR_BLACK);
+
+		world.draw(screen);
+		drawNeuralNetwork(screen, machine);
+
+
+		SDL_Flip(screen);
+		//management time
+		end_point = chrono::high_resolution_clock::now();
+		duration = chrono::duration_cast<chrono::milliseconds>(end_point-start_point).count();
+		if(duration<1000.0/FPS){
+			this_thread::sleep_for(chrono::milliseconds((unsigned int)(1000.0/FPS-duration)));
+		}
+	}
     return 0;
 }
 
@@ -129,39 +168,4 @@ bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &li
 
 
     return false;
-}
-
-void setPixel(SDL_Surface *screen, int x, int y, Uint32 color){
-    *((Uint32*)(screen->pixels) + x + y * screen->w) = color;
-}
-
-
-void drawSquare(SDL_Surface *screen, int x, int y, int w, int h, Uint32 color)
-{
-	for(int iw(0);iw<w;iw++)
-	{
-		for(int ih(0);ih<h;ih++)
-		{
-			setPixel(screen,x+iw,y+ih,color);
-		}
-	}
-}
-
-
-void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color){
-    int deltaX = x2-x1;
-    int deltaY = y2-y1;
-    int h = (int)sqrt(deltaX*deltaX + deltaY*deltaY) + 1;
-    if(h!=0){
-        double rapportX = (double(deltaX)/h),
-               rapportY = (double(deltaY)/h);
-        for(int i(0);i<h;i++){
-            int x = int(x1+rapportX*i),
-                y =  int(y1+rapportY*i);
-            setPixel(screen, x,y, color);
-        }
-    }
-}
-void drawLine(SDL_Surface *screen, Line line, Uint32 color){
-    drawLine(screen, line.x1, line.y1, line.x2, line.y2, color);
 }

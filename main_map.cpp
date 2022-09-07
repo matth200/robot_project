@@ -63,7 +63,7 @@ int main(int argc, char **argv){
     TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf", 16);
 
     SDL_Surface *screen = NULL;
-    screen = SDL_SetVideoMode(SCREEN_WIDTH+OUTSCREEN_W, SCREEN_HEIGHT, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
+    screen = SDL_SetVideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
     if(screen==NULL){
         cout << "Erreur d'initialisation de la fenetre d'affichage" << endl;
         return 1;
