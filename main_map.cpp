@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <cmath>
 
 //random librairy
 #include <cstdlib>
@@ -117,10 +118,12 @@ int main(int argc, char **argv){
                 case SDL_MOUSEBUTTONUP:
                     if(state_line==0&&line.x1!=-1&&line.y1!=-1){
                         state_line++;
+                        cout << "click 1" << endl;
                     }
                     if(state_line==1&&line.x2!=-1&&line.y2!=-1){
                         //on enregistre
                         carte.push_back(Line(line));
+                        cout << "click 2" << endl;
 
                         //on initialise
                         state_line = 0;
@@ -137,9 +140,10 @@ int main(int argc, char **argv){
 
         SDL_FillRect(screen, &rectMouse, SDL_MapRGB(screen->format,100,100,100));
 
-        if(line.x1!=-1&&line.y1!=-1&&line.x2!=-1&&line.y2!=-1){
-
+        if(line.x1!=-1&&line.y1!=-1){
+            drawLine(screen, line.x1, line.y1, rectMouse.x, rectMouse.y);
         }
+        drawLine(screen, 0,0,500,500);
 
         SDL_Flip(screen);
         //on gere les fps
@@ -156,18 +160,39 @@ int main(int argc, char **argv){
 }
 
 bool saveDataInFile(const char* filename, vector<Line> &liste){
+    ofstream file("resources/map/carte.level", ios::binary);
 
+    int cursor = 0;
+    int size = liste.size();
+    file.write((const char*)(&size), sizeof(size));
+    cursor+=sizeof(size);
 
+    for(int i(0);i<liste.size();i++){
+        Line line(liste[i]);
+        file.write((const char*)(&line), sizeof(line));
+        cursor+=sizeof(Line);
+    }
     return false;
 }
 
 void setPixel(SDL_Surface *screen, int x, int y, Uint32 color){
-    *((Uint32*)(screen->pixels + x + y * screen->w)) = color;
+    *((Uint32*)(screen->pixels) + x + y * screen->w) = color;
 }
 
 
 void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2){
-    
+    int deltaX = x2-x1;
+    int deltaY = y2-y1;
+    int h = (int)sqrt(deltaX*deltaX + deltaY*deltaY) + 1;
+    if(h!=0){
+        double rapportX = (double(deltaX)/h),
+               rapportY = (double(deltaY)/h);
+        for(int i(0);i<h;i++){
+            int x = int(x1+rapportX*i),
+                y =  int(y1+rapportY*i);
+            setPixel(screen, x,y, SDL_MapRGB(screen->format, 255,255,255));
+        }
+    }
 }
 void drawLine(SDL_Surface *screen, Line line){
     drawLine(screen, line.x1, line.y1, line.x2, line.y2);
