@@ -39,6 +39,8 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define RANDOM_VALUE_W 10
 #define RANDOM_VALUE_B 10
 
+#define ROBOT_SPEED 1
+
 #define FPS 40.0
 
 bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2);
@@ -88,6 +90,7 @@ int main(int argc, char **argv){
 	//Robot
 	Car robot;
 	robot.setPos(500,500);
+	robot.setRotation(M_PI/3.0);
 
 	//boucle
 	bool continuer = true;
@@ -107,10 +110,10 @@ int main(int argc, char **argv){
 							continuer = false;
 							break;
 						case SDLK_RIGHT:
-							robot.setMotor2(5);
+							robot.setMotor2(ROBOT_SPEED);
 							break;
 						case SDLK_LEFT:
-							robot.setMotor1(5);
+							robot.setMotor1(ROBOT_SPEED);
 							break;
 					}
 					break;
