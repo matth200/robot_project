@@ -23,6 +23,10 @@
 #include "src/world.h"
 #include "src/draw.h"
 
+
+//car
+#include "src/car.h"
+
 using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
@@ -72,12 +76,21 @@ int main(int argc, char **argv){
 		cout << "Erreur de chargement de la map" << endl;
 	}
 
+	//Machine learning
 	MachineLearning machine(2);
 	machine.addColumn(10);
 	machine.addColumn(2);
 
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
 
+	machine.calcul();
+
+
+	//Robot
+	Car robot;
+	robot.setPos(500,500);
+
+	robot.setRotation(M_PI/6.0);
 
 	//boucle
 	bool continuer = true;
@@ -97,6 +110,7 @@ int main(int argc, char **argv){
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
 
 		world.draw(screen);
+		robot.draw(screen);
 		drawNeuralNetwork(screen, machine);
 
 
@@ -133,6 +147,7 @@ void drawNeuralNetwork(SDL_Surface *screen, MachineLearning &m)
 				color = SDL_MapRGB(screen->format,value*25,value*25,value*200);
 				if(m.getNetwork(j)->get_neuron(i)->get_weight(a)<0)
 					color = SDL_MapRGB(screen->format,value*200,value*25,value*25);
+				//color = SDL_MapRGB(screen->format,200,25,25);
 				drawLine(screen,SCREEN_WIDTH+40+(j-1)*100+20,50+((size-m.getNetwork(j-1)->get_number_neuron())/2.0+a)*30+10,SCREEN_WIDTH+40+j*100,50+((size-m.getNetwork(j)->get_number_neuron())/2.0+i)*30+10,color);
 			}
 		}
