@@ -22,6 +22,7 @@ class Car{
     protected:
         int _x,_y;
         double _rotation;
+        double _angle_d,_angle_g;
         double _rayon;
         double _motor1, _motor2;
         Line _line;

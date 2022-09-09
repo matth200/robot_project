@@ -1,7 +1,7 @@
 #include "car.h"
 using namespace std;
 
-Car::Car():_x(0),_y(0),_rotation(0),_motor1(0),_motor2(0),_rayon(20){
+Car::Car():_x(0),_y(0),_rotation(0),_motor1(0),_motor2(0),_rayon(20),_angle_d(0),_angle_g(0){
     setRotation(0);
 }
 
@@ -12,15 +12,15 @@ Car::~Car(){
 void Car::setPos(int x, int y){
     _x  = x;
     _y = y;
-    setRotation(_rotation);
-}
-
-void Car::setRotation(double rotation){
-    _rotation = rotation;
+    //on place le baton
     _line.x1 = (int)(_x+_rayon*cos(M_PI+_rotation));
     _line.y1 = (int)(_y-_rayon*sin(M_PI+_rotation));
     _line.x2 = (int)(_x+_rayon*cos(_rotation));
     _line.y2 = (int)(_y-_rayon*sin(_rotation));
+}
+
+void Car::setRotation(double rotation){
+    _rotation = rotation;
 }
 
 void Car::setMotor1(double speed){
@@ -38,28 +38,41 @@ void Car::calcCenter(Line line, int &x, int &y){
 
 void Car::forward(){
     //on tourne autour de la roue gauche
-    double angle = _motor2/40;
-    if(angle!=0){
-        _line.x2 = _line.x1+2*_rayon*cos(angle);
-        _line.y2 = _line.y1-2*_rayon*sin(angle);
+    if(_motor2!=0){
+        if(_angle_g!=0){
+            _angle_d = 0;
+        }
+        _angle_d+=_motor2/40;
+        _line.x2 = _line.x1+2*_rayon*cos(_angle_d);
+        _line.y2 = _line.y1-2*_rayon*sin(_angle_d);
     }
-
-    angle = _motor1/40;
-    if(angle!=0){
-        _line.x1 = _line.x2+2*_rayon*cos(M_PI-angle);
-        _line.y1 = _line.y2-2*_rayon*sin(M_PI-angle);
+    
+    if(_motor1!=0){
+        if(_angle_d!=0){
+            _angle_g = 0;
+        }
+        _angle_g+=_motor1/40;
+        _line.x1 = _line.x2+2*_rayon*cos(M_PI-_angle_g);
+        _line.y1 = _line.y2-2*_rayon*sin(M_PI-_angle_g);
     }
     
     //on enregistre la position
     int x,y;
     calcCenter(_line,x,y);
     int deltaX = _line.x2-_line.x1;
-    int deltaY = _line.y2-_line.y1;
-    angle = atan(deltaY/deltaX);
+    int deltaY = _line.y1-_line.y2;
+    double rotation = 0;
+    if(deltaX!=0){
+        rotation = atan((double)(deltaY)/deltaX);
+    }else{
+        //h n'est jamais nul ici
+        double h = sqrt(deltaX*deltaX+deltaY*deltaY);
+        rotation = asin((double)(deltaY)/h);
+    }
     _x = x;
     _y = y;
-    cout << angle << " " << deltaX << " " << deltaY << endl;
-    //setRotation(angle);
+    cout << rotation << " " << deltaX << " " << deltaY << endl;
+    setRotation(rotation);
 }
 
 void Car::draw(SDL_Surface *screen){

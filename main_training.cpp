@@ -44,16 +44,6 @@ typedef chrono::high_resolution_clock::time_point time_point;
 bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2);
 void drawNeuralNetwork(SDL_Surface *screen, MachineLearning &m);
 
-class StickBalance{
-	public:
-		StickBalance();
-		~StickBalance();
-		void draw(SDL_Surface *screen);
-	protected:
-		Line line;
-		double _rayon;
-};
-
 int main(int argc, char **argv){
 
 	srand(time(NULL));
@@ -99,8 +89,6 @@ int main(int argc, char **argv){
 	Car robot;
 	robot.setPos(500,500);
 
-	StickBalance sb;
-
 	//boucle
 	bool continuer = true;
 	time_point start_point, end_point;
@@ -145,8 +133,6 @@ int main(int argc, char **argv){
 		robot.forward();
 		robot.draw(screen);
 
-		sb.draw(screen);
-
 		drawNeuralNetwork(screen, machine);
 
 		SDL_Flip(screen);
@@ -158,30 +144,6 @@ int main(int argc, char **argv){
 		}
 	}
     return 0;
-}
-
-
-StickBalance::StickBalance(){
-	line.x1 = 100;
-	line.y1 = 100;
-	line.x2 = 150;
-	line.y2 = 100;
-
-	_rayon = sqrt(pow(line.x1-line.x2,2)+pow(line.y1-line.y2,2));
-}
-StickBalance::~StickBalance(){
-
-}
-
-void StickBalance::draw(SDL_Surface *screen){
-	double angle = 1;
-	line.x2 = line.x1+_rayon*cos(angle);
-	line.y2 = line.y1-_rayon*sin(angle);
-
-
-	// line.x2 = line.x1+_rayon*cos(angle);
-	// line.y2 = line.y1-_rayon*sin(angle);
-	drawLine(screen, line, COLOR_WHITE);
 }
 
 void drawNeuralNetwork(SDL_Surface *screen, MachineLearning &m)
