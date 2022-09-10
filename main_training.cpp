@@ -39,7 +39,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define RANDOM_VALUE_W 10
 #define RANDOM_VALUE_B 10
 
-#define ROBOT_SPEED 1
+#define ROBOT_SPEED 5
 
 #define FPS 40.0
 

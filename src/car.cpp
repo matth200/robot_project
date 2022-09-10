@@ -27,12 +27,10 @@ void Car::setRotation(double rotation){
 
 void Car::setMotor1(double speed){
     _motor1 = speed;
-    _angle_g = getRotation();
 }
 
 void Car::setMotor2(double speed){
     _motor2 = speed;
-    _angle_d = getRotation();
 }
 
 void Car::calcCenter(Line line, int &x, int &y){
@@ -40,14 +38,15 @@ void Car::calcCenter(Line line, int &x, int &y){
     y = (line.y1+line.y2)/2.0;
 }
 
-double Car::getRotation(){
-    int deltaX = _line.x2-_line.x1;
-    int deltaY = _line.y1-_line.y2;
+double Car::getRotation(double x1, double y1, double x2, double y2){
+    int deltaX = x2-x1;
+    int deltaY = y1-y2;
     double rotation;
     if(deltaX!=0){
         rotation = atan((double)(deltaY)/deltaX);
     }else{
         //h n'est jamais nul ici
+        cout << "test" << endl;
         double h = sqrt(deltaX*deltaX+deltaY*deltaY);
         rotation = asin((double)(deltaY)/h);
     }
@@ -59,34 +58,39 @@ double Car::getRotation(){
 }
 
 void Car::forward(){
+    _angle_d = _rotation;
+    _angle_g = _rotation;
+
+    double x1 = _line.x1, y1 = _line.y1, x2 = _line.x2, y2 = _line.y2;
+
     //on tourne autour de la roue gaguche
     if(_motor2!=0){
-        if(_angle_g!=0){
-            _angle_g = 0;
-            _angle_d = _rotation;
-        }
-        cout << _angle_d/M_PI*180.0 << _rotation/M_PI*180.0 << endl;
         _angle_d+=_motor2/40.0;
-        _line.x2 = _line.x1+2.0*_rayon*cos(_angle_d);
-        _line.y2 = _line.y1-2.0*_rayon*sin(_angle_d);
+        x2 = x1+2.0*_rayon*cos(_angle_d);
+        y2 = y1-2.0*_rayon*sin(_angle_d);
     }
+    _angle_g = _angle_d;
     
     if(_motor1!=0){
-        if(_angle_d!=0){
-            _angle_d = 0;
-            _angle_g = _rotation;
-        }
         _angle_g-=_motor1/40.0;
-        _line.x1 = _line.x2+2.0*_rayon*cos(M_PI+_angle_g);
-        _line.y1 = _line.y2-2.0*_rayon*sin(M_PI+_angle_g);
+        x1 = x2+2.0*_rayon*cos(M_PI+_angle_g);
+        y1 = y2-2.0*_rayon*sin(M_PI+_angle_g);
     }
+
+    cout << _angle_g/M_PI*180.0 << "," << _angle_d/M_PI*180.0 <<endl;
     
     //on enregistre la position et la rotation
+    _line.x1 = (int)x1;
+    _line.y1 = (int)y1;
+    _line.x2 = (int)x2;
+    _line.y2 = (int)y2;
+
     int x,y;
     calcCenter(_line,x,y);
     _x = x;
     _y = y;
-    _rotation = getRotation();
+    _rotation = getRotation(x1,y1,x2,y2);
+    cout << _rotation/M_PI*180.0 << endl;
 }
 
 void Car::draw(SDL_Surface *screen){

@@ -16,7 +16,7 @@ class Car{
         void setPos(int x, int y);
         void forward();
         void setRotation(double rotation);
-        double getRotation();
+        double getRotation(double x1, double y1, double x2, double y2);
         void draw(SDL_Surface *screen);
     private:
         void calcCenter(Line line, int &x, int &y);
