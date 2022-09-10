@@ -84,6 +84,10 @@ int main(int argc, char **argv){
 	machine.addColumn(2);
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
 
+	unsigned char data[2];
+	data[0] = 100;
+	data[1] = 50;
+	machine.setInput((char*)data);
 	machine.calcul();
 
 
@@ -137,7 +141,7 @@ int main(int argc, char **argv){
 		robot.draw(screen);
 
 		
-		//drawNeuralNetwork(screen, machine);
+		drawNeuralNetwork(screen, machine);
 
 		SDL_Flip(screen);
 		//management time
