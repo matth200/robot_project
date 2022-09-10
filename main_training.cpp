@@ -39,7 +39,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define RANDOM_VALUE_W 10
 #define RANDOM_VALUE_B 10
 
-#define ROBOT_SPEED 5
+#define ROBOT_SPEED 1
 
 #define FPS 40.0
 
@@ -89,7 +89,7 @@ int main(int argc, char **argv){
 
 	//Robot
 	Car robot;
-	robot.setPos(500,500);
+	robot.setPos(500.0,500.0);
 	robot.setRotation(M_PI/3.0);
 
 	//boucle
@@ -136,7 +136,8 @@ int main(int argc, char **argv){
 		robot.forward();
 		robot.draw(screen);
 
-		drawNeuralNetwork(screen, machine);
+		
+		//drawNeuralNetwork(screen, machine);
 
 		SDL_Flip(screen);
 		//management time

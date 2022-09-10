@@ -38,6 +38,9 @@ void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color)
 void drawLine(SDL_Surface *screen, Line line, Uint32 color){
     drawLine(screen, line.x1, line.y1, line.x2, line.y2, color);
 }
+void drawLine(SDL_Surface *screen, LineD line, Uint32 color){
+    drawLine(screen, (int)line.x1, (int)line.y1, (int)line.x2, (int)line.y2, color);
+}
 
 
 void drawCircle(SDL_Surface *screen, int x, int y, int rayon, Uint32 color){

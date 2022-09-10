@@ -9,7 +9,7 @@ Car::~Car(){
 
 }
 
-void Car::setPos(int x, int y){
+void Car::setPos(double x, double y){
     _x  = x;
     _y = y;
     //on place le baton
@@ -33,20 +33,19 @@ void Car::setMotor2(double speed){
     _motor2 = speed;
 }
 
-void Car::calcCenter(Line line, int &x, int &y){
-    x = (line.x1+line.x2)/2.0;
-    y = (line.y1+line.y2)/2.0;
+void Car::calcCenter(double x1, double y1, double x2, double y2, double &x, double &y){
+    x = (x1+x2)/2.0;
+    y = (y1+y2)/2.0;
 }
 
 double Car::getRotation(double x1, double y1, double x2, double y2){
-    int deltaX = x2-x1;
-    int deltaY = y1-y2;
+    double deltaX = x2-x1;
+    double deltaY = y1-y2;
     double rotation;
     if(deltaX!=0){
         rotation = atan((double)(deltaY)/deltaX);
     }else{
         //h n'est jamais nul ici
-        cout << "test" << endl;
         double h = sqrt(deltaX*deltaX+deltaY*deltaY);
         rotation = asin((double)(deltaY)/h);
     }
@@ -61,45 +60,34 @@ void Car::forward(){
     _angle_d = _rotation;
     _angle_g = _rotation;
 
-    double x1 = _line.x1, y1 = _line.y1, x2 = _line.x2, y2 = _line.y2;
-
     //on tourne autour de la roue gaguche
     if(_motor2!=0){
         _angle_d+=_motor2/40.0;
-        x2 = x1+2.0*_rayon*cos(_angle_d);
-        y2 = y1-2.0*_rayon*sin(_angle_d);
+        _line.x2 = _line.x1+2.0*_rayon*cos(_angle_d);
+        _line.y2 = _line.y1-2.0*_rayon*sin(_angle_d);
+        cout << _line.x2 << "," << _line.y2 << endl;
     }
     _angle_g = _angle_d;
-    
+
     if(_motor1!=0){
         _angle_g-=_motor1/40.0;
-        x1 = x2+2.0*_rayon*cos(M_PI+_angle_g);
-        y1 = y2-2.0*_rayon*sin(M_PI+_angle_g);
+        _line.x1 = _line.x2+2.0*_rayon*cos(M_PI+_angle_g);
+        _line.y1 = _line.y2-2.0*_rayon*sin(M_PI+_angle_g);
     }
-
-    cout << _angle_g/M_PI*180.0 << "," << _angle_d/M_PI*180.0 <<endl;
     
     //on enregistre la position et la rotation
-    _line.x1 = (int)x1;
-    _line.y1 = (int)y1;
-    _line.x2 = (int)x2;
-    _line.y2 = (int)y2;
 
-    int x,y;
-    calcCenter(_line,x,y);
-    _x = x;
-    _y = y;
-    _rotation = getRotation(x1,y1,x2,y2);
-    cout << _rotation/M_PI*180.0 << endl;
+    calcCenter(_line.x1,_line.y1,_line.x2,_line.y2,_x,_y);
+    _rotation = getRotation(_line.x1,_line.y1,_line.x2,_line.y2);
 }
 
 void Car::draw(SDL_Surface *screen){
     //roue gauche
-    drawCircle(screen,_x+(_rayon+5)*cos(M_PI+_rotation),_y-(_rayon+5)*sin(M_PI+_rotation),5,COLOR_CAR);
+    drawCircle(screen,(int)(_x+(_rayon+5.0)*cos(M_PI+_rotation)),(int)(_y-(_rayon+5)*sin(M_PI+_rotation)),5,COLOR_CAR);
     //roue droite
-    drawCircle(screen,_x+(_rayon+5)*cos(_rotation),_y-(_rayon+5)*sin(_rotation),5,COLOR_CAR);
+    drawCircle(screen,(int)(_x+(_rayon+5.0)*cos(_rotation)),(int)(_y-(_rayon+5)*sin(_rotation)),5,COLOR_CAR);
     //corps
-    drawCircle(screen, _x, _y, _rayon, COLOR_CAR);
+    drawCircle(screen, (int)(_x), (int)(_y), _rayon, COLOR_CAR);
     //Line
     drawLine(screen, _line, COLOR_CAR);
 }
