@@ -27,12 +27,12 @@ void Car::setRotation(double rotation){
 
 void Car::setMotor1(double speed){
     _motor1 = speed;
-    _angle_g = _rotation;
+    _angle_g = getRotation();
 }
 
 void Car::setMotor2(double speed){
     _motor2 = speed;
-    _angle_d = _rotation;
+    _angle_d = getRotation();
 }
 
 void Car::calcCenter(Line line, int &x, int &y){
@@ -40,32 +40,7 @@ void Car::calcCenter(Line line, int &x, int &y){
     y = (line.y1+line.y2)/2.0;
 }
 
-void Car::forward(){
-    //on tourne autour de la roue gaguche
-    cout << _rotation << endl;
-    if(_motor2!=0){
-        if(_angle_g!=0){
-            _angle_g = 0;
-            _angle_d = _rotation;
-        }
-        _angle_d+=_motor2/40.0;
-        _line.x2 = _line.x1+2.0*_rayon*cos(_angle_d);
-        _line.y2 = _line.y1-2.0*_rayon*sin(_angle_d);
-    }
-    
-    if(_motor1!=0){
-        if(_angle_d!=0){
-            _angle_d = 0;
-            _angle_g = _rotation;
-        }
-        //_angle_g+=_motor1/40.0;
-        _line.x1 = _line.x2+2.0*_rayon*cos(M_PI-_angle_g);
-        _line.y1 = _line.y2-2.0*_rayon*sin(M_PI-_angle_g);
-    }
-    
-    //on enregistre la position
-    int x,y;
-    calcCenter(_line,x,y);
+double Car::getRotation(){
     int deltaX = _line.x2-_line.x1;
     int deltaY = _line.y1-_line.y2;
     double rotation;
@@ -76,9 +51,42 @@ void Car::forward(){
         double h = sqrt(deltaX*deltaX+deltaY*deltaY);
         rotation = asin((double)(deltaY)/h);
     }
+
+    if(deltaX<0){
+        rotation+=M_PI;
+    }
+    return rotation;
+}
+
+void Car::forward(){
+    //on tourne autour de la roue gaguche
+    if(_motor2!=0){
+        if(_angle_g!=0){
+            _angle_g = 0;
+            _angle_d = _rotation;
+        }
+        cout << _angle_d/M_PI*180.0 << _rotation/M_PI*180.0 << endl;
+        _angle_d+=_motor2/40.0;
+        _line.x2 = _line.x1+2.0*_rayon*cos(_angle_d);
+        _line.y2 = _line.y1-2.0*_rayon*sin(_angle_d);
+    }
+    
+    if(_motor1!=0){
+        if(_angle_d!=0){
+            _angle_d = 0;
+            _angle_g = _rotation;
+        }
+        _angle_g-=_motor1/40.0;
+        _line.x1 = _line.x2+2.0*_rayon*cos(M_PI+_angle_g);
+        _line.y1 = _line.y2-2.0*_rayon*sin(M_PI+_angle_g);
+    }
+    
+    //on enregistre la position et la rotation
+    int x,y;
+    calcCenter(_line,x,y);
     _x = x;
     _y = y;
-    _rotation = rotation;
+    _rotation = getRotation();
 }
 
 void Car::draw(SDL_Surface *screen){
