@@ -8,6 +8,7 @@
 #include "m_learning.h"
 
 #define COLOR_CAR SDL_MapRGB(screen->format, 200,10,100)
+#define ROBOT_SPEED 5
 
 
 class Car{
@@ -39,10 +40,13 @@ class Robot: public Car{
         void draw(SDL_Surface *screen);
         void connectToWorld(World &world);
         void setBrain(MachineLearning *brain);
+        bool isAlive();
         void update();
     protected:
         Capteur _capteur;
         MachineLearning *_brain;
+        bool _alive;
+        //Capteur _capteur_ext;
 };
 
 #endif

@@ -14,6 +14,10 @@ class Capteur{
     public:
         Capteur(double x=0.0, double y=0.0, double rotation=0.0);
         ~Capteur();
+        void setMaxDist(int distance);
+        void setMaxAngle(double angle);
+        void setNbrLineDetection(int nbr);
+
         void setRotation(double rotation);
         void setPos(double x, double y);
         double getDistance();
@@ -26,6 +30,8 @@ class Capteur{
         double _rotation;
         VirtualWorld *_real_map;
         std::vector<Line> _detectionLines;
+        double _max_angle;
+        int _max_dist, _nbr_line;
 };
 
 #endif

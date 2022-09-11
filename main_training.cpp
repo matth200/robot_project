@@ -33,13 +33,11 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 #define SCREEN_WIDTH 1500
 #define SCREEN_HEIGHT 1000
-#define OUTSCREEN_W 300
+#define OUTSCREEN_W 400
 #define MAX_TIME_ESC 500
 
-#define RANDOM_VALUE_W 10
-#define RANDOM_VALUE_B 10
-
-#define ROBOT_SPEED 5
+#define RANDOM_VALUE_W 100
+#define RANDOM_VALUE_B 100
 
 #define FPS 40.0
 
@@ -83,16 +81,17 @@ int main(int argc, char **argv){
 	//Machine learning
 	MachineLearning machine(2);
 	machine.addColumn(10);
+	machine.addColumn(10);
 	machine.addColumn(2);
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
-
-
+	
 	//Robot
 	Robot robot;
 	robot.setPos(500.0,500.0);
 	robot.setRotation(M_PI/3.0);
 	robot.setBrain(&machine);
 	robot.connectToWorld(world);
+
 
 	//boucle
 	bool continuer = true;
@@ -112,20 +111,20 @@ int main(int argc, char **argv){
 							continuer = false;
 							break;
 						case SDLK_RIGHT:
-							robot.setMotor2(ROBOT_SPEED);
+							//robot.setMotor2(ROBOT_SPEED);
 							break;
 						case SDLK_LEFT:
-							robot.setMotor1(ROBOT_SPEED);
+							//robot.setMotor1(ROBOT_SPEED);
 							break;
 					}
 					break;
 				case SDL_KEYUP:
 					switch(event.key.keysym.sym){
 						case SDLK_RIGHT:
-							robot.setMotor2(0);
+							//robot.setMotor2(0);
 							break;
 						case SDLK_LEFT:
-							robot.setMotor1(0);
+							//robot.setMotor1(0);
 							break;
 					}
 					break;
@@ -137,7 +136,6 @@ int main(int argc, char **argv){
 		world.draw(screen);
 		robot.update();
 		robot.draw(screen);
-
 		
 		drawNeuralNetwork(screen, machine);
 

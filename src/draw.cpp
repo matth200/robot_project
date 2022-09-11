@@ -2,7 +2,7 @@
 using namespace std;
 
 void setPixel(SDL_Surface *screen, int x, int y, Uint32 color){
-    if(screen->w>=x&&x>=0&&screen->h>y&&y>=0){
+    if(screen->w>x&&x>=0&&screen->h>y&&y>=0){
         *((Uint32*)(screen->pixels) + x + y * screen->w) = color;
     }
 }

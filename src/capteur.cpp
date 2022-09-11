@@ -4,11 +4,31 @@ using namespace std;
 Capteur::Capteur(double x, double y, double rotation):_x(x),_y(y),_rotation(rotation),_distance(MAX_DIST)
 {
     _real_map = NULL;
+
+    _nbr_line = NBR_LINE_DETECTION;
+    _max_dist = MAX_DIST;
+    _max_angle = MAX_ANGLE;
+    
     initDetectionLines();
 }
 
 Capteur::~Capteur()
 {
+}
+
+void Capteur::setMaxAngle(double angle){
+    _max_angle = angle;
+    initDetectionLines();
+}
+
+void Capteur::setMaxDist(int distance){
+    _max_dist = distance;
+    initDetectionLines();
+}
+
+void Capteur::setNbrLineDetection(int nbr){
+    _nbr_line = nbr;
+    initDetectionLines();
 }
 
 void Capteur::initDetectionLines()
@@ -18,10 +38,10 @@ void Capteur::initDetectionLines()
     line.x1 = _x;
     line.y1 = _y;
     _detectionLines.clear();
-    for(int i(0);i<NBR_LINE_DETECTION;i++){
-        double angle = (_rotation-MAX_ANGLE/(NBR_LINE_DETECTION-1))+MAX_ANGLE/(NBR_LINE_DETECTION-1)*i;
-        line.x2 = _x+MAX_DIST*cos(angle);
-        line.y2 = _y-MAX_DIST*sin(angle);
+    for(int i(0);i<_nbr_line;i++){
+        double angle = (_rotation-MAX_ANGLE/(_nbr_line-1))+MAX_ANGLE/(_nbr_line-1)*i;
+        line.x2 = _x+_max_dist*cos(angle);
+        line.y2 = _y-_max_dist*sin(angle);
         _detectionLines.push_back(line);
     }
 }
@@ -43,7 +63,7 @@ void Capteur::setRotation(double rotation){
     initDetectionLines();
 }
 double Capteur::getDistance(){
-    _distance = MAX_DIST;
+    _distance = _max_dist;
     for(int i(0);i<_detectionLines.size();i++){
         int distance = 0;
         vector<Element> liste_elt = _real_map->getDetection(_detectionLines[i], distance);
