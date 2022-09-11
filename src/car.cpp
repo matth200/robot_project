@@ -96,6 +96,7 @@ void Car::draw(SDL_Surface *screen){
 //Robot
 Robot::Robot():Car()
 {
+    _brain = NULL;
     update();
 }
 
@@ -104,6 +105,27 @@ void Robot::update(){
     forward();
     _capteur.setPos(_x,_y);
     _capteur.setRotation(_rotation+M_PI/2.0);
+
+    if(_brain!=NULL){
+        //on donne les infos au cerveau
+        int rotation = int(double(int(_rotation/M_PI*180)%360)/360.0*255.0);
+        cout << "rot:" << rotation << endl;
+        unsigned char data[2];
+        data[0] = (unsigned char)(rotation);
+        data[1] = (unsigned char)(_capteur.getDistance());
+        _brain->setInput((char*)data);
+
+        //on calcul
+        _brain->calcul();
+    }
+}
+
+void Robot::connectToWorld(World &world){
+    _capteur.connectToWorld(world);
+}
+
+void Robot::setBrain(MachineLearning *brain){
+    _brain = brain;
 }
 
 void Robot::draw(SDL_Surface *screen){

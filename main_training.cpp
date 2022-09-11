@@ -85,17 +85,13 @@ int main(int argc, char **argv){
 	machine.addColumn(2);
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
 
-	unsigned char data[2];
-	data[0] = 100;
-	data[1] = 50;
-	machine.setInput((char*)data);
-	machine.calcul();
-
 
 	//Robot
 	Robot robot;
 	robot.setPos(500.0,500.0);
 	robot.setRotation(M_PI/3.0);
+	robot.setBrain(&machine);
+	robot.connectToWorld(world);
 
 	//boucle
 	bool continuer = true;
