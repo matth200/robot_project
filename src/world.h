@@ -23,6 +23,15 @@ class World{
         std::vector<Line> _carte, _carte_red;
 };
 
+// class VirtualWorld{
+//     public:
+//         VirtualWorld();
+//         ~VirtualWorld();
+
+//     protected:
+//         std::vector<> *_map;
+// };
+
 
 
 

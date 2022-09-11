@@ -60,6 +60,8 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
+	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
+
 	atexit(TTF_Quit);
 	atexit(SDL_Quit);
 
@@ -151,6 +153,8 @@ int main(int argc, char **argv){
 			this_thread::sleep_for(chrono::milliseconds((unsigned int)(1000.0/FPS-duration)));
 		}
 	}
+
+	TTF_CloseFont(police);
     return 0;
 }
 
