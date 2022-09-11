@@ -109,7 +109,7 @@ void Robot::update(){
     if(_brain!=NULL){
         //on donne les infos au cerveau
         int rotation = int(double(int(_rotation/M_PI*180)%360)/360.0*255.0);
-        cout << "rot:" << rotation << endl;
+        //cout << "rot:" << rotation << endl;
         unsigned char data[2];
         data[0] = (unsigned char)(rotation);
         data[1] = (unsigned char)(int(double(_capteur.getDistance())/double(MAX_DIST)*255.0));

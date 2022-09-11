@@ -47,8 +47,9 @@ double Capteur::getDistance(){
     for(int i(0);i<_detectionLines.size();i++){
         int distance = 0;
         vector<Element> liste_elt = _real_map->getDetection(_detectionLines[i], distance);
-        if(liste_elt.size()>0){
-            if(distance<_distance){
+        for(int j(0);j<liste_elt.size();j++){
+            //detection des murs blancs
+            if(liste_elt[j].state==WORLD_WHITE&&distance<_distance){
                 _distance = distance;
             }
         }
