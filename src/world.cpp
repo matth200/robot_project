@@ -1,8 +1,8 @@
 #include "world.h"
 using namespace std;
 
-World::World(){
-    real_map.setSize(1500,1000);
+World::World(int w, int h){
+    real_map.setSize(w,h);
 }
 
 World::~World(){
@@ -19,9 +19,8 @@ void World::draw(SDL_Surface *screen){
         for(int i(0);i<_carte_red.size();i++){
             drawLine(screen, _carte_red[i], COLOR_RED);
         }
-        //même chose mais rouge
+        //même chose mais vert
         for(int i(0);i<_carte_green.size();i++){
-            //cout << "affichage _carte_green x1:" << _carte_green[i].x1 << ", y1" << _carte_green[i].y1 << endl; 
             drawLine(screen, _carte_green[i], COLOR_GREEN);
         }
 }
@@ -60,10 +59,26 @@ VirtualWorld* World::getRealWorld()
     return &real_map;
 }
 
+void World::buildVirtualWorld(){
+    //lignes blanches
+    for(int i(0);i<_carte.size();i++){
+        real_map.addLine(_carte[i], WORLD_WHITE);
+    }
+
+    //même chose mais rouge
+    for(int i(0);i<_carte_red.size();i++){
+        real_map.addLine(_carte_red[i], WORLD_RED);
+    }
+    //même chose mais vert
+    for(int i(0);i<_carte_green.size();i++){
+        real_map.addLine(_carte_green[i], WORLD_GREEN);
+    }
+}
+
 
 //virtualworldd
 VirtualWorld::VirtualWorld(){
-    _map = new vector<vector<Element>>();
+    _map = new vector<vector<vector<Element>>>();
 }
 
 VirtualWorld::~VirtualWorld(){
@@ -71,19 +86,37 @@ VirtualWorld::~VirtualWorld(){
     _map = NULL;
 }
 
+void VirtualWorld::addLine(Line &line, int status){
+    Element elt;
+    elt.p_line = &line;
+    elt.state = status;
+
+    int deltaX = line.x2-line.x1;
+    int deltaY = line.y2-line.y1;
+    int h = (int)sqrt(deltaX*deltaX + deltaY*deltaY) + 1;
+    if(h!=0){
+        double rapportX = (double(deltaX)/h),
+               rapportY = (double(deltaY)/h);
+        for(int i(0);i<h;i++){
+            int x = int(line.x1+rapportX*i),
+                y =  int(line.y1+rapportY*i);
+
+            (*_map)[y][x].push_back(elt);
+        }
+    }
+}
+
 void VirtualWorld::setSize(int w, int h){
-    vector<Element> liste;
+    _map->clear();
+    vector<vector<Element>> liste;
     for(int j(0);j<h;j++){
         for(int i(0);i<w;i++)
         {
-            Element elt;
-            elt.state = 0;
-            elt.p_line = NULL;
-            liste.push_back(elt);
+            vector<Element> liste_elt;
+            liste.push_back(liste_elt);
         }
         _map->push_back(liste); 
         liste.clear();
     }
-    //cout << (*_map)[0].size() << endl;
 }
 

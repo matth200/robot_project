@@ -74,7 +74,7 @@ int main(int argc, char **argv){
 	SDL_WM_SetCaption("NETWORK TRAINING", NULL);
 
 
-	World world;
+	World world(SCREEN_WIDTH,SCREEN_HEIGHT);
 	if(!world.loadMap("../resources/map/map.level")){
 		cout << "Erreur de chargement de la map" << endl;
 	}
