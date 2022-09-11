@@ -25,6 +25,10 @@ void Car::setRotation(double rotation){
     _line.y2 = (_y-_rayon*sin(_rotation));
 }
 
+double Car::getRotation(){
+    return _rotation;
+}
+
 void Car::setMotor1(double speed){
     _motor1 = speed;
 }
@@ -86,4 +90,23 @@ void Car::draw(SDL_Surface *screen){
     drawCircle(screen, (int)(_x), (int)(_y), _rayon, COLOR_CAR);
     //Line
     drawLine(screen, _line, COLOR_CAR);
+}
+
+
+//Robot
+Robot::Robot():Car()
+{
+    update();
+}
+
+
+void Robot::update(){
+    forward();
+    _capteur.setPos(_x,_y);
+    _capteur.setRotation(_rotation+M_PI/2.0);
+}
+
+void Robot::draw(SDL_Surface *screen){
+    Car::draw(screen);
+    _capteur.draw(screen);
 }

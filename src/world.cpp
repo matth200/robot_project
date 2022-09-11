@@ -2,7 +2,7 @@
 using namespace std;
 
 World::World(){
-
+    real_map.setSize(1500,1000);
 }
 
 World::~World(){
@@ -54,3 +54,36 @@ bool World::loadMap(const char* filename){
     }
     return true;
 }
+
+VirtualWorld* World::getRealWorld()
+{
+    return &real_map;
+}
+
+
+//virtualworldd
+VirtualWorld::VirtualWorld(){
+    _map = new vector<vector<Element>>();
+}
+
+VirtualWorld::~VirtualWorld(){
+    delete _map;
+    _map = NULL;
+}
+
+void VirtualWorld::setSize(int w, int h){
+    vector<Element> liste;
+    for(int j(0);j<h;j++){
+        for(int i(0);i<w;i++)
+        {
+            Element elt;
+            elt.state = 0;
+            elt.p_line = NULL;
+            liste.push_back(elt);
+        }
+        _map->push_back(liste); 
+        liste.clear();
+    }
+    //cout << (*_map)[0].size() << endl;
+}
+

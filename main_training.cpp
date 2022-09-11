@@ -93,7 +93,7 @@ int main(int argc, char **argv){
 
 
 	//Robot
-	Car robot;
+	Robot robot;
 	robot.setPos(500.0,500.0);
 	robot.setRotation(M_PI/3.0);
 
@@ -138,7 +138,7 @@ int main(int argc, char **argv){
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
 
 		world.draw(screen);
-		robot.forward();
+		robot.update();
 		robot.draw(screen);
 
 		
