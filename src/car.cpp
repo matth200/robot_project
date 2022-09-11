@@ -112,7 +112,7 @@ void Robot::update(){
         cout << "rot:" << rotation << endl;
         unsigned char data[2];
         data[0] = (unsigned char)(rotation);
-        data[1] = (unsigned char)(_capteur.getDistance());
+        data[1] = (unsigned char)(int(double(_capteur.getDistance())/double(MAX_DIST)*255.0));
         _brain->setInput((char*)data);
 
         //on calcul

@@ -78,6 +78,7 @@ int main(int argc, char **argv){
 	if(!world.loadMap("../resources/map/map.level")){
 		cout << "Erreur de chargement de la map" << endl;
 	}
+	world.buildVirtualWorld();
 
 	//Machine learning
 	MachineLearning machine(2);

@@ -8,6 +8,7 @@
 //caractéristique d'un capteur ultrason
 #define MAX_DIST 400
 #define MAX_ANGLE 15.0/180.0*M_PI
+#define NBR_LINE_DETECTION 3
 
 class Capteur{
     public:
@@ -16,6 +17,7 @@ class Capteur{
         void setRotation(double rotation);
         void setPos(double x, double y);
         double getDistance();
+        void initDetectionLines();
         void draw(SDL_Surface *screen);
         void connectToWorld(World &world);
     protected:
@@ -23,6 +25,7 @@ class Capteur{
         double _x,_y;
         double _rotation;
         VirtualWorld *_real_map;
+        std::vector<Line> _detectionLines;
 };
 
 #endif

@@ -29,6 +29,7 @@ class VirtualWorld{
         ~VirtualWorld();
         void setSize(int w, int h);
         void addLine(Line &line, int state);
+        std::vector<Element> getDetection(Line &line, int &distance);
     protected:
         std::vector<std::vector<std::vector<Element>>> *_map;
 };
