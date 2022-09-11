@@ -43,7 +43,6 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 #define FPS 40.0
 
-bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2);
 void drawNeuralNetwork(SDL_Surface *screen, MachineLearning &m);
 
 int main(int argc, char **argv){
@@ -59,6 +58,8 @@ int main(int argc, char **argv){
 		cout << "Erreur de lancement de sdl_ttf: " << TTF_GetError() << endl;
 		return 1;
 	}
+
+	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
 
 	atexit(TTF_Quit);
 	atexit(SDL_Quit);
@@ -92,7 +93,7 @@ int main(int argc, char **argv){
 
 
 	//Robot
-	Car robot;
+	Robot robot;
 	robot.setPos(500.0,500.0);
 	robot.setRotation(M_PI/3.0);
 
@@ -137,7 +138,7 @@ int main(int argc, char **argv){
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
 
 		world.draw(screen);
-		robot.forward();
+		robot.update();
 		robot.draw(screen);
 
 		
@@ -151,6 +152,8 @@ int main(int argc, char **argv){
 			this_thread::sleep_for(chrono::milliseconds((unsigned int)(1000.0/FPS-duration)));
 		}
 	}
+
+	TTF_CloseFont(police);
     return 0;
 }
 
@@ -181,35 +184,4 @@ void drawNeuralNetwork(SDL_Surface *screen, MachineLearning &m)
 			}
 		}
 	}
-}
-
-bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2){
-    ofstream file(filename, ios::binary);
-    if(!file.is_open()){
-        return true;
-    }
-
-    int cursor = 0;
-    int size = liste1.size();
-    file.write((const char*)(&size), sizeof(size));
-    cursor+=sizeof(size);
-
-    for(int i(0);i<liste1.size();i++){
-        Line line(liste1[i]);
-        file.write((const char*)(&line), sizeof(line));
-        cursor+=sizeof(line);
-    }
-
-    size = liste2.size();
-    file.write((const char*)(&size), sizeof(size));
-    cursor+=sizeof(size);
-
-    for(int i(0);i<liste2.size();i++){
-        Line line(liste2[i]);
-        file.write((const char*)(&line), sizeof(line));
-        cursor+=sizeof(line);
-    }
-
-
-    return false;
 }

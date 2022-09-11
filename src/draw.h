@@ -8,6 +8,7 @@
 #define COLOR_RED SDL_MapRGB(screen->format, 245,10,10)
 #define COLOR_WHITE SDL_MapRGB(screen->format, 255,255,255)
 #define COLOR_BLACK SDL_MapRGB(screen->format, 0,0,0)
+#define COLOR_GREEN SDL_MapRGB(screen->format, 10,220,10)
 
 struct Line{
     int x1,y1;

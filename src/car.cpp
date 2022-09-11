@@ -19,10 +19,14 @@ void Car::setPos(double x, double y){
 void Car::setRotation(double rotation){
     _rotation = rotation;
     //on place le baton
-    _line.x1 = (int)(_x+_rayon*cos(M_PI+_rotation));
-    _line.y1 = (int)(_y-_rayon*sin(M_PI+_rotation));
-    _line.x2 = (int)(_x+_rayon*cos(_rotation));
-    _line.y2 = (int)(_y-_rayon*sin(_rotation));
+    _line.x1 =(_x+_rayon*cos(M_PI+_rotation));
+    _line.y1 = (_y-_rayon*sin(M_PI+_rotation));
+    _line.x2 = (_x+_rayon*cos(_rotation));
+    _line.y2 = (_y-_rayon*sin(_rotation));
+}
+
+double Car::getRotation(){
+    return _rotation;
 }
 
 void Car::setMotor1(double speed){
@@ -58,14 +62,11 @@ double Car::getRotation(double x1, double y1, double x2, double y2){
 
 void Car::forward(){
     _angle_d = _rotation;
-    _angle_g = _rotation;
-
     //on tourne autour de la roue gaguche
     if(_motor2!=0){
         _angle_d+=_motor2/40.0;
         _line.x2 = _line.x1+2.0*_rayon*cos(_angle_d);
         _line.y2 = _line.y1-2.0*_rayon*sin(_angle_d);
-        cout << _line.x2 << "," << _line.y2 << endl;
     }
     _angle_g = _angle_d;
 
@@ -76,7 +77,6 @@ void Car::forward(){
     }
     
     //on enregistre la position et la rotation
-
     calcCenter(_line.x1,_line.y1,_line.x2,_line.y2,_x,_y);
     _rotation = getRotation(_line.x1,_line.y1,_line.x2,_line.y2);
 }
@@ -90,4 +90,23 @@ void Car::draw(SDL_Surface *screen){
     drawCircle(screen, (int)(_x), (int)(_y), _rayon, COLOR_CAR);
     //Line
     drawLine(screen, _line, COLOR_CAR);
+}
+
+
+//Robot
+Robot::Robot():Car()
+{
+    update();
+}
+
+
+void Robot::update(){
+    forward();
+    _capteur.setPos(_x,_y);
+    _capteur.setRotation(_rotation+M_PI/2.0);
+}
+
+void Robot::draw(SDL_Surface *screen){
+    Car::draw(screen);
+    _capteur.draw(screen);
 }
