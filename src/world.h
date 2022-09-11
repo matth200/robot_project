@@ -20,7 +20,7 @@ class World{
         void draw(SDL_Surface *screen);
         bool loadMap(const char* filename);
     protected:
-        std::vector<Line> _carte, _carte_red;
+        std::vector<Line> _carte, _carte_red, _carte_green;
 };
 
 // class VirtualWorld{
@@ -31,8 +31,6 @@ class World{
 //     protected:
 //         std::vector<> *_map;
 // };
-
-
 
 
 
