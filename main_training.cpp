@@ -99,6 +99,8 @@ int main(int argc, char **argv){
 	machine.addColumn(10);
 	machine.addColumn(2);
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
+
+	//machine.saveTraining("../resources/trained_model/brain.ml");
 	
 	//Robot
 	Robot robot;
@@ -152,7 +154,7 @@ int main(int argc, char **argv){
 		//affichage
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
 
-
+		//affichage de l'environement
 		display.draw(screen);
 		world.draw(screen);
 		robot.update();
@@ -161,6 +163,7 @@ int main(int argc, char **argv){
 		}
 		robot.draw(screen);
 
+		//on affiche
 		SDL_Flip(screen);
 		//management time
 		end_point = chrono::high_resolution_clock::now();

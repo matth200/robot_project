@@ -22,7 +22,7 @@ void Display::setNeuralNetwork(MachineLearning *machine){
 void Display::draw(SDL_Surface *screen){
 	//barre qui sépare le score du jeu
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
-	drawNeuralNetwork(screen, *_machine, _x+40, 50);
+	drawNeuralNetwork(screen, *_machine, _x+60, 100);
 }
 
 
