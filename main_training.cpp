@@ -42,10 +42,10 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FPS 40.0
 
 //parametre GENETIC_ALGORITHM
-#define NBR_POPULATION 500
+#define NBR_POPULATION 200
 #define FRQ_MUTATION 0.08
-#define NBR_SELECTION 250
-#define NBR_RANDOM 100
+#define NBR_SELECTION 100
+#define NBR_RANDOM 50
 #define TIMEOUT 20000
 
 //parametre machine learning
@@ -307,7 +307,7 @@ int main(int argc, char **argv){
 			}
 			cout << "ajout aux hasards okayy" << endl;
 
-			cout << "nombree" << listeBrains.size() << endl;
+			//cout << "nombree" << listeBrains.size() << endl;
 
 			generation++;
 
@@ -333,7 +333,7 @@ int main(int argc, char **argv){
 }
 
 void robotInit(Robot &robot){
-	robot.setPos(1350.0,150.0);
+	robot.setPos(1350.0,150.0+rand()%700);
 	robot.setRotation(M_PI/3.0);
 	robot.clearTick();
 }
