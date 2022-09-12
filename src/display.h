@@ -16,12 +16,13 @@ class Display{
         ~Display();
         void setNeuralNetwork(MachineLearning *machine);
         void setFont(TTF_Font *police);
+        void setBigFont(TTF_Font *police);
         void draw(SDL_Surface *screen);
         void setRobot(Robot *robot);
     protected:
         MachineLearning *_machine;
         int _width, _height, _x, _y;
-        TTF_Font *_police;
+        TTF_Font *_police, *_big_police;
         SDL_Rect _pos;
         Robot *_robot;
         SDL_Surface *_texte_surface;

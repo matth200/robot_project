@@ -7,6 +7,7 @@ Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),
     _police = NULL;
     _texte_surface = NULL;
     _robot = NULL;
+    _big_police = NULL;
 }
 
 Display::~Display(){
@@ -21,6 +22,10 @@ void Display::setNeuralNetwork(MachineLearning *machine){
     _machine = machine;
 }
 
+void Display::setBigFont(TTF_Font *police){
+    _big_police = police;
+}
+
 void Display::draw(SDL_Surface *screen){
 	//barre qui sépare le score du jeu
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
@@ -31,9 +36,9 @@ void Display::draw(SDL_Surface *screen){
             SDL_FreeSurface(_texte_surface);
         }
         if(!_robot->getWin()){
-            _texte_surface = TTF_RenderText_Solid(_police, "DEAD", SDL_Color({255,255,255}));
+            _texte_surface = TTF_RenderText_Solid(_big_police, "DEAD", SDL_Color({255,255,255}));
         }else{
-            _texte_surface = TTF_RenderText_Solid(_police, "WIN", SDL_Color({255,255,255}));
+            _texte_surface = TTF_RenderText_Solid(_big_police, "WIN", SDL_Color({255,255,255}));
         }
         _pos.x = 550;
         _pos.y = 400;

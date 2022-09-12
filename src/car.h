@@ -3,12 +3,34 @@
 
 #include <SDL/SDL.h>
 #include <iostream>
+#include <cmath>
+
 #include "draw.h"
 #include "capteur.h"
 #include "m_learning.h"
 
 #define COLOR_CAR SDL_MapRGB(screen->format, 200,10,100)
 #define ROBOT_SPEED 5
+
+struct Pos{
+    int x, y;
+};
+
+class Trajectoire{
+    public:
+        Trajectoire();
+        ~Trajectoire();
+        double getDistanceDone();
+        void setOrigin(int x, int y);
+        void addPoint(int x, int y);
+        void clearTrajectoire();
+        void draw(SDL_Surface *screen);
+    private:
+        double distance(Pos pos1, Pos pos2);
+    protected:
+        std::vector<Pos> _liste;
+        double _sum;
+};
 
 
 class Car{
@@ -32,6 +54,7 @@ class Car{
         double _rayon;
         double _motor1, _motor2;
         LineD _line;
+        Trajectoire _trajectoire;
 };
 
 class Robot: public Car{

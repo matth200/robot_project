@@ -1,6 +1,83 @@
 #include "car.h"
 using namespace std;
 
+
+
+//Trajectoire
+Trajectoire::Trajectoire(){
+    _sum = 0.0;
+}
+Trajectoire::~Trajectoire(){
+
+}
+
+double Trajectoire::getDistanceDone(){
+    // double sum = 0.0;
+    // for(int i(0);i<_liste.size()-1;i++){
+    //     Pos pos1, pos2;
+    //     pos1.x = _liste[i].x;
+    //     pos1.y = _liste[i].y;
+
+    //     pos2.x = _liste[i+1].x;
+    //     pos2.y = _liste[i+1].y;
+
+    //     sum+= distance(pos1,pos2);
+    // }
+
+    //elle est calculé au fûr est à mesure qu'on ajoute des points
+    //plus efficace
+    //on enleve les calculs inutiles
+    return _sum;
+}
+void Trajectoire::setOrigin(int x, int y){
+    clearTrajectoire();
+
+    Pos pos;
+    pos.x = x;
+    pos.y = y;
+    _liste.push_back(pos);
+}
+void Trajectoire::addPoint(int x, int y){
+    Pos pos;
+    pos.x = x;
+    pos.y = y;
+    _liste.push_back(pos);
+
+    //si _liste>=2 alors on peut ajouter les distances
+    if(_liste.size()>1){
+        Pos pos1, pos2;
+        pos1.x = _liste[_liste.size()-2].x;
+        pos1.y = _liste[_liste.size()-2].y;
+
+        pos2.x = _liste[_liste.size()-1].x;
+        pos2.y = _liste[_liste.size()-1].y;
+        _sum+=distance(pos1,pos2);
+    }
+}
+void Trajectoire::clearTrajectoire(){
+    _liste.clear();
+    _sum = 0;
+}
+void Trajectoire::draw(SDL_Surface *screen){
+    int size = _liste.size()-1;
+    for(int i(0);i<size;i++){
+        Line line;
+        line.x1 = _liste[i].x;
+        line.y1 = _liste[i].y;
+
+        line.x2 = _liste[i+1].x;
+        line.y2 = _liste[i+1].y;
+        drawLine(screen, line, COLOR_RED);
+    }
+
+}
+double Trajectoire::distance(Pos pos1, Pos pos2){
+    int x1 = pos1.x, y1 = pos1.y;
+    int x2 = pos2.x, y2 = pos2.y;
+    return sqrt(pow(x2-x1,2)+pow(y2-y1,2));
+}
+
+//CAR
 Car::Car():_x(0),_y(0),_rotation(0),_motor1(0),_motor2(0),_rayon(20),_angle_d(0),_angle_g(0){
     setRotation(0);
 }
@@ -90,6 +167,7 @@ void Car::draw(SDL_Surface *screen){
     drawCircle(screen, (int)(_x), (int)(_y), _rayon, COLOR_CAR);
     //Line
     drawLine(screen, _line, COLOR_CAR);
+    _trajectoire.draw(screen);
 }
 
 
@@ -178,7 +256,12 @@ void Robot::update(){
         }else{
             setMotor1(0);
             setMotor2(0);
+            cout << _trajectoire.getDistanceDone() << endl;
         }
+    }
+
+    if(_tick%5==1){
+        _trajectoire.addPoint(_x,_y);
     }
 
     //on augmente le tick
@@ -196,5 +279,6 @@ void Robot::setBrain(MachineLearning *brain){
 void Robot::draw(SDL_Surface *screen){
     Car::draw(screen);
     _capteur.draw(screen);
+    //_trajectoire.draw(screen);
     //_capteur_ext.draw(screen);
 }

@@ -39,7 +39,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define OUTSCREEN_W 400
 #define MAX_TIME_ESC 500
 
-#define TIMEOUT 10000
+#define TIMEOUT 20000
 
 #define RANDOM_VALUE_W 100
 #define RANDOM_VALUE_B 100
@@ -75,7 +75,8 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
+	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",24);
+	TTF_Font *bigFont = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
 
 	atexit(TTF_Quit);
 	atexit(SDL_Quit);
@@ -87,13 +88,14 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	SDL_WM_SetCaption("NETWORK TRAINING", NULL);
+	SDL_WM_SetCaption("NEURAL NETWORK TRAINING", NULL);
 
 
 	World world(SCREEN_WIDTH,SCREEN_HEIGHT);
 	if(!world.loadMap("../resources/map/map.level")){
 		cout << "Erreur de chargement de la map" << endl;
 	}
+	//monde virtuel pour la détection
 	world.buildVirtualWorld();
 
 	//Machine learning
@@ -102,11 +104,11 @@ int main(int argc, char **argv){
 	machine.addColumn(2);
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
 
-	machine.saveTraining("../resources/trained_model/brain.ml");
+	//machine.saveTraining("../resources/trained_model/brain.ml");
 	
 	//Robot
 	Robot robot;
-	robot.setPos(500.0,500.0);
+	robot.setPos(1350.0,150.0);
 	robot.setRotation(M_PI/3.0);
 	robot.setBrain(&machine);
 	robot.connectToWorld(world);
@@ -115,6 +117,7 @@ int main(int argc, char **argv){
 	Display display(SCREEN_WIDTH, 0, OUTSCREEN_W, SCREEN_HEIGHT);
 	display.setNeuralNetwork(&machine);
 	display.setFont(police);
+	display.setBigFont(bigFont);
 	display.setRobot(&robot);
 
 
@@ -177,7 +180,7 @@ int main(int argc, char **argv){
 
 		//si il est mort, on gére la sélection
 		if(!robot.isAlive()){
-
+			
 		}
 
 		//on affiche
@@ -191,6 +194,7 @@ int main(int argc, char **argv){
 	}
 
 	TTF_CloseFont(police);
+	TTF_CloseFont(bigFont);
     return 0;
 }
 
