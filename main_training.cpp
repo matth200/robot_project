@@ -41,8 +41,8 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 #define TIMEOUT 20000
 
-#define RANDOM_VALUE_W 100
-#define RANDOM_VALUE_B 100
+#define RANDOM_VALUE_W 10
+#define RANDOM_VALUE_B 10
 
 #define FPS 40.0
 
@@ -99,9 +99,10 @@ int main(int argc, char **argv){
 	world.buildVirtualWorld();
 
 	//Machine learning
-	MachineLearning machine(2);
+	MachineLearning machine(4);
 	machine.addColumn(10);
-	machine.addColumn(2);
+	machine.addColumn(10);
+	machine.addColumn(4);
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
 
 	//machine.saveTraining("../resources/trained_model/brain.ml");

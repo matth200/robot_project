@@ -180,6 +180,9 @@ Robot::Robot():Car()
     _capteur_ext.setNbrLineDetection(6);
     _capteur_ext.setMaxDist(30);
 
+    _memoire = 0;
+    _memoire = 0;
+
     clearTick();
 
     update();
@@ -244,10 +247,15 @@ void Robot::update(){
         unsigned char data[2];
         data[0] = (unsigned char)(rotation);
         data[1] = (unsigned char)(int(double(_capteur.getDistance())/double(MAX_DIST)*255.0));
+        data[2] = _memoire;
+        data[3] = _memoire2;
         _brain->setInput((char*)data);
 
         //on calcul
         _brain->calcul();
+
+        _memoire = int(_brain->getOutput(2)*255.0);
+        _memoire2 = int(_brain->getOutput(3)*255.0);
 
         //on connecte les moteurs
         if(_alive){

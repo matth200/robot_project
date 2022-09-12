@@ -75,6 +75,7 @@ class Robot: public Car{
         MachineLearning *_brain;
         bool _alive, _win;
         unsigned int _tick;
+        unsigned char _memoire, _memoire2;
 };
 
 #endif
