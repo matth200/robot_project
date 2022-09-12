@@ -115,6 +115,7 @@ int main(int argc, char **argv){
 	Display display(SCREEN_WIDTH, 0, OUTSCREEN_W, SCREEN_HEIGHT);
 	display.setNeuralNetwork(&machine);
 	display.setFont(police);
+	display.setRobot(&robot);
 
 
 	//boucle
@@ -160,15 +161,14 @@ int main(int argc, char **argv){
 		//affichage de l'environement
 		robot.update();
 		
-		//si mort on arrete
+		//si trop long, on arrete
 		if(robot.getDuration()>TIMEOUT){
 			robot.setAlive(false);
 		}
-		display.setDead(!robot.isAlive());
-		// if(!robot.isAlive()){
-		// 	//continuer = false;
-		// }
 
+		if(robot.getWin()){
+			machine.saveTraining("../resources/trained_model/brain.ml");
+		}
 
 		world.draw(screen);
 		robot.draw(screen);

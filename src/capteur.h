@@ -14,6 +14,7 @@ class Capteur{
     public:
         Capteur();
         ~Capteur();
+        void setDetection(int state);
         void setMaxDist(int distance);
         void setMaxAngle(double angle);
         void setNbrLineDetection(int nbr);
@@ -32,6 +33,7 @@ class Capteur{
         std::vector<Line> _detectionLines;
         double _max_angle;
         int _max_dist, _nbr_line;
+        int _detection_state;
 };
 
 #endif

@@ -43,13 +43,14 @@ class Robot: public Car{
         bool isAlive();
         void update();
         void clearTick();
-        double getDuration();
+        unsigned int getDuration();
         void setAlive(bool state);
+        bool getWin();
     protected:
         Capteur _capteur_ext;
         Capteur _capteur;
         MachineLearning *_brain;
-        bool _alive;
+        bool _alive, _win;
         unsigned int _tick;
 };
 

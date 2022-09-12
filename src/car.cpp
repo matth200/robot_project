@@ -97,15 +97,18 @@ void Car::draw(SDL_Surface *screen){
 Robot::Robot():Car()
 {
     _brain = NULL;
-    _alive = true;
 
     _capteur_ext.setMaxAngle(M_PI*2.0);
     _capteur_ext.setNbrLineDetection(6);
     _capteur_ext.setMaxDist(30);
 
-    _tick = 0;
+    clearTick();
 
     update();
+}
+
+bool Robot::getWin(){
+    return _win;
 }
 
 bool Robot::isAlive(){
@@ -114,10 +117,12 @@ bool Robot::isAlive(){
 
 void Robot::clearTick(){
     _tick = 0;
+    _alive = true;
+    _win = false;
 }
 
-double Robot::getDuration(){
-    return double(_tick)/40.0*1000.0;
+unsigned int Robot::getDuration(){
+    return (unsigned int)(double(_tick)/40.0*1000);
 }
 
 void Robot::setAlive(bool state){
@@ -132,10 +137,27 @@ void Robot::update(){
     _capteur_ext.setPos(_x,_y);
     _capteur_ext.setRotation(_rotation+M_PI/2.0);
 
+
+    //Les lignes rouges et blanches tuent le robot
+    //on detecte les lignes blanches
+    _capteur_ext.setDetection(WORLD_WHITE);
     if(_capteur_ext.getDistance()<30){
         _alive = false;
-        //cout << "mort" << endl;
     }
+    //on detecte les lignes rouges
+    _capteur_ext.setDetection(WORLD_RED);
+    if(_capteur_ext.getDistance()<30){
+        _alive = false;
+    }
+
+    //Alors que les lignes vertes lui permettent de remporter la victoire
+    //on detecte les lignes vertes
+    _capteur_ext.setDetection(WORLD_GREEN);
+    if(_capteur_ext.getDistance()<30){
+        _alive = false;
+        _win = true;
+    }
+
 
     if(_brain!=NULL){
         //on donne les infos au cerveau

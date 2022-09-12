@@ -8,12 +8,18 @@ Capteur::Capteur():_x(0),_y(0),_rotation(0),_distance(MAX_DIST)
     _nbr_line = NBR_LINE_DETECTION;
     _max_dist = MAX_DIST;
     _max_angle = MAX_ANGLE;
+
+    _detection_state = WORLD_WHITE;
     
     initDetectionLines();
 }
 
 Capteur::~Capteur()
 {
+}
+
+void Capteur::setDetection(int state){
+    _detection_state = state;
 }
 
 void Capteur::setMaxAngle(double angle){
@@ -69,7 +75,7 @@ double Capteur::getDistance(){
         vector<Element> liste_elt = _real_map->getDetection(_detectionLines[i], distance);
         for(int j(0);j<liste_elt.size();j++){
             //detection des murs blancs
-            if(liste_elt[j].state==WORLD_WHITE&&distance<_distance){
+            if(liste_elt[j].state==_detection_state&&distance<_distance){
                 _distance = distance;
             }
         }

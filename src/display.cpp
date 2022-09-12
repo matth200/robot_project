@@ -5,8 +5,8 @@ using namespace std;
 Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),_height(height){
     _machine = NULL;
     _police = NULL;
-    _dead = false;
     _texte_surface = NULL;
+    _robot = NULL;
 }
 
 Display::~Display(){
@@ -26,20 +26,23 @@ void Display::draw(SDL_Surface *screen){
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
 	drawNeuralNetwork(screen, *_machine, _x+60, 100);
 
-    if(_dead){
+    if(!_robot->isAlive()){
         if(_texte_surface!=NULL){
             SDL_FreeSurface(_texte_surface);
         }
-        _texte_surface = TTF_RenderText_Solid(_police, "DEAD", SDL_Color({255,255,255}));
+        if(!_robot->getWin()){
+            _texte_surface = TTF_RenderText_Solid(_police, "DEAD", SDL_Color({255,255,255}));
+        }else{
+            _texte_surface = TTF_RenderText_Solid(_police, "WIN", SDL_Color({255,255,255}));
+        }
         _pos.x = 550;
         _pos.y = 400;
         SDL_BlitSurface(_texte_surface, NULL, screen, &_pos);
     }
 
 }
-
-void Display::setDead(bool state){
-    _dead = state;
+void Display::setRobot(Robot *robot){
+    _robot = robot;
 }
 
 void drawNeuralNetwork(SDL_Surface *screen, MachineLearning &m, int x, int y)
