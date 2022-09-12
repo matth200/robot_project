@@ -42,9 +42,9 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FPS 40.0
 
 //parametre GENETIC_ALGORITHM
-#define NBR_POPULATION 10
+#define NBR_POPULATION 100
 #define FRQ_MUTATION 0.08
-#define NBR_SELECTION 6
+#define NBR_SELECTION 50
 #define TIMEOUT 20000
 
 //parametre machine learning
@@ -289,6 +289,9 @@ int main(int argc, char **argv){
 			robotInit(robot);
 			player = &(listeBrains[0]);
 			robot.setBrain(&(player->m));
+			if(player->score>10000){
+				player->m.saveTraining("../resources/trained_model/brain.ml");
+			}
 		}
 		//management time
 		end_point = chrono::high_resolution_clock::now();
