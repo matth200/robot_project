@@ -42,10 +42,10 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FPS 40.0
 
 //parametre GENETIC_ALGORITHM
-#define NBR_POPULATION 100
+#define NBR_POPULATION 500
 #define FRQ_MUTATION 0.08
-#define NBR_SELECTION 50
-#define NBR_RANDOM 10
+#define NBR_SELECTION 250
+#define NBR_RANDOM 100
 #define TIMEOUT 20000
 
 //parametre machine learning
@@ -249,17 +249,9 @@ int main(int argc, char **argv){
 
 			//on mets le premier sans aucun changement
 			listeBrains.push_back(listeBrainsTmp[0]);
-			//on en ajoute aux hasards
-			for(int i(0);i<NBR_RANDOM;i++){
-				VarSelection selection(listeBrains[0]);
-				selection.m.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
-				selection.score = 0;
-				selection.best = 0;
-				listeBrains.push_back(selection);
-			}
 
 			//puis on complete avec des petits babyyys
-			while(listeBrains.size()<NBR_SELECTION)
+			while(listeBrains.size()<NBR_POPULATION-NBR_RANDOM)
 			{
 				//init parent
 				int b = 0, a = 0;
@@ -304,6 +296,18 @@ int main(int argc, char **argv){
 			}
 
 			cout << "mutation okay " << endl;
+
+			//on en ajoute aux hasards
+			for(int i(0);i<NBR_RANDOM;i++){
+				VarSelection selection(listeBrains[0]);
+				selection.m.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
+				selection.score = 0;
+				selection.best = 0;
+				listeBrains.push_back(selection);
+			}
+			cout << "ajout aux hasards okayy" << endl;
+
+			cout << "nombree" << listeBrains.size() << endl;
 
 			generation++;
 
