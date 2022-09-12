@@ -103,6 +103,8 @@ Robot::Robot():Car()
     _capteur_ext.setNbrLineDetection(6);
     _capteur_ext.setMaxDist(30);
 
+    _tick = 0;
+
     update();
 }
 
@@ -110,6 +112,17 @@ bool Robot::isAlive(){
     return _alive;
 }
 
+void Robot::clearTick(){
+    _tick = 0;
+}
+
+double Robot::getDuration(){
+    return double(_tick)/40.0*1000.0;
+}
+
+void Robot::setAlive(bool state){
+    _alive = state;
+}
 
 void Robot::update(){
     forward();
@@ -121,7 +134,7 @@ void Robot::update(){
 
     if(_capteur_ext.getDistance()<30){
         _alive = false;
-        cout << "mort" << endl;
+        //cout << "mort" << endl;
     }
 
     if(_brain!=NULL){
@@ -145,6 +158,9 @@ void Robot::update(){
             setMotor2(0);
         }
     }
+
+    //on augmente le tick
+    _tick++;
 }
 void Robot::connectToWorld(World &world){
     _capteur.connectToWorld(world);

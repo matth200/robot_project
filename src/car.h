@@ -42,11 +42,15 @@ class Robot: public Car{
         void setBrain(MachineLearning *brain);
         bool isAlive();
         void update();
+        void clearTick();
+        double getDuration();
+        void setAlive(bool state);
     protected:
         Capteur _capteur_ext;
         Capteur _capteur;
         MachineLearning *_brain;
         bool _alive;
+        unsigned int _tick;
 };
 
 #endif

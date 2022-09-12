@@ -39,6 +39,8 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define OUTSCREEN_W 400
 #define MAX_TIME_ESC 500
 
+#define TIMEOUT 10000
+
 #define RANDOM_VALUE_W 100
 #define RANDOM_VALUE_B 100
 
@@ -73,7 +75,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
+	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
 
 	atexit(TTF_Quit);
 	atexit(SDL_Quit);
@@ -112,6 +114,7 @@ int main(int argc, char **argv){
 	//Display information
 	Display display(SCREEN_WIDTH, 0, OUTSCREEN_W, SCREEN_HEIGHT);
 	display.setNeuralNetwork(&machine);
+	display.setFont(police);
 
 
 	//boucle
@@ -155,13 +158,21 @@ int main(int argc, char **argv){
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
 
 		//affichage de l'environement
-		display.draw(screen);
-		world.draw(screen);
 		robot.update();
-		if(!robot.isAlive()){
-			continuer = false;
+		
+		//si mort on arrete
+		if(robot.getDuration()>TIMEOUT){
+			robot.setAlive(false);
 		}
+		display.setDead(!robot.isAlive());
+		// if(!robot.isAlive()){
+		// 	//continuer = false;
+		// }
+
+
+		world.draw(screen);
 		robot.draw(screen);
+		display.draw(screen);
 
 		//on affiche
 		SDL_Flip(screen);
