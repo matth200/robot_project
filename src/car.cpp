@@ -158,5 +158,5 @@ void Robot::setBrain(MachineLearning *brain){
 void Robot::draw(SDL_Surface *screen){
     Car::draw(screen);
     _capteur.draw(screen);
-    _capteur_ext.draw(screen);
+    //_capteur_ext.draw(screen);
 }
