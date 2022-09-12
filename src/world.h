@@ -18,6 +18,9 @@ struct Element{
     Line *p_line;
     int state;
 };
+struct Pos{
+    int x, y;
+};
 
 #define WORLD_WHITE 0
 #define WORLD_RED 1
@@ -45,6 +48,7 @@ class World{
     protected:
         std::vector<Line> _carte, _carte_red, _carte_green;
         VirtualWorld real_map;
+        std::vector<Pos> _points;
 };
 
 

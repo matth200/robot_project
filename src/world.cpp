@@ -51,6 +51,13 @@ bool World::loadMap(const char* filename){
         file.read((char*)&line, sizeof(line));
         _carte_green.push_back(Line(line));
     }
+    //purple points
+    file.read((char*)&size, sizeof(size));
+    Pos pos;
+    for(int i(0);i<size;i++){
+        file.read((char*)&pos, sizeof(pos));
+        _points.push_back(Pos(pos));
+    }
     return true;
 }
 
