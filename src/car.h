@@ -43,10 +43,10 @@ class Robot: public Car{
         bool isAlive();
         void update();
     protected:
+        Capteur _capteur_ext;
         Capteur _capteur;
         MachineLearning *_brain;
         bool _alive;
-        //Capteur _capteur_ext;
 };
 
 #endif

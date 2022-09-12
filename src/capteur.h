@@ -12,7 +12,7 @@
 
 class Capteur{
     public:
-        Capteur(double x=0.0, double y=0.0, double rotation=0.0);
+        Capteur();
         ~Capteur();
         void setMaxDist(int distance);
         void setMaxAngle(double angle);

@@ -1,7 +1,7 @@
 #include "capteur.h"
 using namespace std;
 
-Capteur::Capteur(double x, double y, double rotation):_x(x),_y(y),_rotation(rotation),_distance(MAX_DIST)
+Capteur::Capteur():_x(0),_y(0),_rotation(0),_distance(MAX_DIST)
 {
     _real_map = NULL;
 
@@ -39,7 +39,7 @@ void Capteur::initDetectionLines()
     line.y1 = _y;
     _detectionLines.clear();
     for(int i(0);i<_nbr_line;i++){
-        double angle = (_rotation-MAX_ANGLE/(_nbr_line-1))+MAX_ANGLE/(_nbr_line-1)*i;
+        double angle = (_rotation-_max_angle/(_nbr_line-1))+_max_angle/(_nbr_line-1)*i;
         line.x2 = _x+_max_dist*cos(angle);
         line.y2 = _y-_max_dist*sin(angle);
         _detectionLines.push_back(line);
@@ -64,7 +64,7 @@ void Capteur::setRotation(double rotation){
 }
 double Capteur::getDistance(){
     _distance = _max_dist;
-    for(int i(0);i<_detectionLines.size();i++){
+    for(int i(0);i<_detectionLines.size()&&_real_map!=NULL;i++){
         int distance = 0;
         vector<Element> liste_elt = _real_map->getDetection(_detectionLines[i], distance);
         for(int j(0);j<liste_elt.size();j++){

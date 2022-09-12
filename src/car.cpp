@@ -99,9 +99,9 @@ Robot::Robot():Car()
     _brain = NULL;
     _alive = true;
 
-    // _capteur_ext.setMaxAngle(M_PI*2.0);
-    // _capteur_ext.setNbrLineDetection(6);
-    // _capteur_ext.setMaxDist(20);
+    _capteur_ext.setMaxAngle(M_PI*2.0);
+    _capteur_ext.setNbrLineDetection(6);
+    _capteur_ext.setMaxDist(30);
 
     update();
 }
@@ -116,8 +116,13 @@ void Robot::update(){
     _capteur.setPos(_x,_y);
     _capteur.setRotation(_rotation+M_PI/2.0);
 
-    // _capteur_ext.setPos(_x,_y);
-    // _capteur_ext.setRotation(_rotation+M_PI/2.0);
+    _capteur_ext.setPos(_x,_y);
+    _capteur_ext.setRotation(_rotation+M_PI/2.0);
+
+    if(_capteur_ext.getDistance()<30){
+        _alive = false;
+        cout << "mort" << endl;
+    }
 
     if(_brain!=NULL){
         //on donne les infos au cerveau
@@ -132,13 +137,18 @@ void Robot::update(){
         _brain->calcul();
 
         //on connecte les moteurs
-        setMotor1(ROBOT_SPEED*_brain->getOutput(0));
-        setMotor2(ROBOT_SPEED*_brain->getOutput(1));
+        if(_alive){
+            setMotor1(ROBOT_SPEED*2.0*(_brain->getOutput(0)-1.0/2.0));
+            setMotor2(ROBOT_SPEED*2.0*(_brain->getOutput(1)-1.0/2.0));
+        }else{
+            setMotor1(0);
+            setMotor2(0);
+        }
     }
 }
 void Robot::connectToWorld(World &world){
     _capteur.connectToWorld(world);
-    //_capteur_ext.connectToWorld(world);
+    _capteur_ext.connectToWorld(world);
 }
 
 void Robot::setBrain(MachineLearning *brain){
@@ -148,5 +158,5 @@ void Robot::setBrain(MachineLearning *brain){
 void Robot::draw(SDL_Surface *screen){
     Car::draw(screen);
     _capteur.draw(screen);
-    // _capteur_ext.draw(screen);
+    _capteur_ext.draw(screen);
 }

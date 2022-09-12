@@ -135,6 +135,9 @@ int main(int argc, char **argv){
 
 		world.draw(screen);
 		robot.update();
+		if(!robot.isAlive()){
+			continuer = false;
+		}
 		robot.draw(screen);
 		
 		drawNeuralNetwork(screen, machine);
