@@ -102,7 +102,7 @@ int main(int argc, char **argv){
 	machine.addColumn(2);
 	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
 
-	//machine.saveTraining("../resources/trained_model/brain.ml");
+	machine.saveTraining("../resources/trained_model/brain.ml");
 	
 	//Robot
 	Robot robot;
@@ -173,6 +173,12 @@ int main(int argc, char **argv){
 		world.draw(screen);
 		robot.draw(screen);
 		display.draw(screen);
+
+
+		//si il est mort, on gére la sélection
+		if(!robot.isAlive()){
+
+		}
 
 		//on affiche
 		SDL_Flip(screen);
