@@ -3,6 +3,7 @@
         "chrono": "cpp",
         "ostream": "cpp",
         "cmath": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "iostream": "cpp"
     }
 }

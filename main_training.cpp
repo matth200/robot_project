@@ -45,6 +45,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define NBR_POPULATION 100
 #define FRQ_MUTATION 0.08
 #define NBR_SELECTION 50
+#define NBR_RANDOM 10
 #define TIMEOUT 20000
 
 //parametre machine learning
@@ -142,6 +143,10 @@ int main(int argc, char **argv){
 	display.setBigFont(bigFont);
 	display.setRobot(&robot);
 
+
+	//speed
+	bool state_space = false;
+
 	//boucle
 	bool continuer = true;
 	time_point start_point, end_point;
@@ -159,6 +164,9 @@ int main(int argc, char **argv){
 						case SDLK_ESCAPE:
 							continuer = false;
 							break;
+						case SDLK_SPACE:
+							state_space = true;
+							break;
 						case SDLK_RIGHT:
 							//robot.setMotor2(ROBOT_SPEED);
 							break;
@@ -169,6 +177,9 @@ int main(int argc, char **argv){
 					break;
 				case SDL_KEYUP:
 					switch(event.key.keysym.sym){
+						case SDLK_SPACE:
+							state_space = false;
+							break;
 						case SDLK_RIGHT:
 							//robot.setMotor2(0);
 							break;
@@ -200,6 +211,8 @@ int main(int argc, char **argv){
 		if(finish){
 			//on determine les scores de chaque brain
 			cout << "affichage non classé" << endl;
+
+			cout << 0 << ", score:" << player->score << endl;
 			for(int i(1);i<listeBrains.size();i++){
 				player = &(listeBrains[i]);
 				robotInit(robot);
@@ -226,16 +239,25 @@ int main(int argc, char **argv){
 			}
 			listeBrains.clear();
 
-			cout << "liste triées" << endl;
+			cout << "liste triée" << endl;
 			for(int i(0);i<listeBrainsTmp.size();i++){
 				cout << i << ", " << listeBrainsTmp[i].score << endl;
 			}
+			cout << "fin de liste triée" << endl;
 
 			//on construit la nouvelle selection
 
 			//on mets le premier sans aucun changement
 			listeBrains.push_back(listeBrainsTmp[0]);
-			//listeBrains[0].score = 0;
+			//on en ajoute aux hasards
+			for(int i(0);i<NBR_RANDOM;i++){
+				VarSelection selection(listeBrains[0]);
+				selection.m.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
+				selection.score = 0;
+				selection.best = 0;
+				listeBrains.push_back(selection);
+			}
+
 			//puis on complete avec des petits babyyys
 			while(listeBrains.size()<NBR_SELECTION)
 			{
@@ -296,7 +318,7 @@ int main(int argc, char **argv){
 		//management time
 		end_point = chrono::high_resolution_clock::now();
 		duration = chrono::duration_cast<chrono::milliseconds>(end_point-start_point).count();
-		if(duration<1000.0/FPS){
+		if(duration<1000.0/FPS&&state_space){
 			this_thread::sleep_for(chrono::milliseconds((unsigned int)(1000.0/FPS-duration)));
 		}
 	}
@@ -323,7 +345,13 @@ void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	f = false;
 	//si il est mort ou à gagner, on gére la sélection
 	if(!robot.isAlive()||robot.getWin()){
-		player->score = int(robot.getDistanceDone())+((robot.getWin())?10000:0);
+		//si il a reussi, il doit essayer d'avoir le chemin le plus court
+		if(robot.getWin()){
+			player->score = int(20000.0-robot.getDistanceDone());
+		//sinon le plus long
+		}else{
+			player->score = int(robot.getDistanceDone());
+		}
 		f = true;
 	}
 }
