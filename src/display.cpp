@@ -8,6 +8,8 @@ Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),
     _texte_surface = NULL;
     _robot = NULL;
     _big_police = NULL;
+    _generation = 0;
+    _max_score = 0;
 }
 
 Display::~Display(){
@@ -31,6 +33,13 @@ void Display::draw(SDL_Surface *screen){
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
 	drawNeuralNetwork(screen, *_machine, _x+60, 100);
 
+    SDL_Surface *_texte = NULL;
+    _texte = TTF_RenderText_Solid(_police, (string("generation:")+to_string(_generation)+", max_score:"+to_string(_max_score)).c_str(), SDL_Color({255,255,255}));
+    _pos.x = _x+50;
+    _pos.y = _y+_height-100;
+    SDL_BlitSurface(_texte, NULL, screen, &_pos);
+    SDL_FreeSurface(_texte);
+
     if(!_robot->isAlive()){
         if(_texte_surface!=NULL){
             SDL_FreeSurface(_texte_surface);
@@ -45,6 +54,11 @@ void Display::draw(SDL_Surface *screen){
         SDL_BlitSurface(_texte_surface, NULL, screen, &_pos);
     }
 
+}
+
+void Display::setInfo(int generation, int max_score){
+    _generation = generation;
+    _max_score = max_score;
 }
 void Display::setRobot(Robot *robot){
     _robot = robot;

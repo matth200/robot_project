@@ -66,6 +66,7 @@ class Robot: public Car{
         bool isAlive();
         void update();
         void clearTick();
+        double getDistanceDone();
         unsigned int getDuration();
         void setAlive(bool state);
         bool getWin();

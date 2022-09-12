@@ -16,6 +16,7 @@ class Display{
         ~Display();
         void setNeuralNetwork(MachineLearning *machine);
         void setFont(TTF_Font *police);
+        void setInfo(int generation, int max_score);
         void setBigFont(TTF_Font *police);
         void draw(SDL_Surface *screen);
         void setRobot(Robot *robot);
@@ -26,6 +27,7 @@ class Display{
         SDL_Rect _pos;
         Robot *_robot;
         SDL_Surface *_texte_surface;
+        int _generation, _max_score;
 };
 
 

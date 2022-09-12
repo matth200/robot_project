@@ -200,6 +200,7 @@ void Robot::clearTick(){
     _tick = 0;
     _alive = true;
     _win = false;
+    _trajectoire.clearTrajectoire();
 }
 
 unsigned int Robot::getDuration(){
@@ -210,6 +211,9 @@ void Robot::setAlive(bool state){
     _alive = state;
 }
 
+double Robot::getDistanceDone(){
+    return _trajectoire.getDistanceDone();
+}
 void Robot::update(){
     forward();
     _capteur.setPos(_x,_y);
@@ -264,7 +268,7 @@ void Robot::update(){
         }else{
             setMotor1(0);
             setMotor2(0);
-            cout << _trajectoire.getDistanceDone() << endl;
+            //cout << _trajectoire.getDistanceDone() << endl;
         }
     }
 

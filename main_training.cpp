@@ -34,17 +34,22 @@ using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
 
+//parametre d'affichage
 #define SCREEN_WIDTH 1500
 #define SCREEN_HEIGHT 1000
 #define OUTSCREEN_W 400
 #define MAX_TIME_ESC 500
+#define FPS 40.0
 
+//parametre GENETIC_ALGORITHM
+#define NBR_POPULATION 10
+#define FRQ_MUTATION 0.08
+#define NBR_SELECTION 6
 #define TIMEOUT 20000
 
+//parametre machine learning
 #define RANDOM_VALUE_W 10
 #define RANDOM_VALUE_B 10
-
-#define FPS 40.0
 
 //variable pour effectuer la selection
 struct VarSelection
@@ -61,6 +66,9 @@ void makeBabys(MachineLearning &m1, MachineLearning &m2);
 VarSelection selectionRandomly(vector<VarSelection> &players, int &a);
 double distance(int x1, int y1, int x2, int y2);
 
+void evaluateRobot(Robot &r, VarSelection *player, bool &f);
+void robotInit(Robot &robot);
+
 int main(int argc, char **argv){
 
 	srand(time(NULL));
@@ -75,7 +83,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",24);
+	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
 	TTF_Font *bigFont = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
 
 	atexit(TTF_Quit);
@@ -98,29 +106,41 @@ int main(int argc, char **argv){
 	//monde virtuel pour la détection
 	world.buildVirtualWorld();
 
-	//Machine learning
-	MachineLearning machine(4);
-	machine.addColumn(10);
-	machine.addColumn(10);
-	machine.addColumn(4);
-	machine.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
 
-	//machine.saveTraining("../resources/trained_model/brain.ml");
+	//on prepare le genetic algorithm
+	vector<VarSelection> listeBrains;
+	//on commence avec toutes la selection aux hasards
+	for(int i(0);i<NBR_POPULATION;i++){
+		VarSelection selection;
+		MachineLearning *m = &(selection.m);
+		m->open(4);
+		m->addColumn(10);
+		m->addColumn(10);
+		m->addColumn(4);
+
+		selection.best = false;
+		selection.score = 0;
+
+		m->setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
+		listeBrains.push_back(selection);
+	}
+
+	//Machine learning, on fait jouer le joueur 1
+	VarSelection *player = &(listeBrains[0]);
+	int generation = 0;
 	
 	//Robot
 	Robot robot;
-	robot.setPos(1350.0,150.0);
-	robot.setRotation(M_PI/3.0);
-	robot.setBrain(&machine);
+	robotInit(robot);
+	robot.setBrain(&(player->m));
 	robot.connectToWorld(world);
 
 	//Display information
 	Display display(SCREEN_WIDTH, 0, OUTSCREEN_W, SCREEN_HEIGHT);
-	display.setNeuralNetwork(&machine);
+	display.setNeuralNetwork(&(player->m));
 	display.setFont(police);
 	display.setBigFont(bigFont);
 	display.setRobot(&robot);
-
 
 	//boucle
 	bool continuer = true;
@@ -162,30 +182,114 @@ int main(int argc, char **argv){
 		//affichage
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
 
+		//viens faire avancer le robot et remplir si terminé le score du player
+		bool finish;
+		evaluateRobot(robot, player, finish);
+
+		display.setInfo(generation, player->score);
+
 		//affichage de l'environement
-		robot.update();
-		
-		//si trop long, on arrete
-		if(robot.getDuration()>TIMEOUT){
-			robot.setAlive(false);
-		}
-
-		if(robot.getWin()){
-			machine.saveTraining("../resources/trained_model/brain.ml");
-		}
-
 		world.draw(screen);
 		robot.draw(screen);
 		display.draw(screen);
 
 
-		//si il est mort, on gére la sélection
-		if(!robot.isAlive()){
-			
-		}
-
 		//on affiche
 		SDL_Flip(screen);
+
+		if(finish){
+			//on determine les scores de chaque brain
+			cout << "affichage non classé" << endl;
+			for(int i(1);i<listeBrains.size();i++){
+				player = &(listeBrains[i]);
+				robotInit(robot);
+				robot.setBrain(&(player->m));
+				finish = false;
+				//on le fait jouer tout seul
+				while(!finish){
+					evaluateRobot(robot, player, finish);
+				}
+				cout << i << ", score:" << player->score << endl;
+			}
+			//on les classe par rapport à leur score
+			vector<VarSelection> listeBrainsTmp;
+			while(listeBrainsTmp.size()<NBR_SELECTION){
+				int max = listeBrains[0].score, index_max = 0;
+				for(int i(1);i<listeBrains.size();i++){
+					if(listeBrains[i].score>max){
+						index_max = i;
+						max = listeBrains[i].score;
+					}
+				}
+				listeBrainsTmp.push_back(listeBrains[index_max]);
+				listeBrains[index_max].score = 0;
+			}
+			listeBrains.clear();
+
+			cout << "liste triées" << endl;
+			for(int i(0);i<listeBrainsTmp.size();i++){
+				cout << i << ", " << listeBrainsTmp[i].score << endl;
+			}
+
+			//on construit la nouvelle selection
+
+			//on mets le premier sans aucun changement
+			listeBrains.push_back(listeBrainsTmp[0]);
+			//listeBrains[0].score = 0;
+			//puis on complete avec des petits babyyys
+			while(listeBrains.size()<NBR_SELECTION)
+			{
+				//init parent
+				int b = 0, a = 0;
+				VarSelection parent1 = selectionRandomly(listeBrainsTmp,b), parent2 = selectionRandomly(listeBrainsTmp,a);
+				//on crée une boucle qui permet d'éviter qu'un parent se croise avec lui même
+				while(b==a)
+					parent2 = selectionRandomly(listeBrainsTmp,a);
+
+				cout << b << "&" << a << " --> BB" << endl;
+				//init babys
+				parent1.best=0;
+				parent2.best=0;
+				parent1.score=0;
+				parent2.score=0;
+
+				//parents become babyssss
+				makeBabys(parent1.m,parent2.m);
+
+				//ajout dans la liste
+				listeBrains.push_back(parent1);
+			}
+			cout << "baby okayy" << endl;
+
+			//mutation i commence à 1 pour ne pas mettre de mutation sur le premier
+			for(int i(1);i<listeBrains.size();i++)
+			{
+				//get adn
+				vector<unsigned int> adn;
+				getAdn(listeBrains[i].m,adn);
+
+				//we gonna mutate this babyyyy
+				for(int j(0);j<adn.size();j++){
+					if(rand()%1000+1<=FRQ_MUTATION*1000.0)
+					{
+						adn[j] = (1u << rand()%32) ^ adn[j];
+						cout << "M";
+					}
+				}
+				cout << " & " << endl;
+				//set adn
+				setAdn(listeBrains[i].m,adn);
+			}
+
+			cout << "mutation okay " << endl;
+
+			generation++;
+
+			//on relance avec le premier
+			robotInit(robot);
+			player = &(listeBrains[0]);
+			robot.setBrain(&(player->m));
+		}
 		//management time
 		end_point = chrono::high_resolution_clock::now();
 		duration = chrono::duration_cast<chrono::milliseconds>(end_point-start_point).count();
@@ -199,6 +303,28 @@ int main(int argc, char **argv){
     return 0;
 }
 
+void robotInit(Robot &robot){
+	robot.setPos(1350.0,150.0);
+	robot.setRotation(M_PI/3.0);
+	robot.clearTick();
+}
+
+
+void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
+	//si trop long, on arrete
+	robot.update();
+
+	if(robot.getDuration()>TIMEOUT){
+		robot.setAlive(false);
+	}
+	f = false;
+	//si il est mort ou à gagner, on gére la sélection
+	if(!robot.isAlive()||robot.getWin()){
+		player->score = int(robot.getDistanceDone())+((robot.getWin())?10000:0);
+		f = true;
+	}
+}
+
 
 
 void makeBabys(MachineLearning &m1, MachineLearning &m2)
@@ -208,7 +334,7 @@ void makeBabys(MachineLearning &m1, MachineLearning &m2)
 	//pour qu'il prenne les meme réseaux de neurone
 	getAdn(m1,adn1);
 	getAdn(m2,adn2);
-	ofstream log("../log/logBabys.txt");
+	ofstream log("../resources/logs/logBabys.txt");
 
 	//mix the adn <<<----
 	log << "adn |";
@@ -283,7 +409,7 @@ void setAdn(MachineLearning &m, vector<unsigned int> &adn)
 		}
 	}
 	else{
-		ofstream log("errorSetADN.txt");
+		ofstream log("../resources/logs/errorSetADN.txt");
 		log << "error" << endl;
 	}
 }
