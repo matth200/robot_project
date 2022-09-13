@@ -45,10 +45,32 @@ class World{
         void buildVirtualWorld();
         void draw(SDL_Surface *screen);
         bool loadMap(const char* filename);
+        std::vector<Pos>* getPoints();
     protected:
         std::vector<Line> _carte, _carte_red, _carte_green;
         VirtualWorld real_map;
         std::vector<Pos> _points;
+};
+
+
+class Universe{
+    public:
+        Universe(int w, int h);
+        ~Universe();
+        bool addLevel(const char *filename);
+        void setLevel(int index);
+        int getNbrWorld();
+        int getNbrPos();
+        void setIndexPos(int index);
+        void buildUniverse();
+        int getIndexPos();
+        int getLevel();
+        Pos getCurrentPos();
+        World* getCurrentWorld();
+    protected:
+        std::vector<World*> _worlds;
+        int _indexPos, _indexWorld;
+        int _w, _h;
 };
 
 

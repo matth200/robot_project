@@ -4,6 +4,7 @@
 #include "m_learning.h"
 #include "draw.h"
 #include "car.h"
+#include "world.h"
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
 
@@ -20,6 +21,7 @@ class Display{
         void setBigFont(TTF_Font *police);
         void draw(SDL_Surface *screen);
         void setRobot(Robot *robot);
+        void setUniverse(Universe *universe);
     protected:
         MachineLearning *_machine;
         int _width, _height, _x, _y;
@@ -28,6 +30,7 @@ class Display{
         Robot *_robot;
         SDL_Surface *_texte_surface;
         int _generation, _max_score;
+        Universe *_universe;
 };
 
 

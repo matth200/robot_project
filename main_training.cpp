@@ -84,7 +84,7 @@ int main(int argc, char **argv){
 		return 1;
 	}
 
-	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
+	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",20);
 	TTF_Font *bigFont = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
 
 	atexit(TTF_Quit);
@@ -100,12 +100,17 @@ int main(int argc, char **argv){
 	SDL_WM_SetCaption("NEURAL NETWORK TRAINING", NULL);
 
 
-	World world(SCREEN_WIDTH,SCREEN_HEIGHT);
-	if(!world.loadMap("../resources/map/map.level")){
+	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
+	if(!universe.addLevel("../resources/map/map.level")){
 		cout << "Erreur de chargement de la map" << endl;
+	}else{
+		cout << "Okay map." << endl;
 	}
-	//monde virtuel pour la détection
-	world.buildVirtualWorld();
+	//on se mets premier niveau et première position
+	universe.setLevel(0);
+	universe.setIndexPos(0);
+	//construction des mondes virtuels pour la détection
+	universe.buildUniverse();
 
 
 	//on prepare le genetic algorithm
@@ -132,9 +137,9 @@ int main(int argc, char **argv){
 	
 	//Robot
 	Robot robot;
-	robotInit(robot);
 	robot.setBrain(&(player->m));
-	robot.connectToWorld(world);
+	robot.connectToUniverse(&universe);
+	robotInit(robot);
 
 	//Display information
 	Display display(SCREEN_WIDTH, 0, OUTSCREEN_W, SCREEN_HEIGHT);
@@ -142,6 +147,7 @@ int main(int argc, char **argv){
 	display.setFont(police);
 	display.setBigFont(bigFont);
 	display.setRobot(&robot);
+	display.setUniverse(&universe);
 
 
 	//speed
@@ -200,7 +206,7 @@ int main(int argc, char **argv){
 		display.setInfo(generation, player->score);
 
 		//affichage de l'environement
-		world.draw(screen);
+		universe.getCurrentWorld()->draw(screen);
 		robot.draw(screen);
 		display.draw(screen);
 
@@ -316,7 +322,7 @@ int main(int argc, char **argv){
 			player = &(listeBrains[0]);
 			robot.setBrain(&(player->m));
 			if(player->score>10000){
-				player->m.saveTraining("../resources/trained_model/brain.ml");
+				player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
 			}
 		}
 		//management time
@@ -333,8 +339,13 @@ int main(int argc, char **argv){
 }
 
 void robotInit(Robot &robot){
-	robot.setPos(1350.0,150.0+rand()%700);
-	robot.setRotation(M_PI/3.0);
+	//robot.setPos(1350.0,150.0+rand()%700);
+
+	//on place aux points décider dans l'univers
+	robot.setUniversePos();
+
+	//orientation aux hasards
+	robot.setRotation((rand()%360)/180.0*M_PI);
 	robot.clearTick();
 }
 

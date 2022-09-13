@@ -5,6 +5,7 @@ using namespace std;
 Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),_height(height){
     _machine = NULL;
     _police = NULL;
+    _universe = NULL;
     _texte_surface = NULL;
     _robot = NULL;
     _big_police = NULL;
@@ -24,6 +25,10 @@ void Display::setNeuralNetwork(MachineLearning *machine){
     _machine = machine;
 }
 
+void Display::setUniverse(Universe *universe){
+    _universe = universe;
+}
+
 void Display::setBigFont(TTF_Font *police){
     _big_police = police;
 }
@@ -33,10 +38,26 @@ void Display::draw(SDL_Surface *screen){
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
 	drawNeuralNetwork(screen, *_machine, _x+60, 100);
 
+    //informations sur l'univers
+    int level = _universe->getLevel()+1;
+    int max_level = _universe->getNbrWorld();
+
+    int pos_index = _universe->getIndexPos()+1;
+    int max_pos_index = _universe->getNbrPos();
+
+
+    //affichage de la génération
     SDL_Surface *_texte = NULL;
     _texte = TTF_RenderText_Solid(_police, (string("generation:")+to_string(_generation)+", max_score:"+to_string(_max_score)).c_str(), SDL_Color({255,255,255}));
-    _pos.x = _x+50;
+    _pos.x = _x+10;
     _pos.y = _y+_height-100;
+    SDL_BlitSurface(_texte, NULL, screen, &_pos);
+    SDL_FreeSurface(_texte);
+
+    //affichage des infos de l'univers
+    _texte = TTF_RenderText_Solid(_police, (string("Level:")+to_string(level)+"/"+to_string(max_level)+", pos:"+to_string(pos_index)+"/"+to_string(max_pos_index)).c_str(), SDL_Color({255,255,255}));
+    _pos.x = _x+20;
+    _pos.y = _y+100;
     SDL_BlitSurface(_texte, NULL, screen, &_pos);
     SDL_FreeSurface(_texte);
 

@@ -175,6 +175,7 @@ void Car::draw(SDL_Surface *screen){
 Robot::Robot():Car()
 {
     _brain = NULL;
+    _universe = NULL;
 
     _capteur_ext.setMaxAngle(M_PI*2.0);
     _capteur_ext.setNbrLineDetection(6);
@@ -214,14 +215,24 @@ void Robot::setAlive(bool state){
 double Robot::getDistanceDone(){
     return _trajectoire.getDistanceDone();
 }
+
+void Robot::setUniversePos(){
+    Pos pos = _universe->getCurrentPos();
+    setPos(pos.x,pos.y);
+}
 void Robot::update(){
+    //on connecte au monde en question
+    if(_universe!=NULL){
+        connectToWorld(*_universe->getCurrentWorld());
+    }
+
+    //ensuite on avance
     forward();
     _capteur.setPos(_x,_y);
     _capteur.setRotation(_rotation+M_PI/2.0);
 
     _capteur_ext.setPos(_x,_y);
     _capteur_ext.setRotation(_rotation+M_PI/2.0);
-
 
     //Les lignes rouges et blanches tuent le robot
     //on detecte les lignes blanches
@@ -278,6 +289,11 @@ void Robot::update(){
 
     //on augmente le tick
     _tick++;
+}
+
+void Robot::connectToUniverse(Universe *universe){
+    _universe = universe;
+    connectToWorld(*_universe->getCurrentWorld());
 }
 void Robot::connectToWorld(World &world){
     _capteur.connectToWorld(world);

@@ -8,13 +8,11 @@
 #include "draw.h"
 #include "capteur.h"
 #include "m_learning.h"
+#include "world.h"
 
 #define COLOR_CAR SDL_MapRGB(screen->format, 200,10,100)
 #define ROBOT_SPEED 5
 
-struct Pos{
-    int x, y;
-};
 
 class Trajectoire{
     public:
@@ -61,8 +59,10 @@ class Robot: public Car{
     public:
         Robot();
         void draw(SDL_Surface *screen);
+        void connectToUniverse(Universe *universe);
         void connectToWorld(World &world);
         void setBrain(MachineLearning *brain);
+        void setUniversePos();
         bool isAlive();
         void update();
         void clearTick();
@@ -77,6 +77,7 @@ class Robot: public Car{
         bool _alive, _win;
         unsigned int _tick;
         unsigned char _memoire, _memoire2;
+        Universe *_universe;
 };
 
 #endif
