@@ -339,9 +339,6 @@ int main(int argc, char **argv){
 				robotInit(robot);
 				player = &(listeBrains[0]);
 				robot.setBrain(&(player->m));
-				if(player->score>10000){
-					player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
-				}
 			}
 		}
 		//management time
@@ -350,6 +347,11 @@ int main(int argc, char **argv){
 		if(duration<1000.0/FPS&&state_space){
 			this_thread::sleep_for(chrono::milliseconds((unsigned int)(1000.0/FPS-duration)));
 		}
+	}
+
+
+	if(player->score>10000){
+		player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
 	}
 
 	TTF_CloseFont(police);
