@@ -12,10 +12,16 @@ Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),
     _generation = 0;
     _max_score = 0;
     _save = false;
+    _filename = "";
+    _police_mini = NULL;
 }
 
 Display::~Display(){
     SDL_FreeSurface(_texte_surface);
+}
+
+void Display::setMiniFont(TTF_Font *police){
+    _police_mini = police;
 }
 
 void Display::setFont(TTF_Font *police){
@@ -38,10 +44,14 @@ void Display::setSave(bool state){
     _save = state;
 }
 
+void Display::setBackup(string filename)
+{
+    _filename = filename;
+}
 void Display::draw(SDL_Surface *screen){
 	//barre qui sépare le score du jeu
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
-	drawNeuralNetwork(screen, *_machine, _x+60, 100);
+	drawNeuralNetwork(screen, *_machine, _x+60, 200);
 
     //informations sur l'univers
     int level = _universe->getLevel()+1;
@@ -49,7 +59,6 @@ void Display::draw(SDL_Surface *screen){
 
     int pos_index = _universe->getIndexPos()+1;
     int max_pos_index = _universe->getNbrPos();
-
 
     //affichage de la génération
     SDL_Surface *_texte = NULL;
@@ -64,6 +73,33 @@ void Display::draw(SDL_Surface *screen){
         _texte = TTF_RenderText_Solid(_police, "TOUCHE SAUVEGARDE PRESSEE", SDL_Color({255,255,255}));
         _pos.x = _x+20;
         _pos.y = _y+_height-50;
+        SDL_BlitSurface(_texte, NULL, screen, &_pos);
+        SDL_FreeSurface(_texte);
+    }
+
+    //affichage du backup
+    if(_filename!=""){
+        _texte = TTF_RenderText_Solid(_police, (string("BACKUP TRAINING")).c_str(), SDL_Color({255,255,255}));
+        _pos.x = _x+10;
+        _pos.y = _y+200;
+        SDL_BlitSurface(_texte, NULL, screen, &_pos);
+        SDL_FreeSurface(_texte);
+
+        _texte = TTF_RenderText_Solid(_police_mini, _filename.c_str(), SDL_Color({255,255,255}));
+        _pos.x = _x+10;
+        _pos.y = _y+230;
+        SDL_BlitSurface(_texte, NULL, screen, &_pos);
+        SDL_FreeSurface(_texte);
+    }else{
+        _texte = TTF_RenderText_Solid(_police, (string("NORMAL MODE")).c_str(), SDL_Color({255,255,255}));
+        _pos.x = _x+10;
+        _pos.y = _y+200;
+        SDL_BlitSurface(_texte, NULL, screen, &_pos);
+        SDL_FreeSurface(_texte);
+
+        _texte = TTF_RenderText_Solid(_police_mini, "Valeurs aleatoires", SDL_Color({255,255,255}));
+        _pos.x = _x+10;
+        _pos.y = _y+230;
         SDL_BlitSurface(_texte, NULL, screen, &_pos);
         SDL_FreeSurface(_texte);
     }

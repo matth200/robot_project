@@ -84,6 +84,7 @@ int main(int argc, char **argv){
 	}
 
 	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",20);
+	TTF_Font *policeMini = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
 	TTF_Font *bigFont = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
 
 	atexit(TTF_Quit);
@@ -167,8 +168,13 @@ int main(int argc, char **argv){
 	display.setNeuralNetwork(&(player->m));
 	display.setFont(police);
 	display.setBigFont(bigFont);
+	display.setMiniFont(policeMini);
 	display.setRobot(&robot);
 	display.setUniverse(&universe);
+	//on place le nom du fichier récupéré
+	if(state_backup_data){
+		display.setBackup(string(argv[1]));
+	}
 
 
 	//speed
@@ -386,12 +392,13 @@ int main(int argc, char **argv){
 		}
 	}
 
-
+	//sécurité pour ne pas perdre les bons entrainements
 	if(max_score>=100000){
 		player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
 	}
 
 	TTF_CloseFont(police);
+	TTF_CloseFont(policeMini);
 	TTF_CloseFont(bigFont);
     return 0;
 }
