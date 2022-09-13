@@ -33,7 +33,6 @@
 using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
-
 //parametre d'affichage
 #define SCREEN_WIDTH 1500
 #define SCREEN_HEIGHT 1000
@@ -239,6 +238,7 @@ int main(int argc, char **argv){
 				robotInit(robot);
 				this_thread::sleep_for(chrono::milliseconds(200));
 			}
+			//sinon on gere tous les autres en arriere plan
 			if(universe.isFinished()){
 				//on determine les scores de chaque brain
 				cout << "affichage non classé" << endl;
