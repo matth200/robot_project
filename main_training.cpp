@@ -151,7 +151,7 @@ int main(int argc, char **argv){
 
 
 	//speed
-	bool state_space = false;
+	bool state_space = false, state_enter = false;
 
 	//boucle
 	bool continuer = true;
@@ -173,6 +173,12 @@ int main(int argc, char **argv){
 						case SDLK_SPACE:
 							state_space = true;
 							break;
+						case 13:
+							if(state_enter==false){
+								player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(max_score)+".ml").c_str());
+								state_enter = true;
+							}
+							break;
 						case SDLK_RIGHT:
 							//robot.setMotor2(ROBOT_SPEED);
 							break;
@@ -185,6 +191,9 @@ int main(int argc, char **argv){
 					switch(event.key.keysym.sym){
 						case SDLK_SPACE:
 							state_space = false;
+							break;
+						case 13:
+							state_enter = false;
 							break;
 						case SDLK_RIGHT:
 							//robot.setMotor2(0);
@@ -203,10 +212,16 @@ int main(int argc, char **argv){
 		bool finish;
 		evaluateRobot(robot, player, finish);
 
+		//on récupère le meilleur score en live aussi
 		if(max_score<player->score){
 			max_score = player->score;
 		}
+
+		//on gère les infos
 		display.setInfo(generation, max_score);
+		if(state_enter==true){
+			display.setSave(true);
+		}
 
 		//affichage de l'environement
 		universe.getCurrentWorld()->draw(screen);
@@ -350,7 +365,7 @@ int main(int argc, char **argv){
 	}
 
 
-	if(player->score>10000){
+	if(max_score>10000){
 		player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
 	}
 

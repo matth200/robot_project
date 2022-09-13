@@ -11,6 +11,7 @@ Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),
     _big_police = NULL;
     _generation = 0;
     _max_score = 0;
+    _save = false;
 }
 
 Display::~Display(){
@@ -33,6 +34,10 @@ void Display::setBigFont(TTF_Font *police){
     _big_police = police;
 }
 
+void Display::setSave(bool state){
+    _save = state;
+}
+
 void Display::draw(SDL_Surface *screen){
 	//barre qui sépare le score du jeu
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
@@ -53,6 +58,15 @@ void Display::draw(SDL_Surface *screen){
     _pos.y = _y+_height-100;
     SDL_BlitSurface(_texte, NULL, screen, &_pos);
     SDL_FreeSurface(_texte);
+
+    //affichage de la sauvegarde
+    if(_save){
+        _texte = TTF_RenderText_Solid(_police, "TOUCHE SAUVEGARDE PRESSEE", SDL_Color({255,255,255}));
+        _pos.x = _x+20;
+        _pos.y = _y+_height-50;
+        SDL_BlitSurface(_texte, NULL, screen, &_pos);
+        SDL_FreeSurface(_texte);
+    }
 
     //affichage des infos de l'univers
     _texte = TTF_RenderText_Solid(_police, (string("Level:")+to_string(level)+"/"+to_string(max_level)+", pos:"+to_string(pos_index)+"/"+to_string(max_pos_index)).c_str(), SDL_Color({255,255,255}));
@@ -78,6 +92,9 @@ void Display::draw(SDL_Surface *screen){
 }
 
 void Display::setInfo(int generation, int max_score){
+    if(_generation!=generation){
+        _save = false;
+    }
     _generation = generation;
     _max_score = max_score;
 }

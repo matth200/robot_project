@@ -22,6 +22,7 @@ class Display{
         void draw(SDL_Surface *screen);
         void setRobot(Robot *robot);
         void setUniverse(Universe *universe);
+        void setSave(bool state);
     protected:
         MachineLearning *_machine;
         int _width, _height, _x, _y;
@@ -31,6 +32,7 @@ class Display{
         SDL_Surface *_texte_surface;
         int _generation, _max_score;
         Universe *_universe;
+        bool _save;
 };
 
 
