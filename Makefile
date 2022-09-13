@@ -42,6 +42,7 @@ $(SRC_DIRECTORY)/car.o: $(SRC_DIRECTORY)/car.cpp $(SRC_DIRECTORY)/car.h
 
 clean:
 	rm -f $(BIN_DIRECTORY)/*.o
+	rm -f $(SRC_DIRECTORY)/*.o
 
 clean-all: clean
-	rm -f $(BIN_DIRECTORY)/app_map
+	rm -f $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training
