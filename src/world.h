@@ -65,6 +65,9 @@ class Universe{
         void buildUniverse();
         int getIndexPos();
         int getLevel();
+        bool isFinished();
+        void nextStep();
+        void initStep();
         Pos getCurrentPos();
         World* getCurrentWorld();
     protected:

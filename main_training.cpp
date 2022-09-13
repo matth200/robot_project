@@ -107,8 +107,7 @@ int main(int argc, char **argv){
 		cout << "Okay map." << endl;
 	}
 	//on se mets premier niveau et première position
-	universe.setLevel(0);
-	universe.setIndexPos(0);
+	universe.initStep();
 	//construction des mondes virtuels pour la détection
 	universe.buildUniverse();
 
@@ -134,6 +133,7 @@ int main(int argc, char **argv){
 	//Machine learning, on fait jouer le joueur 1
 	VarSelection *player = &(listeBrains[0]);
 	int generation = 0;
+	int max_score = 0;
 	
 	//Robot
 	Robot robot;
@@ -203,7 +203,10 @@ int main(int argc, char **argv){
 		bool finish;
 		evaluateRobot(robot, player, finish);
 
-		display.setInfo(generation, player->score);
+		if(max_score<player->score){
+			max_score = player->score;
+		}
+		display.setInfo(generation, max_score);
 
 		//affichage de l'environement
 		universe.getCurrentWorld()->draw(screen);
@@ -215,114 +218,130 @@ int main(int argc, char **argv){
 		SDL_Flip(screen);
 
 		if(finish){
-			//on determine les scores de chaque brain
-			cout << "affichage non classé" << endl;
-
-			cout << 0 << ", score:" << player->score << endl;
-			for(int i(1);i<listeBrains.size();i++){
-				player = &(listeBrains[i]);
+			//si pas fini on passe au niveau d'au dessus
+			universe.nextStep();
+			if(!universe.isFinished()){
 				robotInit(robot);
-				robot.setBrain(&(player->m));
-				finish = false;
-				//on le fait jouer tout seul
-				while(!finish){
-					evaluateRobot(robot, player, finish);
-				}
-				cout << i << ", score:" << player->score << endl;
+				this_thread::sleep_for(chrono::milliseconds(200));
 			}
-			//on les classe par rapport à leur score
-			vector<VarSelection> listeBrainsTmp;
-			while(listeBrainsTmp.size()<NBR_SELECTION){
-				int max = listeBrains[0].score, index_max = 0;
+			if(universe.isFinished()){
+				//on determine les scores de chaque brain
+				cout << "affichage non classé" << endl;
+
+				cout << 0 << ", score:" << player->score << endl;
 				for(int i(1);i<listeBrains.size();i++){
-					if(listeBrains[i].score>max){
-						index_max = i;
-						max = listeBrains[i].score;
+					player = &(listeBrains[i]);
+					player->score = 0;
+					robot.setBrain(&(player->m));
+					universe.initStep();
+					//on le fait jouer tout seul
+					while(!universe.isFinished()){
+						finish = false;
+						robotInit(robot);
+						while(!finish){
+							evaluateRobot(robot, player, finish);
+						}
+						universe.nextStep();
 					}
+					cout << i << ", score:" << player->score << endl;
 				}
-				listeBrainsTmp.push_back(listeBrains[index_max]);
-				listeBrains[index_max].score = 0;
-			}
-			listeBrains.clear();
-
-			cout << "liste triée" << endl;
-			for(int i(0);i<listeBrainsTmp.size();i++){
-				cout << i << ", " << listeBrainsTmp[i].score << endl;
-			}
-			cout << "fin de liste triée" << endl;
-
-			//on construit la nouvelle selection
-
-			//on mets le premier sans aucun changement
-			listeBrains.push_back(listeBrainsTmp[0]);
-
-			//puis on complete avec des petits babyyys
-			while(listeBrains.size()<NBR_POPULATION-NBR_RANDOM)
-			{
-				//init parent
-				int b = 0, a = 0;
-				VarSelection parent1 = selectionRandomly(listeBrainsTmp,b), parent2 = selectionRandomly(listeBrainsTmp,a);
-				//on crée une boucle qui permet d'éviter qu'un parent se croise avec lui même
-				while(b==a)
-					parent2 = selectionRandomly(listeBrainsTmp,a);
-
-				cout << b << "&" << a << " --> BB" << endl;
-				//init babys
-				parent1.best=0;
-				parent2.best=0;
-				parent1.score=0;
-				parent2.score=0;
-
-				//parents become babyssss
-				makeBabys(parent1.m,parent2.m);
-
-				//ajout dans la liste
-				listeBrains.push_back(parent1);
-			}
-			cout << "baby okayy" << endl;
-
-			//mutation i commence à 1 pour ne pas mettre de mutation sur le premier
-			for(int i(1);i<listeBrains.size();i++)
-			{
-				//get adn
-				vector<unsigned int> adn;
-				getAdn(listeBrains[i].m,adn);
-
-				//we gonna mutate this babyyyy
-				for(int j(0);j<adn.size();j++){
-					if(rand()%1000+1<=FRQ_MUTATION*1000.0)
-					{
-						adn[j] = (1u << rand()%32) ^ adn[j];
-						cout << "M";
+				universe.initStep();
+				//on les classe par rapport à leur score
+				vector<VarSelection> listeBrainsTmp;
+				while(listeBrainsTmp.size()<NBR_SELECTION){
+					int max = listeBrains[0].score, index_max = 0;
+					for(int i(1);i<listeBrains.size();i++){
+						if(listeBrains[i].score>max){
+							index_max = i;
+							max = listeBrains[i].score;
+						}
 					}
+					listeBrainsTmp.push_back(listeBrains[index_max]);
+					listeBrains[index_max].score = 0;
 				}
-				cout << " & " << endl;
-				//set adn
-				setAdn(listeBrains[i].m,adn);
-			}
+				listeBrains.clear();
 
-			cout << "mutation okay " << endl;
+				cout << "liste triée" << endl;
+				for(int i(0);i<listeBrainsTmp.size();i++){
+					cout << i << ", " << listeBrainsTmp[i].score << endl;
+				}
+				cout << "fin de liste triée" << endl;
 
-			//on en ajoute aux hasards
-			for(int i(0);i<NBR_RANDOM;i++){
-				VarSelection selection(listeBrains[0]);
-				selection.m.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
-				selection.score = 0;
-				selection.best = 0;
-				listeBrains.push_back(selection);
-			}
-			cout << "ajout aux hasards okayy" << endl;
+				//on construit la nouvelle selection
 
-			//cout << "nombree" << listeBrains.size() << endl;
+				//on mets le premier sans aucun changement
+				listeBrains.push_back(listeBrainsTmp[0]);
+				max_score = listeBrains[0].score;
+				listeBrains[0].score = 0;
 
-			generation++;
+				//puis on complete avec des petits babyyys
+				while(listeBrains.size()<NBR_POPULATION-NBR_RANDOM)
+				{
+					//init parent
+					int b = 0, a = 0;
+					VarSelection parent1 = selectionRandomly(listeBrainsTmp,b), parent2 = selectionRandomly(listeBrainsTmp,a);
+					//on crée une boucle qui permet d'éviter qu'un parent se croise avec lui même
+					while(b==a)
+						parent2 = selectionRandomly(listeBrainsTmp,a);
 
-			//on relance avec le premier
-			robotInit(robot);
-			player = &(listeBrains[0]);
-			robot.setBrain(&(player->m));
-			if(player->score>10000){
-				player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
+					cout << b << "&" << a << " --> BB" << endl;
+					//init babys
+					parent1.best=0;
+					parent2.best=0;
+					parent1.score=0;
+					parent2.score=0;
+
+					//parents become babyssss
+					makeBabys(parent1.m,parent2.m);
+
+					//ajout dans la liste
+					listeBrains.push_back(parent1);
+				}
+				cout << "baby okayy" << endl;
+
+				//mutation i commence à 1 pour ne pas mettre de mutation sur le premier
+				for(int i(1);i<listeBrains.size();i++)
+				{
+					//get adn
+					vector<unsigned int> adn;
+					getAdn(listeBrains[i].m,adn);
+
+					//we gonna mutate this babyyyy
+					for(int j(0);j<adn.size();j++){
+						if(rand()%1000+1<=FRQ_MUTATION*1000.0)
+						{
+							adn[j] = (1u << rand()%32) ^ adn[j];
+							cout << "M";
+						}
+					}
+					cout << " & " << endl;
+					//set adn
+					setAdn(listeBrains[i].m,adn);
+				}
+
+				cout << "mutation okay " << endl;
+
+				//on en ajoute aux hasards
+				for(int i(0);i<NBR_RANDOM;i++){
+					VarSelection selection(listeBrains[0]);
+					selection.m.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
+					selection.score = 0;
+					selection.best = 0;
+					listeBrains.push_back(selection);
+				}
+				cout << "ajout aux hasards okayy" << endl;
+
+				//cout << "nombree" << listeBrains.size() << endl;
+
+				generation++;
+
+				//on relance avec le premier
+				robotInit(robot);
+				player = &(listeBrains[0]);
+				robot.setBrain(&(player->m));
+				if(player->score>10000){
+					player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
+				}
 			}
 		}
 		//management time
@@ -362,10 +381,10 @@ void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	if(!robot.isAlive()||robot.getWin()){
 		//si il a reussi, il doit essayer d'avoir le chemin le plus court
 		if(robot.getWin()){
-			player->score = int(20000.0-robot.getDistanceDone());
+			player->score += int(20000.0-robot.getDistanceDone());
 		//sinon le plus long
 		}else{
-			player->score = int(robot.getDistanceDone());
+			player->score += int(robot.getDistanceDone());
 		}
 		f = true;
 	}

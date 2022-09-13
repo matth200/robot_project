@@ -202,6 +202,24 @@ void Universe::buildUniverse(){
         _worlds[i]->buildVirtualWorld();
     }
 }
+
+bool Universe::isFinished(){
+    return getLevel()==getNbrWorld();
+}
+void Universe::nextStep(){
+    if(getIndexPos()<getNbrPos()){
+        _indexPos++;
+    }
+
+    if(getIndexPos()==getNbrPos()){
+        _indexPos = 0;
+        _indexWorld++;
+    }
+}
+void Universe::initStep(){
+    setLevel(0);
+    setIndexPos(0);
+}
 World* Universe::getCurrentWorld(){
     return _worlds[_indexWorld];
 }
