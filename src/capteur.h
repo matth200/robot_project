@@ -6,14 +6,15 @@
 #include "world.h"
 
 //caractéristique d'un capteur ultrason
-#define MAX_DIST 400
+#define MAX_DIST 800
 #define MAX_ANGLE 15.0/180.0*M_PI
 #define NBR_LINE_DETECTION 3
 
 class Capteur{
     public:
-        Capteur(double x=0.0, double y=0.0, double rotation=0.0);
+        Capteur();
         ~Capteur();
+        void setDetection(int state);
         void setMaxDist(int distance);
         void setMaxAngle(double angle);
         void setNbrLineDetection(int nbr);
@@ -32,6 +33,7 @@ class Capteur{
         std::vector<Line> _detectionLines;
         double _max_angle;
         int _max_dist, _nbr_line;
+        int _detection_state;
 };
 
 #endif

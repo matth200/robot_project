@@ -27,6 +27,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define COLOR_WHITE SDL_MapRGB(screen->format, 255,255,255)
 #define COLOR_BLACK SDL_MapRGB(screen->format, 0,0,0)
 #define COLOR_GREEN SDL_MapRGB(screen->format, 10,220,10)
+#define COLOR_PURPLE SDL_MapRGB(screen->format, 230, 10, 230)
 
 #define FPS 40.0
 
@@ -40,10 +41,15 @@ struct LineD{
     double x2, y2;
 };
 
-bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3);
+struct Pos{
+    int x, y;
+};
+
+bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3, vector<Pos> &points);
 void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color);
 void drawLine(SDL_Surface *screen, Line line, Uint32 color);
 void setPixel(SDL_Surface *screen, int x, int y, Uint32 color);
+void drawCross(SDL_Surface *screen, Pos pos, Uint32 color);
 
 
 int main(int argc, char **argv){
@@ -84,6 +90,11 @@ int main(int argc, char **argv){
     double duration = 0;
     double fpsActuel = 0;
 
+
+    //on gere les positions
+    vector<Pos> points;
+
+
     //on gere la souris
     SDL_Rect rectMouse;
     rectMouse.x = 0;
@@ -114,7 +125,7 @@ int main(int argc, char **argv){
     int state_line_green = 0;
 
     //button
-    bool status_esc = 0, status_enter = 0, state_space  = 0;
+    bool status_esc = 0, status_enter = 0, state_space  = 0, state_u = 0;
 
     int counter_esc = 0;
     time_point start_point_esc;
@@ -135,7 +146,7 @@ int main(int argc, char **argv){
                     if(event.key.keysym.sym==SDLK_RETURN){
                         if(status_enter==0){
                             //on enregistre le fichier
-                            if(saveDataInFile("../resources/map/map.level", carte, carte_red, carte_green)){
+                            if(saveDataInFile("../resources/map/map.level", carte, carte_red, carte_green, points)){
                                 cout << "Enregistrement fait avec succes" << endl;
                             }else{
                                 cout << "Erreur d'enregistrement du fichier" << endl;
@@ -182,6 +193,7 @@ int main(int argc, char **argv){
                                 carte.clear();
                                 carte_red.clear();
                                 carte_green.clear();
+                                points.clear();
                                 counter_esc = 0;
                             }
 
@@ -194,6 +206,8 @@ int main(int argc, char **argv){
                         }
                     }else if(event.key.keysym.sym==SDLK_SPACE){
                         state_space=1;
+                    }else if(event.key.keysym.sym==SDLK_u){
+                        state_u = 1;
                     }
                     break;
                 case SDL_KEYUP:
@@ -207,6 +221,8 @@ int main(int argc, char **argv){
                         }
                     }else if(event.key.keysym.sym==SDLK_SPACE){
                         state_space = 0;
+                    }else if(event.key.keysym.sym==SDLK_u){
+                        state_u = 0;
                     }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
@@ -224,7 +240,14 @@ int main(int argc, char **argv){
                                     break;
                             }
                         //line white
-                        }else{
+                        }else if(state_u){
+                            Pos pos;
+                            pos.x = event.motion.x;
+                            pos.y = event.motion.y;
+                            points.push_back(pos);
+                            state_u = 0;
+                        }
+                        else{
                             switch(state_line){
                                 case 0:
                                     line.x1 = event.motion.x;
@@ -343,6 +366,11 @@ int main(int argc, char **argv){
             drawLine(screen, carte_green[i], COLOR_GREEN);
         }
 
+        //affichage des points
+        for(int i(0);i<points.size();i++){
+            drawCross(screen, points[i], COLOR_PURPLE);
+        }
+
         SDL_Flip(screen);
 
         //on gere les fps
@@ -358,7 +386,7 @@ int main(int argc, char **argv){
     return 0;
 }
 
-bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3){
+bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3, vector<Pos> &points){
     ofstream file(filename, ios::binary);
     if(!file.is_open()){
         return false;
@@ -394,6 +422,16 @@ bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &li
         Line line(liste3[i]);
         file.write((const char*)(&line), sizeof(line));
         cursor+=sizeof(line);
+    } 
+    //purple points
+    size = points.size();
+    file.write((const char*)(&size), sizeof(size));
+    cursor+=sizeof(size);
+
+    for(int i(0);i<points.size();i++){
+        Pos pos(points[i]);
+        file.write((const char*)(&pos), sizeof(pos));
+        cursor+=sizeof(pos);
     }
     return true;
 }
@@ -419,4 +457,20 @@ void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color)
 }
 void drawLine(SDL_Surface *screen, Line line, Uint32 color){
     drawLine(screen, line.x1, line.y1, line.x2, line.y2, color);
+}
+
+void drawCross(SDL_Surface *screen, Pos pos, Uint32 color){
+    Line line1, line2;
+    line1.x1 = pos.x-10;
+    line1.y1 = pos.y-10;
+    line1.x2 = pos.x+10;
+    line1.y2 = pos.y+10;
+
+    line2.x1 = pos.x+10;
+    line2.y1 = pos.y-10;
+    line2.x2 = pos.x-10;
+    line2.y2 = pos.y+10;
+
+    drawLine(screen, line1, color);
+    drawLine(screen, line2, color);
 }

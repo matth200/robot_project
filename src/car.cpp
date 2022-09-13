@@ -1,6 +1,83 @@
 #include "car.h"
 using namespace std;
 
+
+
+//Trajectoire
+Trajectoire::Trajectoire(){
+    _sum = 0.0;
+}
+Trajectoire::~Trajectoire(){
+
+}
+
+double Trajectoire::getDistanceDone(){
+    // double sum = 0.0;
+    // for(int i(0);i<_liste.size()-1;i++){
+    //     Pos pos1, pos2;
+    //     pos1.x = _liste[i].x;
+    //     pos1.y = _liste[i].y;
+
+    //     pos2.x = _liste[i+1].x;
+    //     pos2.y = _liste[i+1].y;
+
+    //     sum+= distance(pos1,pos2);
+    // }
+
+    //elle est calculé au fûr est à mesure qu'on ajoute des points
+    //plus efficace
+    //on enleve les calculs inutiles
+    return _sum;
+}
+void Trajectoire::setOrigin(int x, int y){
+    clearTrajectoire();
+
+    Pos pos;
+    pos.x = x;
+    pos.y = y;
+    _liste.push_back(pos);
+}
+void Trajectoire::addPoint(int x, int y){
+    Pos pos;
+    pos.x = x;
+    pos.y = y;
+    _liste.push_back(pos);
+
+    //si _liste>=2 alors on peut ajouter les distances
+    if(_liste.size()>1){
+        Pos pos1, pos2;
+        pos1.x = _liste[_liste.size()-2].x;
+        pos1.y = _liste[_liste.size()-2].y;
+
+        pos2.x = _liste[_liste.size()-1].x;
+        pos2.y = _liste[_liste.size()-1].y;
+        _sum+=distance(pos1,pos2);
+    }
+}
+void Trajectoire::clearTrajectoire(){
+    _liste.clear();
+    _sum = 0;
+}
+void Trajectoire::draw(SDL_Surface *screen){
+    int size = _liste.size()-1;
+    for(int i(0);i<size;i++){
+        Line line;
+        line.x1 = _liste[i].x;
+        line.y1 = _liste[i].y;
+
+        line.x2 = _liste[i+1].x;
+        line.y2 = _liste[i+1].y;
+        drawLine(screen, line, COLOR_RED);
+    }
+
+}
+double Trajectoire::distance(Pos pos1, Pos pos2){
+    int x1 = pos1.x, y1 = pos1.y;
+    int x2 = pos2.x, y2 = pos2.y;
+    return sqrt(pow(x2-x1,2)+pow(y2-y1,2));
+}
+
+//CAR
 Car::Car():_x(0),_y(0),_rotation(0),_motor1(0),_motor2(0),_rayon(20),_angle_d(0),_angle_g(0){
     setRotation(0);
 }
@@ -90,6 +167,7 @@ void Car::draw(SDL_Surface *screen){
     drawCircle(screen, (int)(_x), (int)(_y), _rayon, COLOR_CAR);
     //Line
     drawLine(screen, _line, COLOR_CAR);
+    _trajectoire.draw(screen);
 }
 
 
@@ -97,27 +175,85 @@ void Car::draw(SDL_Surface *screen){
 Robot::Robot():Car()
 {
     _brain = NULL;
-    _alive = true;
+    _universe = NULL;
 
-    // _capteur_ext.setMaxAngle(M_PI*2.0);
-    // _capteur_ext.setNbrLineDetection(6);
-    // _capteur_ext.setMaxDist(20);
+    _capteur_ext.setMaxAngle(M_PI*2.0);
+    _capteur_ext.setNbrLineDetection(6);
+    _capteur_ext.setMaxDist(30);
+
+    _memoire = 0;
+    _memoire = 0;
+
+    clearTick();
 
     update();
+}
+
+bool Robot::getWin(){
+    return _win;
 }
 
 bool Robot::isAlive(){
     return _alive;
 }
 
+void Robot::clearTick(){
+    _tick = 0;
+    _alive = true;
+    _win = false;
+    _trajectoire.clearTrajectoire();
+}
 
+unsigned int Robot::getDuration(){
+    return (unsigned int)(double(_tick)/40.0*1000);
+}
+
+void Robot::setAlive(bool state){
+    _alive = state;
+}
+
+double Robot::getDistanceDone(){
+    return _trajectoire.getDistanceDone();
+}
+
+void Robot::setUniversePos(){
+    Pos pos = _universe->getCurrentPos();
+    setPos(pos.x,pos.y);
+}
 void Robot::update(){
+    //on connecte au monde en question
+    if(_universe!=NULL){
+        connectToWorld(*_universe->getCurrentWorld());
+    }
+
+    //ensuite on avance
     forward();
     _capteur.setPos(_x,_y);
     _capteur.setRotation(_rotation+M_PI/2.0);
 
-    // _capteur_ext.setPos(_x,_y);
-    // _capteur_ext.setRotation(_rotation+M_PI/2.0);
+    _capteur_ext.setPos(_x,_y);
+    _capteur_ext.setRotation(_rotation+M_PI/2.0);
+
+    //Les lignes rouges et blanches tuent le robot
+    //on detecte les lignes blanches
+    _capteur_ext.setDetection(WORLD_WHITE);
+    if(_capteur_ext.getDistance()<30){
+        _alive = false;
+    }
+    //on detecte les lignes rouges
+    _capteur_ext.setDetection(WORLD_RED);
+    if(_capteur_ext.getDistance()<30){
+        _alive = false;
+    }
+
+    //Alors que les lignes vertes lui permettent de remporter la victoire
+    //on detecte les lignes vertes
+    _capteur_ext.setDetection(WORLD_GREEN);
+    if(_capteur_ext.getDistance()<30){
+        _alive = false;
+        _win = true;
+    }
+
 
     if(_brain!=NULL){
         //on donne les infos au cerveau
@@ -126,19 +262,42 @@ void Robot::update(){
         unsigned char data[2];
         data[0] = (unsigned char)(rotation);
         data[1] = (unsigned char)(int(double(_capteur.getDistance())/double(MAX_DIST)*255.0));
+        data[2] = _memoire;
+        data[3] = _memoire2;
         _brain->setInput((char*)data);
 
         //on calcul
         _brain->calcul();
 
+        _memoire = int(_brain->getOutput(2)*255.0);
+        _memoire2 = int(_brain->getOutput(3)*255.0);
+
         //on connecte les moteurs
-        setMotor1(ROBOT_SPEED*_brain->getOutput(0));
-        setMotor2(ROBOT_SPEED*_brain->getOutput(1));
+        if(_alive){
+            setMotor1(ROBOT_SPEED*2.0*(_brain->getOutput(0)-1.0/2.0));
+            setMotor2(ROBOT_SPEED*2.0*(_brain->getOutput(1)-1.0/2.0));
+        }else{
+            setMotor1(0);
+            setMotor2(0);
+            //cout << _trajectoire.getDistanceDone() << endl;
+        }
     }
+
+    if(_tick%5==1){
+        _trajectoire.addPoint(_x,_y);
+    }
+
+    //on augmente le tick
+    _tick++;
+}
+
+void Robot::connectToUniverse(Universe *universe){
+    _universe = universe;
+    connectToWorld(*_universe->getCurrentWorld());
 }
 void Robot::connectToWorld(World &world){
     _capteur.connectToWorld(world);
-    //_capteur_ext.connectToWorld(world);
+    _capteur_ext.connectToWorld(world);
 }
 
 void Robot::setBrain(MachineLearning *brain){
@@ -148,5 +307,6 @@ void Robot::setBrain(MachineLearning *brain){
 void Robot::draw(SDL_Surface *screen){
     Car::draw(screen);
     _capteur.draw(screen);
-    // _capteur_ext.draw(screen);
+    //_trajectoire.draw(screen);
+    //_capteur_ext.draw(screen);
 }

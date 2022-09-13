@@ -9,6 +9,10 @@ World::~World(){
 
 }
 
+vector<Pos> *World::getPoints(){
+    return &_points;
+}
+
 void World::draw(SDL_Surface *screen){
         //affichage de carte
         for(int i(0);i<_carte.size();i++){
@@ -50,6 +54,13 @@ bool World::loadMap(const char* filename){
     for(int i(0);i<size;i++){
         file.read((char*)&line, sizeof(line));
         _carte_green.push_back(Line(line));
+    }
+    //purple points
+    file.read((char*)&size, sizeof(size));
+    Pos pos;
+    for(int i(0);i<size;i++){
+        file.read((char*)&pos, sizeof(pos));
+        _points.push_back(Pos(pos));
     }
     return true;
 }
@@ -143,3 +154,72 @@ void VirtualWorld::setSize(int w, int h){
     }
 }
 
+//universe
+
+Universe::Universe(int w, int h):_indexWorld(-1), _indexPos(-1){
+    _w = w;
+    _h = h;
+}
+
+Universe::~Universe(){
+    for(int i(0);i<_worlds.size();i++){
+        delete _worlds[i];
+    }
+}
+
+bool Universe::addLevel(const char *filename){
+    World *world = new World(_w, _h);
+    bool state = world->loadMap(filename);
+    _worlds.push_back(world);
+    return state;
+}
+
+void Universe::setLevel(int index){
+    _indexWorld = index;
+}
+int Universe::getNbrWorld(){
+    return _worlds.size();
+}
+
+int Universe::getNbrPos(){
+    return getCurrentWorld()->getPoints()->size();
+}
+void Universe::setIndexPos(int index){
+    _indexPos = index;
+}
+int Universe::getIndexPos(){
+    return _indexPos;
+}
+Pos Universe::getCurrentPos(){
+    return (*(getCurrentWorld()->getPoints()))[_indexPos];
+}
+int Universe::getLevel(){
+    return _indexWorld;
+}
+
+void Universe::buildUniverse(){
+    for(int i(0);i<_worlds.size();i++){
+        _worlds[i]->buildVirtualWorld();
+    }
+}
+
+bool Universe::isFinished(){
+    return getLevel()==getNbrWorld();
+}
+void Universe::nextStep(){
+    if(getIndexPos()<getNbrPos()){
+        _indexPos++;
+    }
+
+    if(getIndexPos()==getNbrPos()){
+        _indexPos = 0;
+        _indexWorld++;
+    }
+}
+void Universe::initStep(){
+    setLevel(0);
+    setIndexPos(0);
+}
+World* Universe::getCurrentWorld(){
+    return _worlds[_indexWorld];
+}

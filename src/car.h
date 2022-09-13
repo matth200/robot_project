@@ -3,12 +3,32 @@
 
 #include <SDL/SDL.h>
 #include <iostream>
+#include <cmath>
+
 #include "draw.h"
 #include "capteur.h"
 #include "m_learning.h"
+#include "world.h"
 
 #define COLOR_CAR SDL_MapRGB(screen->format, 200,10,100)
 #define ROBOT_SPEED 5
+
+
+class Trajectoire{
+    public:
+        Trajectoire();
+        ~Trajectoire();
+        double getDistanceDone();
+        void setOrigin(int x, int y);
+        void addPoint(int x, int y);
+        void clearTrajectoire();
+        void draw(SDL_Surface *screen);
+    private:
+        double distance(Pos pos1, Pos pos2);
+    protected:
+        std::vector<Pos> _liste;
+        double _sum;
+};
 
 
 class Car{
@@ -32,21 +52,32 @@ class Car{
         double _rayon;
         double _motor1, _motor2;
         LineD _line;
+        Trajectoire _trajectoire;
 };
 
 class Robot: public Car{
     public:
         Robot();
         void draw(SDL_Surface *screen);
+        void connectToUniverse(Universe *universe);
         void connectToWorld(World &world);
         void setBrain(MachineLearning *brain);
+        void setUniversePos();
         bool isAlive();
         void update();
+        void clearTick();
+        double getDistanceDone();
+        unsigned int getDuration();
+        void setAlive(bool state);
+        bool getWin();
     protected:
+        Capteur _capteur_ext;
         Capteur _capteur;
         MachineLearning *_brain;
-        bool _alive;
-        //Capteur _capteur_ext;
+        bool _alive, _win;
+        unsigned int _tick;
+        unsigned char _memoire, _memoire2;
+        Universe *_universe;
 };
 
 #endif
