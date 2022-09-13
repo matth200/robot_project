@@ -310,7 +310,7 @@ void MachineLearning::saveTraining(const char *file)
 	cout << "SAVED SUCCESSFULLY" << endl;
 }
 
-void MachineLearning::backupTraining(const char *file)
+bool MachineLearning::backupTraining(const char *file)
 {
 	ifstream f(file,ios::binary);
 	if(f.is_open())
@@ -341,6 +341,7 @@ void MachineLearning::backupTraining(const char *file)
 				{
 					error = 1;
 					cout << "Erreur compatibilité" << endl;
+					return false;
 				}
 			}
 
@@ -368,14 +369,22 @@ void MachineLearning::backupTraining(const char *file)
 			char end = 0;
 			f.seekg(cursor,ios::beg);
 			f.read(&end,1);
-			if(end==125)
+			if(end==125){
 				cout << "BACKUP SUCCESSFUL" << endl;
-			else
+				return true;
+			}
+			else{
 				cout << "BACKUP FAILED" << endl;
+				return false;
+			}
+
 		}
-		else
+		else{
 			cout << "Pas compatible" << endl;
+			return false;
+		}
 	}
+	return false;
 }
 
 int MachineLearning::getPrediction()

@@ -129,6 +129,28 @@ int main(int argc, char **argv){
 		listeBrains.push_back(selection);
 	}
 
+
+	//configuration ou non du premier machine learning
+	bool state_backup_data = false;
+	if(argc<=2){
+		//si un fichier est proposé
+		if(argc==2){
+			cout << "Insertion du réseau de neurones déjà entrainé...." << endl;
+			const char *filename = argv[1];
+			if(listeBrains[0].m.backupTraining(filename)){
+				cout << "Récupération du réseau de neurones effectuée avec succèes" << endl;
+				state_backup_data = true;
+			}else{
+				cout << "Erreur lors de la récupération" << endl;
+				cout << "Retour au mode NORMAL(Valeurs aléatoire)" << endl;
+				listeBrains[0].m.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
+			}
+		}
+	}else{
+		cout << "Mauvaise utilisation des parmètres" << endl;
+		cout << argv[0] << " 'chemin_dacces_fichier_ml'" << endl;
+	}
+
 	//Machine learning, on fait jouer le joueur 1
 	VarSelection *player = &(listeBrains[0]);
 	int generation = 0;
@@ -365,7 +387,7 @@ int main(int argc, char **argv){
 	}
 
 
-	if(max_score>10000){
+	if(max_score>=100000){
 		player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
 	}
 
