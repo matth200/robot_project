@@ -45,7 +45,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FRQ_MUTATION 0.08
 #define NBR_SELECTION 100
 #define NBR_RANDOM 50
-#define TIMEOUT 20000
+#define TIMEOUT 40000
 
 //parametre machine learning
 #define RANDOM_VALUE_W 10
@@ -101,7 +101,22 @@ int main(int argc, char **argv){
 
 
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
-	if(!universe.addLevel("../resources/map/map.level")){
+	if(!universe.addLevel("../resources/map/map_1.level")){
+		cout << "Erreur de chargement de la map" << endl;
+	}else{
+		cout << "Okay map." << endl;
+	}
+	if(!universe.addLevel("../resources/map/map_2.level")){
+		cout << "Erreur de chargement de la map" << endl;
+	}else{
+		cout << "Okay map." << endl;
+	}
+	if(!universe.addLevel("../resources/map/map_3.level")){
+		cout << "Erreur de chargement de la map" << endl;
+	}else{
+		cout << "Okay map." << endl;
+	}
+	if(!universe.addLevel("../resources/map/map_4.level")){
 		cout << "Erreur de chargement de la map" << endl;
 	}else{
 		cout << "Okay map." << endl;
