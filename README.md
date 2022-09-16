@@ -124,8 +124,21 @@ We are on the next generation here, we do it in loop and it will evolve to creat
 
 
 
+<h3>Transfer To Arduino</h3>
+
+The neural network is trained so we want to transfer it to arduino<br/>
+To make it, we will use the program <mark>extract_nn</mark><br/>
+If it is not made, you just have to run<code> ~$ make</code><br/>
+So now, you just have to go the bin folder and run <code> ~$ ./extract_nn</code><br/>
+You will get this.<br/>
+
+![My Images](documentation/6.png)
+
+Then you just have to copy and paste on your arduino program.<br/>
+
+![My Images](documentation/7.png)
 
 
-
-
+<br/>
+Have funnn!
 
