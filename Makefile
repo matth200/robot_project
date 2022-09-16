@@ -5,7 +5,15 @@ FLAGS=-lSDL -lSDL_ttf
 BIN_DIRECTORY=bin
 SRC_DIRECTORY=src
 
-all: $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training
+all: $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training $(BIN_DIRECTORY)/extract_nn
+
+#extract_nn
+$(BIN_DIRECTORY)/extract_nn: $(BIN_DIRECTORY)/extract_nn.o 
+	$(GXX) -o $@ $^ 
+
+$(BIN_DIRECTORY)/extract_nn.o: extract_neuralnetwork.cpp
+	$(GXX) -o $@ -c $< 
+
 
 #app_map
 $(BIN_DIRECTORY)/app_map: $(BIN_DIRECTORY)/main_map.o
@@ -45,4 +53,4 @@ clean:
 	rm -f $(SRC_DIRECTORY)/*.o
 
 clean-all: clean
-	rm -f $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training
+	rm -f $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training $(BIN_DIRECTORY)/extract_nn
