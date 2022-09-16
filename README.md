@@ -138,6 +138,7 @@ Then you just have to copy and paste on your arduino program.<br/>
 
 ![My Images](documentation/7.png)
 
+It will load the neural_network trained on your computer on your robot !<br/>
 
 <br/>
 Have funnn!
