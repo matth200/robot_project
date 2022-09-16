@@ -60,10 +60,10 @@ int main(int argc, char **argv){
         string data = "";
         cout << "Code arduino:" <<endl;
         int size = filesize(filename.c_str());
-        data="const char data["+to_string(size)+"]={";
-        unsigned char buffer = 0;
+        data="const PROGMEM char data["+to_string(size)+"]={";
+        char buffer = 0;
         for(int i=0;i<size;i++){
-            file.read((char*)&buffer,1);
+            file.read(&buffer,1);
             data+=to_string(int(buffer));
             if(i!=size-1){
                 data+=",";
