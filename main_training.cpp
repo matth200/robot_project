@@ -225,6 +225,7 @@ int main(int argc, char **argv){
 
 	//speed
 	bool state_space = false, state_enter = false;
+	bool behind_work = false;
 
 	//boucle
 	bool continuer = true;
@@ -281,13 +282,15 @@ int main(int argc, char **argv){
 		//affichage
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
 
-		//viens faire avancer le robot et remplir si terminé le score du player
-		bool finish;
-		evaluateRobot(robot, player, finish);
+		bool finish = false;
+		if(!behind_work){
+			//viens faire avancer le robot et remplir si terminé le score du player
+			evaluateRobot(robot, player, finish);
 
-		//on récupère le meilleur score en live aussi
-		if(max_score<player->score){
-			max_score = player->score;
+			//on récupère le meilleur score en live aussi
+			if(max_score<player->score){
+				max_score = player->score;
+			}
 		}
 
 		//on gère les infos
@@ -296,9 +299,11 @@ int main(int argc, char **argv){
 			display.setSave(true);
 		}
 
-		//affichage de l'environement
-		universe.getCurrentWorld()->draw(screen);
-		robot.draw(screen);
+		if(!behind_work){
+			//affichage de l'environement
+			universe.getCurrentWorld()->draw(screen);
+			robot.draw(screen);
+		}
 		display.draw(screen);
 
 
