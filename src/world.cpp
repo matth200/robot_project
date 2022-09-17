@@ -171,6 +171,11 @@ bool Universe::addLevel(const char *filename){
     World *world = new World(_w, _h);
     bool state = world->loadMap(filename);
     _worlds.push_back(world);
+    if(!state){
+		cout << "Erreur de chargement de la map" << endl;
+	}else{
+		cout << "Okay map." << endl;
+	}
     return state;
 }
 

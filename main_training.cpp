@@ -101,31 +101,11 @@ int main(int argc, char **argv){
 
 
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
-	if(!universe.addLevel("../resources/map/map_1.level")){
-		cout << "Erreur de chargement de la map" << endl;
-	}else{
-		cout << "Okay map." << endl;
-	}
-	if(!universe.addLevel("../resources/map/map_2.level")){
-		cout << "Erreur de chargement de la map" << endl;
-	}else{
-		cout << "Okay map." << endl;
-	}
-	if(!universe.addLevel("../resources/map/map_3.level")){
-		cout << "Erreur de chargement de la map" << endl;
-	}else{
-		cout << "Okay map." << endl;
-	}
-	if(!universe.addLevel("../resources/map/map_4.level")){
-		cout << "Erreur de chargement de la map" << endl;
-	}else{
-		cout << "Okay map." << endl;
-	}
-	if(!universe.addLevel("../resources/map/map_5.level")){
-		cout << "Erreur de chargement de la map" << endl;
-	}else{
-		cout << "Okay map." << endl;
-	}
+	universe.addLevel("../resources/map/map_1.level");
+	universe.addLevel("../resources/map/map_2.level");
+	universe.addLevel("../resources/map/map_3.level");
+	universe.addLevel("../resources/map/map_4.level");
+	universe.addLevel("../resources/map/map_5.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
 	//construction des mondes virtuels pour la détection
