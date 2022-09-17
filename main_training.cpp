@@ -38,7 +38,7 @@ namespace fs = std::filesystem;
 
 //include time
 #include <ctime>
-#define STATS_FOLDER "resources/stats/"
+#define STATS_FOLDER "../resources/stats/"
 
 using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
