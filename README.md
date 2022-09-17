@@ -140,6 +140,20 @@ Then you just have to copy and paste on your arduino program.<br/>
 
 It will load the neural_network trained on your computer on your robot !<br/>
 
+<h3>Graph of the evolution</h3>
+
+There is a program <mark>display_stat.py</mark><br/>
+Which you can use to see the evolution of each of your neural network<br/>
+Give the program the right to be launch <code> ~$ chmod +x display_stat.py </code><br/>
+You just have to launch it, <code> ~$ ./display_stat.py </code><br/>
+Then you will see this<br/>
+
+![My Images](documentation/8.png)
+
+Once, you have choose your file, it will display the evolution<br/>
+
+![My Images](documentation/9.png)
+
 <br/>
 Have funnn!
 
