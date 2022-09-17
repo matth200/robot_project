@@ -36,6 +36,10 @@
 namespace fs = std::filesystem;
 #define TRAINMODEL_FOLDER "../resources/trained_model/"
 
+//include time
+#include <ctime>
+#define STATS_FOLDER "resources/stats/"
+
 using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
@@ -126,6 +130,17 @@ int main(int argc, char **argv){
 	}
 	cout << "Filename:" << filename <<  ", max_score:" << max_score_folder << endl;
 
+
+	//on prepare le fichier de suivi de l'evolution
+	time_t now_time = chrono::system_clock::to_time_t(chrono::system_clock::now());
+	string filename_evolution = string(STATS_FOLDER)+"evolution_"+ctime(&now_time);
+	for(int i(0);i<filename_evolution.length();i++){
+		if(filename_evolution[i]==' '){
+			filename_evolution[i] = '_';
+		}
+	}
+	cout << "filename_evolution:" << filename_evolution << endl;
+	ofstream file_evolution(filename_evolution);
 
 	//on construit l'univers
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
@@ -407,6 +422,10 @@ int main(int argc, char **argv){
 
 				//cout << "nombree" << listeBrains.size() << endl;
 
+				//on fait suivre l'évolution
+				file_evolution << generation << " " << max_score << endl;
+
+				//on passe à la génération d'après
 				generation++;
 
 				//on relance avec le premier
