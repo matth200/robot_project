@@ -41,10 +41,10 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FPS 40.0
 
 //parametre GENETIC_ALGORITHM
-#define NBR_POPULATION 200
-#define FRQ_MUTATION 0.08
+#define NBR_POPULATION 100
+#define FRQ_MUTATION 0.10
 #define NBR_SELECTION 100
-#define NBR_RANDOM 50
+#define NBR_RANDOM 10
 #define TIMEOUT 40000
 
 //parametre machine learning
@@ -117,6 +117,11 @@ int main(int argc, char **argv){
 		cout << "Okay map." << endl;
 	}
 	if(!universe.addLevel("../resources/map/map_4.level")){
+		cout << "Erreur de chargement de la map" << endl;
+	}else{
+		cout << "Okay map." << endl;
+	}
+	if(!universe.addLevel("../resources/map/map_5.level")){
 		cout << "Erreur de chargement de la map" << endl;
 	}else{
 		cout << "Okay map." << endl;
