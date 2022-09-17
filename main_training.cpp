@@ -30,6 +30,12 @@
 //affichage information
 #include "src/display.h"
 
+//include fs
+#include <filesystem>
+#include <regex>
+namespace fs = std::filesystem;
+#define TRAINMODEL_FOLDER "../resources/trained_model/"
+
 using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
@@ -98,9 +104,32 @@ int main(int argc, char **argv){
 	}
 
 	SDL_WM_SetCaption("NEURAL NETWORK TRAINING", NULL);
+	//on récupére le meilleur score
+	string filename = "";
+	string path = TRAINMODEL_FOLDER;
+	cout << "Selection du meilleur réseau de neurones dans "<< path << endl;
+	int max_score_folder = 0;
+	smatch m;
+	regex r("_([0-9]+).ml");
+	for (const auto & entry : fs::directory_iterator(path)){
+		string name = entry.path();
+		regex_search(name,m,r);
+		int score = 0;
+		if(m.size()>0){
+			auto v = m[1];
+			score = stoi(v);
+			if(score>max_score_folder){
+				max_score_folder = score;
+				filename = name;
+			}
+		}
+	}
+	cout << "Filename:" << filename <<  ", max_score:" << max_score_folder << endl;
 
 
+	//on construit l'univers
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
+	cout << "Ouverture des maps..." << endl;
 	universe.addLevel("../resources/map/map_1.level");
 	universe.addLevel("../resources/map/map_2.level");
 	universe.addLevel("../resources/map/map_3.level");
@@ -171,6 +200,8 @@ int main(int argc, char **argv){
 	display.setMiniFont(policeMini);
 	display.setRobot(&robot);
 	display.setUniverse(&universe);
+
+
 	//on place le nom du fichier récupéré
 	if(state_backup_data){
 		display.setBackup(string(argv[1]));
@@ -384,6 +415,12 @@ int main(int argc, char **argv){
 				robot.setBrain(&(player->m));
 			}
 		}
+
+		//pour éviter de perdre les bons éléments à chaque génération
+		if(max_score>=max_score_folder){
+			player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
+		}
+
 		//management time
 		end_point = chrono::high_resolution_clock::now();
 		duration = chrono::duration_cast<chrono::milliseconds>(end_point-start_point).count();
@@ -393,7 +430,7 @@ int main(int argc, char **argv){
 	}
 
 	//sécurité pour ne pas perdre les bons entrainements
-	if(max_score>=100000){
+	if(max_score>=600000){
 		player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
 	}
 
