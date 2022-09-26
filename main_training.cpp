@@ -51,15 +51,15 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FPS 40.0
 
 //parametre GENETIC_ALGORITHM
-#define NBR_POPULATION 100
+#define NBR_POPULATION 200
 #define FRQ_MUTATION 0.10
-#define NBR_SELECTION 100
-#define NBR_RANDOM 10
-#define TIMEOUT 40000
+#define NBR_SELECTION 200
+#define NBR_RANDOM 70
+#define TIMEOUT 60000
 
 //parametre machine learning
-#define RANDOM_VALUE_W 10
-#define RANDOM_VALUE_B 10
+#define RANDOM_VALUE_W 20
+#define RANDOM_VALUE_B 20
 
 //variable pour effectuer la selection
 struct VarSelection
@@ -114,7 +114,7 @@ int main(int argc, char **argv){
 	cout << "Selection du meilleur réseau de neurones dans "<< path << endl;
 	int max_score_folder = 0;
 	smatch m;
-	regex r("_([0-9]+).ml");
+	regex r("light_([0-9]+).ml");
 	for (const auto & entry : fs::directory_iterator(path)){
 		string name = entry.path();
 		regex_search(name,m,r);
@@ -150,6 +150,8 @@ int main(int argc, char **argv){
 	universe.addLevel("../resources/map/map_3.level");
 	universe.addLevel("../resources/map/map_4.level");
 	universe.addLevel("../resources/map/map_5.level");
+	// universe.addLevel("../resources/map/map_6.level");
+	// universe.addLevel("../resources/map/map.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
 	//construction des mondes virtuels pour la détection
@@ -164,7 +166,7 @@ int main(int argc, char **argv){
 		MachineLearning *m = &(selection.m);
 		m->open(4);
 		m->addColumn(10);
-		m->addColumn(10);
+		//m->addColumn(10);
 		m->addColumn(4);
 
 		selection.best = false;
@@ -249,7 +251,7 @@ int main(int argc, char **argv){
 							break;
 						case 13:
 							if(state_enter==false){
-								player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(max_score)+".ml").c_str());
+								player->m.saveTraining((string("../resources/trained_model/brain_light_")+to_string(max_score)+".ml").c_str());
 								state_enter = true;
 							}
 							break;
@@ -455,7 +457,7 @@ int main(int argc, char **argv){
 
 	//sécurité pour ne pas perdre les bons entrainements
 	if(max_score>=600000){
-		player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
+		player->m.saveTraining((string("../resources/trained_model/brain_light_")+to_string(player->score)+".ml").c_str());
 	}
 
 	TTF_CloseFont(police);

@@ -314,21 +314,22 @@ bool MachineLearning::backupTraining(const char *data)
 {
 	int cursor = 0;
 	
-	int nbrColumn = 0;		
-	memcpy_P((char*)(&nbrColumn),(const char*)(data+cursor),sizeof(nbrColumn));	
+	long nbrColumn = 0;		
+	memcpy_P((char*)(&nbrColumn),(const char*)pgm_read_byte_near(data+cursor),sizeof(nbrColumn));	
 	cursor+=sizeof(nbrColumn);
 	
 	bool error = 0;
+	std::cout << "test" << nbrColumn << std::endl;
 	
 	if(nbrColumn==getNumberColumn())
 	{
 		//si compatible
 		//on récupere les tailles des couches
-		std::vector<int> tailles;
+		std::vector<long> tailles;
 		for(int i(0);i<nbrColumn;i++)
 		{
-			int taille = 0;
-			memcpy_P((char*)(data+cursor),(char*)&taille,sizeof(taille));
+			long taille = 0;
+			memcpy_P((char*)&taille,(char*)pgm_read_byte_near(data+cursor),sizeof(taille));
 			tailles.push_back(taille);
 			cursor+=sizeof(taille);
 			
@@ -347,20 +348,20 @@ bool MachineLearning::backupTraining(const char *data)
 			{
 				for(int i(0);i<Lines[l].get_number_neuron();i++)
 				{
-					double weight = 0;
-					memcpy_P((char*)(data+cursor),(char*)&weight,sizeof(weight));
+					long double weight = 0;
+					memcpy_P((char*)&weight,(char*)pgm_read_byte_near(data+cursor),sizeof(weight));
 					cursor+=sizeof(weight);
 					Lines[l+1].get_neuron(j)->set_weight(i,weight);
 				}
-				double biais = 0;
-				memcpy_P((char*)(data+cursor),(char*)&biais,sizeof(biais));
+				long double biais = 0;
+				memcpy_P((char*)&biais,(char*)pgm_read_byte_near(data+cursor),sizeof(biais));
 				cursor+=sizeof(biais);
 				Lines[l+1].get_neuron(j)->set_bias(biais);
 			}
 		}
 		//petite vérification
 		char end = 0;
-		memcpy_P((char*)(data+cursor),&end,1);
+		memcpy_P(&end,(char*)pgm_read_byte_near(data+cursor),1);
 		if(end==125){
 			std::cout << "BACKUP SUCCESSFUL" << std::endl;
 			return true;

@@ -38,6 +38,7 @@ if continuer:
     data = []
     X = []
     Y = []
+    max_score = 0
     #construction des listes
     with open(join(STATS_FOLDER, onlyfiles[ask])) as file:
         data = file.read().split("\n")[:-1]
@@ -46,10 +47,13 @@ if continuer:
             tmp = elt.split(" ")
             liste.append([int(tmp[0]),int(tmp[1])])
             X.append(liste[-1][0])
-            Y.append(liste[-1][1])
+            score = liste[-1][1]
+            Y.append(score)
+            if(score>max_score):
+                max_score = score
         data = liste
 
-    plt.ylim(0,800000)
+    plt.ylim(0, max_score+1000)
     plt.plot(X,Y)
     plt.xlabel("génération")
     plt.ylabel("score max")
