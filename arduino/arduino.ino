@@ -43,6 +43,10 @@ double getDistance(int pin, int timeout){
   return distance/2.0;
 }
 
+void updateRotation(double &rotation){
+
+}
+
 void setSpeed(Servo &servo, int vitesse){
   servo.writeMicroseconds(map(vitesse, -100, 100, 1300, 1700));
 }
@@ -72,7 +76,7 @@ void setup() {
 }
 
 void loop() {
-  //std::cout << "fps:" << 1000.0/(millis()-start_chrono) << std::endl;
+  std::cout << "fps:" << 1000.0/(millis()-start_chrono) << std::endl;
   start_chrono = millis();
   //on doit maintenir la loop a une certaine fréquence
   distance = getDistance(CAPTEUR_US, TIMEOUT);
@@ -93,12 +97,12 @@ void loop() {
   memoire[0] = (unsigned char)machine.getOutput(2);
   memoire[1] = (unsigned char)machine.getOutput(3);
   
-  std::cout << "Motor1:" << machine.getOutput(0) << std::endl;
-  std::cout << "Motor2:" << machine.getOutput(1) << std::endl;
+  //std::cout << "Motor1:" << machine.getOutput(0) << std::endl;
+  //std::cout << "Motor2:" << machine.getOutput(1) << std::endl;
 
   //on envoie les infos moteur
   setSpeed(servo_g, int((machine.getOutput(0)-0.5)*2.0*100.0)+G_CORREC);
-  setSpeed(servo_d, int((machine.getOutput(1)-0.5)*2.0*100.0)+D_CORREC);
+  setSpeed(servo_d, int(-(machine.getOutput(1)-0.5)*2.0*100.0)+D_CORREC);
 
 
   //on gère la fréquence de rafraichissement
