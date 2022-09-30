@@ -4,6 +4,8 @@
         "ostream": "cpp",
         "cmath": "cpp",
         "*.tcc": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "bitset": "cpp",
+        "atomic": "cpp"
     }
 }

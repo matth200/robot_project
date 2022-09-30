@@ -30,18 +30,22 @@ public:
 	Neuron(int size, bool israndom);
 	void set_value(double v);
 	double get_value() const;
-	void set_weight(int i, double weight);
+	// void set_weight(int i, double weight);
 	double get_weight(int i) const;
-	void set_bias(double bias);
+	// void set_bias(double bias);
 	double get_bias() const;
 	double get_error() const;
+	int get_size() const;
+	void set_data(char *data);
 	void set_error(double error);
 	int numberConnection() const;
 protected:
 	double value;
-	double b;
+	//double b;
+	int _size;
+	char *data_w;
 	double deriError;
-	std::vector<double> w;
+	//std::vector<double> w;
 };
 
 class NetworkNeuron
@@ -66,7 +70,7 @@ public:
 	void open(int sizeInput);
 	void setInput(char *data);
 	void setInput(char *data, int size, int cursor);
-	void setWeightRandom(int maxW = 2, int maxB = 2);
+	//void setWeightRandom(int maxW = 2, int maxB = 2);
     void calcul();
     NetworkNeuron* getNetwork(int i);
 	double getZ(int l, int j);	
@@ -75,7 +79,6 @@ public:
 	void addColumn(int numberNeuron);
 	int getNumberColumn() const; 
 	double getPrecision(NetworkNeuron& result);
-	void train(NetworkNeuron& result, double r = 0.5);
 	bool backupTraining(const char *data);
 	int getPrediction();
 protected:

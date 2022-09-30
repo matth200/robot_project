@@ -18,9 +18,19 @@ Neuron::Neuron(int size, bool isRandom)
 {
 	//initialisation des valeurs
 	value = 0;
-	b = 0;
+	//b = 0;
 	deriError = 0;
-	w.resize(size);
+	//w.resize(size);
+	data_w = NULL;
+	_size = size;
+}
+
+int Neuron::get_size() const{
+	return _size;
+}
+
+void Neuron::set_data(char *data){
+	data_w = data;
 }
 
 double Neuron::get_value() const
@@ -34,24 +44,28 @@ void Neuron::set_value(double v)
 		value = v;
 }
 
-void Neuron::set_weight(int i, double weight)
-{
-	if(i>=0)
-		w[i] = weight;
-}
+// void Neuron::set_weight(int i, double weight)
+// {
+// 	if(i>=0)
+// 		w[i] = weight;
+// }
 
 double Neuron::get_weight(int i) const
 { 
-	return w[i]; 
+	double w;
+	memcpy_P((char*)&w, (char*)(data_w+i*sizeof(w)), sizeof(w));
+	return w;
 }
 
-void Neuron::set_bias(double bias)
-{
-	b = bias;
-}
+// void Neuron::set_bias(double bias)
+// {
+// 	b = bias;
+// }
 
 double Neuron::get_bias() const
 {
+	double b;
+	memcpy_P((char*)&b, (char*)(data_w+_size*sizeof(b)), sizeof(b));
 	return b;
 }
 
@@ -67,7 +81,7 @@ double Neuron::get_error() const
 
 int Neuron::numberConnection() const
 {
- 	return w.size();
+ 	return _size;
 }
 
 NetworkNeuron::NetworkNeuron(int size, NetworkNeuron* before)
@@ -135,22 +149,22 @@ void MachineLearning::setInput(char *data, int size, int cursor)
 	}
 }
 
-void MachineLearning::setWeightRandom(int maxW, int maxB)
-{
-	maxW*=1000;
-	maxB*=1000;
-	for(int l(0);l<Lines.size()-1;l++)
-	{
-		for(int j(0);j<Lines[l+1].get_number_neuron();j++)
-		{
-			for(int i(0);i<Lines[l+1].get_neuron(j)->numberConnection();i++)
-			{
-				Lines[l+1].get_neuron(j)->set_weight(i,rand()%maxW/1000.0-maxW/2000.0);  
-			}
-			Lines[l+1].get_neuron(j)->set_bias(rand()%maxB/1000.0-maxB/2000.0);
-		}
-	}
-}
+// void MachineLearning::setWeightRandom(int maxW, int maxB)
+// {
+// 	maxW*=1000;
+// 	maxB*=1000;
+// 	for(int l(0);l<Lines.size()-1;l++)
+// 	{
+// 		for(int j(0);j<Lines[l+1].get_number_neuron();j++)
+// 		{
+// 			for(int i(0);i<Lines[l+1].get_neuron(j)->numberConnection();i++)
+// 			{
+// 				Lines[l+1].get_neuron(j)->set_weight(i,rand()%maxW/1000.0-maxW/2000.0);  
+// 			}
+// 			Lines[l+1].get_neuron(j)->set_bias(rand()%maxB/1000.0-maxB/2000.0);	
+// 		}
+// 	}
+// }
 
 void MachineLearning::calcul()
 {	
@@ -165,6 +179,7 @@ void MachineLearning::calcul()
 				a+=Lines[l].get_neuron(i)->get_value()*Lines[l+1].get_neuron(j)->get_weight(i); 
 			}
 			Lines[l+1].get_neuron(j)->set_value(sigmoid(a+Lines[l+1].get_neuron(j)->get_bias()));	
+			//std::cout << "value:" << Lines[l+1].get_neuron(j)->get_value() << std::endl;
 		}
 	}
 }
@@ -216,60 +231,60 @@ double MachineLearning::getPrecision(NetworkNeuron& result)
 	return diff;
 }
 
-void MachineLearning::train(NetworkNeuron& result, double r)
-{
-	std::vector<double> errors;
-	//retropropagation des erreurs
-	for(int l(Lines.size()-1);l>0;l--)
-	{
-		for(int j(0);j<Lines[l].get_number_neuron();j++)
-		{
-			double error = 0.0;
-			//si c'est dans les couches cachés
-			if(l!=Lines.size()-1)
-			{
-				for(int i(0);i<Lines[l+1].get_number_neuron();i++)
-				{	
-					Neuron &neuron = *Lines[l+1].get_neuron(i);
-				        error+=neuron.get_weight(j)*neuron.get_error();
-				}
-			}
-			//si c'est la couche de sortie des neurones
-			else{
-				error = getOutput(j)-result.get_neuron(j)->get_value();
-			}
-			Neuron &neuron = *Lines[l].get_neuron(j);
-			neuron.set_error(error * sigmoidPrime(neuron.get_value()));
+// void MachineLearning::train(NetworkNeuron& result, double r)
+// {
+// 	std::vector<double> errors;
+// 	//retropropagation des erreurs
+// 	for(int l(Lines.size()-1);l>0;l--)
+// 	{
+// 		for(int j(0);j<Lines[l].get_number_neuron();j++)
+// 		{
+// 			double error = 0.0;
+// 			//si c'est dans les couches cachés
+// 			if(l!=Lines.size()-1)
+// 			{
+// 				for(int i(0);i<Lines[l+1].get_number_neuron();i++)
+// 				{	
+// 					Neuron &neuron = *Lines[l+1].get_neuron(i);
+// 				        error+=neuron.get_weight(j)*neuron.get_error();
+// 				}
+// 			}
+// 			//si c'est la couche de sortie des neurones
+// 			else{
+// 				error = getOutput(j)-result.get_neuron(j)->get_value();
+// 			}
+// 			Neuron &neuron = *Lines[l].get_neuron(j);
+// 			neuron.set_error(error * sigmoidPrime(neuron.get_value()));
 			
-			//ajout des erreurs dans un tableau pour calculer la moyenne
-			errors.push_back(error * sigmoidPrime(neuron.get_value()));
-		}
-	}
+// 			//ajout des erreurs dans un tableau pour calculer la moyenne
+// 			errors.push_back(error * sigmoidPrime(neuron.get_value()));
+// 		}
+// 	}
 
-	double average = 0;
-	for(int i(0);i<errors.size();i++)
-	{
-		average += errors[i];
-	}
-	average/=double(errors.size());
-	//std::cout << "Moyenne des erreurs" << average << std::endl;
+// 	double average = 0;
+// 	for(int i(0);i<errors.size();i++)
+// 	{
+// 		average += errors[i];
+// 	}
+// 	average/=double(errors.size());
+// 	//std::cout << "Moyenne des erreurs" << average << std::endl;
 	
-	//mise à jour des biais et des poids
-	for(int l(Lines.size()-1);l>0;l--)
-	{
-		for(int j(0);j<Lines[l].get_number_neuron();j++)
-		{
-			Neuron &neuron = *Lines[l].get_neuron(j);
-			//bias
-			neuron.set_bias(neuron.get_bias()-r*neuron.get_error());
-			//weight
-			for(int i(0);i<Lines[l].get_neuron(j)->numberConnection();i++)
-			{
-				neuron.set_weight(i,neuron.get_weight(i)-r*neuron.get_error()*Lines[l-1].get_neuron(i)->get_value());
-			}
-		}
-	}
-}
+// 	//mise à jour des biais et des poids
+// 	for(int l(Lines.size()-1);l>0;l--)
+// 	{
+// 		for(int j(0);j<Lines[l].get_number_neuron();j++)
+// 		{
+// 			Neuron &neuron = *Lines[l].get_neuron(j);
+// 			//bias
+// 			neuron.set_bias(neuron.get_bias()-r*neuron.get_error());
+// 			//weight
+// 			for(int i(0);i<Lines[l].get_neuron(j)->numberConnection();i++)
+// 			{
+// 				neuron.set_weight(i,neuron.get_weight(i)-r*neuron.get_error()*Lines[l-1].get_neuron(i)->get_value());
+// 			}
+// 		}
+// 	}
+// }
 
 // void MachineLearning::saveTraining(const char *file)
 // {
@@ -313,27 +328,28 @@ void MachineLearning::train(NetworkNeuron& result, double r)
 bool MachineLearning::backupTraining(const char *data)
 {
 	int cursor = 0;
-	
-	long nbrColumn = 0;		
-	memcpy_P((char*)(&nbrColumn),(const char*)&pgm_read_byte_near(data+cursor),sizeof(nbrColumn));	
+
+	int32_t nbrColumn = 0;		
+	memcpy_P((char*)(&nbrColumn),(const char*)(data+cursor),sizeof(nbrColumn));	
 	cursor+=sizeof(nbrColumn);
 	
 	bool error = 0;
-	std::cout << "test" << nbrColumn << std::endl;
 	
 	if(nbrColumn==getNumberColumn())
 	{
 		//si compatible
 		//on récupere les tailles des couches
-		std::vector<long> tailles;
+		std::cout << "COMPATIBLE" << std::endl;
+		std::vector<int32_t> tailles;
 		for(int i(0);i<nbrColumn;i++)
 		{
-			long taille = 0;
-			memcpy_P((char*)&taille,(char*)&pgm_read_byte_near(data+cursor),sizeof(taille));
+			int32_t taille = 0;
+			memcpy_P((char*)&taille,(char*)(data+cursor),sizeof(taille));
 			tailles.push_back(taille);
+			std::cout << "taille:" << taille << ", lines:" << numberNeuronIn(i) << std::endl;
 			cursor+=sizeof(taille);
 			
-			if(taille!=Lines[i].get_number_neuron())
+			if(taille!=numberNeuronIn(i))
 			{
 				error = 1;
 				std::cout << "Erreur compatibilité" << std::endl;
@@ -346,22 +362,27 @@ bool MachineLearning::backupTraining(const char *data)
 		{
 			for(int j(0);j<Lines[l+1].get_number_neuron();j++)
 			{
-				for(int i(0);i<Lines[l].get_number_neuron();i++)
-				{
-					long double weight = 0;
-					memcpy_P((char*)&weight,(char*)&pgm_read_byte_near(data+cursor),sizeof(weight));
-					cursor+=sizeof(weight);
-					Lines[l+1].get_neuron(j)->set_weight(i,weight);
-				}
-				long double biais = 0;
-				memcpy_P((char*)&biais,(char*)&pgm_read_byte_near(data+cursor),sizeof(biais));
-				cursor+=sizeof(biais);
-				Lines[l+1].get_neuron(j)->set_bias(biais);
+				int size_w = (Lines[l+1].get_neuron(j)->get_size()+1)*sizeof(double);
+				Lines[l+1].get_neuron(j)->set_data((char *)(data+cursor));
+				cursor+=size_w;
+				// for(int i(0);i<Lines[l].get_number_neuron();i++)
+				// {
+				// 	long double weight = 0;
+				// 	memcpy_P((char*)&weight,(char*)(data+cursor),sizeof(weight));
+				// 	cursor+=sizeof(weight);
+				// 	Lines[l+1].get_neuron(j)->set_weight(i,weight);
+				// }
+				// long double biais = 0;
+				// memcpy_P((char*)&biais,(char*)(data+cursor),sizeof(biais));
+				// cursor+=sizeof(biais);
+				// Lines[l+1].get_neuron(j)->set_bias(biais);
 			}
 		}
+
+
 		//petite vérification
 		char end = 0;
-		memcpy_P(&end,(char*)&pgm_read_byte_near(data+cursor),1);
+		memcpy_P(&end,(char*)(data+cursor),1);
 		if(end==125){
 			std::cout << "BACKUP SUCCESSFUL" << std::endl;
 			return true;

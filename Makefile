@@ -8,7 +8,7 @@ SRC_DIRECTORY=src
 all: $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training $(BIN_DIRECTORY)/extract_nn
 
 #extract_nn
-$(BIN_DIRECTORY)/extract_nn: $(BIN_DIRECTORY)/extract_nn.o 
+$(BIN_DIRECTORY)/extract_nn: $(BIN_DIRECTORY)/extract_nn.o  $(SRC_DIRECTORY)/m_learning.o
 	$(GXX) -o $@ $^ 
 
 $(BIN_DIRECTORY)/extract_nn.o: extract_neuralnetwork.cpp

@@ -310,6 +310,46 @@ void MachineLearning::saveTraining(const char *file)
 	cout << "SAVED SUCCESSFULLY" << endl;
 }
 
+
+void MachineLearning::saveTrainingArduino(const char *file)
+{
+	ofstream f(file,ios::binary|ios::trunc);
+	f.seekp(0,ios::beg);
+	
+	//on enlève 1 parce que la couche en entrée n'a pas de poid ou de biais
+	int nbrColumn = getNumberColumn();		
+	f.write((char*)&nbrColumn,sizeof(nbrColumn));
+	
+	int cursor = sizeof(nbrColumn);
+	for(int i(0);i<nbrColumn;i++)
+	{
+		int taille = Lines[i].get_number_neuron();
+		f.seekp(cursor,ios::beg);
+		f.write((char*)&taille,sizeof(taille));
+		cursor+=sizeof(taille);		
+	}
+
+	for(int l(0);l<nbrColumn-1;l++)
+	{
+		for(int j(0);j<Lines[l+1].get_number_neuron();j++)
+		{
+			for(int i(0);i<Lines[l].get_number_neuron();i++)
+			{
+				float actualWeight = Lines[l+1].get_neuron(j)->get_weight(i);
+				f.write((char*)&actualWeight,sizeof(actualWeight));
+				cursor+=sizeof(actualWeight);
+			}		
+			float biais = Lines[l+1].get_neuron(j)->get_bias();
+			f.write((char*)&biais,sizeof(biais));
+			cursor+=sizeof(biais);
+		}	
+	}
+	char end = 125;
+	f.write(&end,1);
+
+	cout << "SAVED SUCCESSFULLY" << endl;
+}
+
 bool MachineLearning::backupTraining(const char *file)
 {
 	ifstream f(file,ios::binary);
