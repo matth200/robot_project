@@ -55,10 +55,11 @@ int main(int argc, char **argv){
         return 1;
     }
     cout << "Chargement du réseau de neurones:"<< filename << endl;
-    MachineLearning machine(4);
-    machine.addColumn(10);
-    machine.addColumn(4);
+    MachineLearning machine;
 
+    if(!machine.loadStructure(filename.c_str())){
+        cout << "Erreur lors de la récupération de la structure" << endl;
+    }
     machine.backupTraining(filename.c_str());
 
     filename = "../resources/tmp_model_arduino/light.ml";

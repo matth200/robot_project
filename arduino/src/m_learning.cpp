@@ -166,6 +166,41 @@ void MachineLearning::setInput(char *data, int size, int cursor)
 // 	}
 // }
 
+//a refaire sur arduino
+
+// bool MachineLearning::loadStructure(const char *file){
+// 	ifstream f(file,ios::binary);
+// 	if(f.is_open())
+// 	{
+// 		f.seekg(0,ios::beg);
+// 		int cursor = 0;
+		
+// 		int nbrColumn = 0;		
+// 		f.read((char*)&nbrColumn,sizeof(nbrColumn));	
+// 		cursor+=sizeof(nbrColumn);
+		
+// 		Lines.clear();
+
+// 		//on récupere les tailles des couches
+// 		for(int i(0);i<nbrColumn;i++)
+// 		{
+// 			f.seekg(cursor,ios::beg);
+// 			int taille = 0;
+// 			f.read((char*)&taille,sizeof(taille));
+// 			//tailles.push_back(taille);
+// 			if(i==0){
+// 				open(taille);
+// 			}else{
+// 				addColumn(taille);
+// 			}
+// 			cursor+=sizeof(taille);
+// 		}
+// 		return nbrColumn==getNumberColumn();
+// 	}
+// 	return false;
+// }
+
+
 void MachineLearning::calcul()
 {	
 	double a = 0;

@@ -51,10 +51,10 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FPS 40.0
 
 //parametre GENETIC_ALGORITHM
-#define NBR_POPULATION 200
-#define FRQ_MUTATION 0.10
-#define NBR_SELECTION 200
-#define NBR_RANDOM 70
+#define NBR_POPULATION 100
+#define FRQ_MUTATION 0.15
+#define NBR_SELECTION 100
+#define NBR_RANDOM 30
 #define TIMEOUT 60000
 
 //parametre machine learning
@@ -68,6 +68,7 @@ struct VarSelection
 	int score;
 	bool best;
 };
+#define SAVE_NAME "brain_1_20_"
 
 //genetic algorithm
 void getAdn(MachineLearning &m, vector<unsigned int> &adn);
@@ -114,7 +115,7 @@ int main(int argc, char **argv){
 	cout << "Selection du meilleur réseau de neurones dans "<< path << endl;
 	int max_score_folder = 0;
 	smatch m;
-	regex r("light_([0-9]+).ml");
+	regex r(string(SAVE_NAME)+"([0-9]+).ml");
 	for (const auto & entry : fs::directory_iterator(path)){
 		string name = entry.path();
 		regex_search(name,m,r);
@@ -165,8 +166,7 @@ int main(int argc, char **argv){
 		VarSelection selection;
 		MachineLearning *m = &(selection.m);
 		m->open(4);
-		m->addColumn(10);
-		//m->addColumn(10);
+		m->addColumn(20);
 		m->addColumn(4);
 
 		selection.best = false;
@@ -251,7 +251,7 @@ int main(int argc, char **argv){
 							break;
 						case 13:
 							if(state_enter==false){
-								player->m.saveTraining((string("../resources/trained_model/brain_light_")+to_string(max_score)+".ml").c_str());
+								player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(max_score)+".ml").c_str());
 								state_enter = true;
 							}
 							break;
@@ -443,8 +443,8 @@ int main(int argc, char **argv){
 		}
 
 		//pour éviter de perdre les bons éléments à chaque génération
-		if(max_score>=max_score_folder){
-			player->m.saveTraining((string("../resources/trained_model/brain_")+to_string(player->score)+".ml").c_str());
+		if(max_score_folder!=0&&max_score>=max_score_folder){
+			player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
 		}
 
 		//management time
@@ -457,7 +457,7 @@ int main(int argc, char **argv){
 
 	//sécurité pour ne pas perdre les bons entrainements
 	if(max_score>=600000){
-		player->m.saveTraining((string("../resources/trained_model/brain_light_")+to_string(player->score)+".ml").c_str());
+		player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
 	}
 
 	TTF_CloseFont(police);
@@ -490,7 +490,7 @@ void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	if(!robot.isAlive()||robot.getWin()){
 		//si il a reussi, il doit essayer d'avoir le chemin le plus court
 		if(robot.getWin()){
-			player->score += int(20000.0-robot.getDistanceDone());
+			player->score += int(50000.0-robot.getDistanceDone()*1.5);
 		//sinon le plus long
 		}else{
 			player->score += int(robot.getDistanceDone());

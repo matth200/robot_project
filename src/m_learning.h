@@ -75,6 +75,7 @@ public:
 	void saveTraining(const char *file);
 	void saveTrainingArduino(const char *file);
 	bool backupTraining(const char *file);
+	bool loadStructure(const char *file);
 	int getPrediction();
 protected:
 	std::vector<NetworkNeuron> Lines;

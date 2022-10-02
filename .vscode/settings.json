@@ -6,6 +6,7 @@
         "*.tcc": "cpp",
         "iostream": "cpp",
         "bitset": "cpp",
-        "atomic": "cpp"
+        "atomic": "cpp",
+        "iosfwd": "cpp"
     }
 }
