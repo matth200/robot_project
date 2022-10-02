@@ -52,14 +52,14 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 //parametre GENETIC_ALGORITHM
 #define NBR_POPULATION 100
-#define FRQ_MUTATION 0.15
+#define FRQ_MUTATION 0.08
 #define NBR_SELECTION 100
 #define NBR_RANDOM 30
 #define TIMEOUT 60000
 
 //parametre machine learning
-#define RANDOM_VALUE_W 20
-#define RANDOM_VALUE_B 20
+#define RANDOM_VALUE_W 10
+#define RANDOM_VALUE_B 10
 
 //variable pour effectuer la selection
 struct VarSelection
@@ -490,7 +490,7 @@ void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	if(!robot.isAlive()||robot.getWin()){
 		//si il a reussi, il doit essayer d'avoir le chemin le plus court
 		if(robot.getWin()){
-			player->score += int(50000.0-robot.getDistanceDone()*1.5);
+			player->score += int(50000.0-robot.getDistanceDone());
 		//sinon le plus long
 		}else{
 			player->score += int(robot.getDistanceDone());
