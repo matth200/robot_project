@@ -18,20 +18,26 @@ class Capteur{
         void setMaxDist(int distance);
         void setMaxAngle(double angle);
         void setNbrLineDetection(int nbr);
-
+        void setMaxAngleRebound(double angle);
         void setRotation(double rotation);
         void setPos(double x, double y);
         double getDistance();
         void initDetectionLines();
         void draw(SDL_Surface *screen);
         void connectToWorld(World &world);
+    private:
+        double getAngleTriangle(double a, double b, double c);
+        double getLengthLine(Line line);
+        double getAngleDetection(Element &elt, Pos &pos_detection);
+        Pos getWhichPoint(Line line_detection, Line line_left, Line line_right);
+        double getRotation(Line line);
     protected:
         double _distance;
         double _x,_y;
         double _rotation;
         VirtualWorld *_real_map;
         std::vector<Line> _detectionLines;
-        double _max_angle;
+        double _max_angle, _max_angle_rebound;
         int _max_dist, _nbr_line;
         int _detection_state;
 };
