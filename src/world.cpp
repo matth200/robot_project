@@ -117,7 +117,7 @@ void VirtualWorld::addLine(Line &line, int status){
     }
 }
 
-vector<Element> VirtualWorld::getDetection(Line &line, int &distance){
+vector<Element> VirtualWorld::getDetection(Line &line, int &distance, int *x_detect, int *y_detect){
     int height = _map->size();
     int width = (*_map)[0].size();
 
@@ -133,6 +133,12 @@ vector<Element> VirtualWorld::getDetection(Line &line, int &distance){
 
             if(0<=x&&x<width&&0<=y&&y<height&&(*_map)[y][x].size()>0){
                 distance = i;
+
+                if(x_detect!=NULL&&y_detect!=NULL){
+                    *x_detect = x;
+                    *y_detect = y;
+                }
+
                 return (*_map)[y][x];
             }
         }

@@ -14,12 +14,13 @@
 #include "draw.h"
 
 
+struct Pos{
+    int x, y;
+};
+
 struct Element{
     Line *p_line;
     int state;
-};
-struct Pos{
-    int x, y;
 };
 
 #define WORLD_WHITE 0
@@ -32,7 +33,7 @@ class VirtualWorld{
         ~VirtualWorld();
         void setSize(int w, int h);
         void addLine(Line &line, int state);
-        std::vector<Element> getDetection(Line &line, int &distance);
+        std::vector<Element> getDetection(Line &line, int &distance, int *x_detect=NULL, int *y_detect=NULL);
     protected:
         std::vector<std::vector<std::vector<Element>>> *_map;
 };
