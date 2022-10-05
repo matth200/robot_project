@@ -68,7 +68,7 @@ struct VarSelection
 	int score;
 	bool best;
 };
-#define SAVE_NAME "brain_1_20_"
+#define SAVE_NAME "brain_2_20_"
 
 //genetic algorithm
 void getAdn(MachineLearning &m, vector<unsigned int> &adn);
@@ -151,7 +151,7 @@ int main(int argc, char **argv){
 	universe.addLevel("../resources/map/map_3.level");
 	universe.addLevel("../resources/map/map_4.level");
 	universe.addLevel("../resources/map/map_5.level");
-	// universe.addLevel("../resources/map/map_6.level");
+	universe.addLevel("../resources/map/map_6.level");
 	// universe.addLevel("../resources/map/map.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
@@ -166,6 +166,7 @@ int main(int argc, char **argv){
 		VarSelection selection;
 		MachineLearning *m = &(selection.m);
 		m->open(4);
+		m->addColumn(20);
 		m->addColumn(20);
 		m->addColumn(4);
 
