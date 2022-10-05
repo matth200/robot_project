@@ -8,6 +8,7 @@
         "bitset": "cpp",
         "atomic": "cpp",
         "iosfwd": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "random": "cpp"
     }
 }

@@ -4,20 +4,33 @@ using namespace std;
 
 Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),_height(height){
     _machine = NULL;
-    _police = NULL;
     _universe = NULL;
     _texte_surface = NULL;
     _robot = NULL;
-    _big_police = NULL;
     _generation = 0;
     _max_score = 0;
     _save = false;
     _filename = "";
-    _police_mini = NULL;
+
+
+
+	if(TTF_Init() < 0){
+		cout << "Erreur de lancement de sdl_ttf: " << TTF_GetError() << endl;
+	}
+
+    _police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",20);
+    _big_police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
+    _police_mini = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
 }
 
 Display::~Display(){
     SDL_FreeSurface(_texte_surface);
+    TTF_Quit();
+
+    //on les libère
+    TTF_CloseFont(_big_police);
+    TTF_CloseFont(_police_mini);
+    TTF_CloseFont(_police);
 }
 
 void Display::setMiniFont(TTF_Font *police){
