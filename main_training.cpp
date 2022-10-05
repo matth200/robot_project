@@ -1,4 +1,4 @@
-#define NO_GUI
+//#define NO_GUI
 
 #include <fstream>
 #include <iostream>
