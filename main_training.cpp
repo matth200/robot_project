@@ -1,3 +1,5 @@
+//#define NO_GUI
+
 #include <fstream>
 #include <iostream>
 #include <cmath>
@@ -10,9 +12,11 @@
 #include <chrono>
 #include <thread>
 
+#ifndef NO_GUI
 //SDL
 #include <SDL/SDL.h>
 #include <SDL/SDL_ttf.h>
+#endif
 
 #include <vector>
 
@@ -21,14 +25,19 @@
 
 //world
 #include "src/world.h"
+
+//draw
+#ifndef NO_GUI
 #include "src/draw.h"
+#endif
 
 
 //car
 #include "src/car.h"
-
+#ifndef NO_GUI
 //affichage information
 #include "src/display.h"
+#endif
 
 //include fs
 #include <filesystem>
@@ -84,22 +93,11 @@ int main(int argc, char **argv){
 
 	srand(time(NULL));
 
+	#ifndef NO_GUI
 	if(SDL_Init(SDL_INIT_VIDEO) < 0){
 		cout << "Erreur de lancement de la sdl: " << SDL_GetError() << endl;
 		return 1;
 	}
-
-	if(TTF_Init() < 0){
-		cout << "Erreur de lancement de sdl_ttf: " << TTF_GetError() << endl;
-		return 1;
-	}
-
-	TTF_Font *police = TTF_OpenFont("../resources/fonts/pixel_font.ttf",20);
-	TTF_Font *policeMini = TTF_OpenFont("../resources/fonts/pixel_font.ttf",16);
-	TTF_Font *bigFont = TTF_OpenFont("../resources/fonts/pixel_font.ttf",200);
-
-	atexit(TTF_Quit);
-	atexit(SDL_Quit);
 
 	SDL_Surface *screen = NULL;
 	screen = SDL_SetVideoMode(SCREEN_WIDTH+OUTSCREEN_W, SCREEN_HEIGHT, 32, SDL_HWSURFACE|SDL_DOUBLEBUF);
@@ -109,6 +107,8 @@ int main(int argc, char **argv){
 	}
 
 	SDL_WM_SetCaption("NEURAL NETWORK TRAINING", NULL);
+	#endif
+
 	//on récupére le meilleur score
 	string filename = "";
 	string path = TRAINMODEL_FOLDER;
@@ -210,12 +210,10 @@ int main(int argc, char **argv){
 	robot.connectToUniverse(&universe);
 	robotInit(robot);
 
+	#ifndef NO_GUI
 	//Display information
 	Display display(SCREEN_WIDTH, 0, OUTSCREEN_W, SCREEN_HEIGHT);
 	display.setNeuralNetwork(&(player->m));
-	display.setFont(police);
-	display.setBigFont(bigFont);
-	display.setMiniFont(policeMini);
 	display.setRobot(&robot);
 	display.setUniverse(&universe);
 
@@ -224,6 +222,7 @@ int main(int argc, char **argv){
 	if(state_backup_data){
 		display.setBackup(string(argv[1]));
 	}
+	#endif
 
 
 	//speed
@@ -283,7 +282,9 @@ int main(int argc, char **argv){
 			}
 		}
 		//affichage
+		#ifndef NO_GUI
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
+		#endif
 
 		bool finish = false;
 		if(!behind_work){
@@ -296,6 +297,7 @@ int main(int argc, char **argv){
 			}
 		}
 
+		#ifndef NO_GUI
 		//on gère les infos
 		display.setInfo(generation, max_score);
 		if(state_enter==true){
@@ -312,6 +314,7 @@ int main(int argc, char **argv){
 
 		//on affiche
 		SDL_Flip(screen);
+		#endif
 
 		if(finish){
 			//si pas fini on passe au niveau d'au dessus
@@ -448,22 +451,22 @@ int main(int argc, char **argv){
 			player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
 		}
 
+		#ifndef NO_GUI
 		//management time
 		end_point = chrono::high_resolution_clock::now();
 		duration = chrono::duration_cast<chrono::milliseconds>(end_point-start_point).count();
 		if(duration<1000.0/FPS&&state_space){
 			this_thread::sleep_for(chrono::milliseconds((unsigned int)(1000.0/FPS-duration)));
 		}
+		#endif
+
+		cout << "Generation:" << generation << ", max_score:" << max_score << endl;
 	}
 
 	//sécurité pour ne pas perdre les bons entrainements
 	if(max_score>=600000){
 		player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
 	}
-
-	TTF_CloseFont(police);
-	TTF_CloseFont(policeMini);
-	TTF_CloseFont(bigFont);
     return 0;
 }
 
