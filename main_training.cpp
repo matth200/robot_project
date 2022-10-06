@@ -443,9 +443,8 @@ int main(int argc, char **argv){
 				robotInit(robot);
 				player = &(listeBrains[0]);
 				robot.setBrain(&(player->m));
+				cout << "Generation:" << generation << ", max_score:" << max_score << endl;
 			}
-
-			cout << "Generation:" << generation << ", max_score:" << max_score << endl;
 		}
 
 		//pour éviter de perdre les bons éléments à chaque génération
