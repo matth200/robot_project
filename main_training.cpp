@@ -444,6 +444,8 @@ int main(int argc, char **argv){
 				player = &(listeBrains[0]);
 				robot.setBrain(&(player->m));
 			}
+
+			cout << "Generation:" << generation << ", max_score:" << max_score << endl;
 		}
 
 		//pour éviter de perdre les bons éléments à chaque génération
@@ -459,8 +461,6 @@ int main(int argc, char **argv){
 			this_thread::sleep_for(chrono::milliseconds((unsigned int)(1000.0/FPS-duration)));
 		}
 		#endif
-
-		cout << "Generation:" << generation << ", max_score:" << max_score << endl;
 	}
 
 	//sécurité pour ne pas perdre les bons entrainements
