@@ -25,12 +25,14 @@ Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),
 
 Display::~Display(){
     SDL_FreeSurface(_texte_surface);
-    TTF_Quit();
 
     //on les libère
     TTF_CloseFont(_big_police);
     TTF_CloseFont(_police_mini);
     TTF_CloseFont(_police);
+
+
+    TTF_Quit();
 }
 
 void Display::setMiniFont(TTF_Font *police){
