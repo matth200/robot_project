@@ -9,6 +9,7 @@
         "atomic": "cpp",
         "iosfwd": "cpp",
         "valarray": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "m_learning.h": "c"
     }
 }
