@@ -43,6 +43,7 @@ class ManagerThread{
         int getAvancement();
     protected:
         int _nbr_thread;
+        std::vector<VarSelection> _listeBrains;
         std::vector<std::thread*> _threads;
         std::vector<Population*> _listePopulation;
         int *_max_score;

@@ -116,9 +116,11 @@ ManagerThread::~ManagerThread(){
 }
 
 void ManagerThread::createPopulation(vector<VarSelection> *listeBase, Universe &originalUniverse, Robot &originalRobot){
+    //on ajoute le premier déjà entrainé dans le main
+    _listeBrains.push_back((*listeBase)[0]);
 
     //on repartie convenablement la population
-    int size = listeBase->size();
+    int size = listeBase->size() - 1;
     _size = size;
 
     delete loadbar;
@@ -133,7 +135,9 @@ void ManagerThread::createPopulation(vector<VarSelection> *listeBase, Universe &
     clear();
 
     //on crée chaque population et thread
-    int sum = 0;
+
+    //on commence à 1 pour éviter de prendre le premier élément
+    int sum = 1;
     for(int i(0);i<_nbr_thread;i++){
         //on crée la population
         _listePopulation.push_back(new Population(listeBase, sum, repartition[i], originalUniverse, originalRobot));
@@ -144,11 +148,12 @@ void ManagerThread::createPopulation(vector<VarSelection> *listeBase, Universe &
     }
 
     //pour vérifier le compte
-    //cout << "On a sum:" << sum << " et size:" << size << endl;
+    cout << "On a sum:" << sum << " et size:" << size+1 << endl;
 }
 
 vector<VarSelection> ManagerThread::getNewGeneration(){
-    vector<VarSelection> _listeBrains;
+
+    //on a déjà le premier élément dans la liste _listeBrains
     
     //on recupere la liste de chaque thread
     vector<VarSelection>* tmpListe = NULL;
@@ -224,10 +229,10 @@ vector<VarSelection> ManagerThread::getNewGeneration(){
             if(rand()%1000+1<=FRQ_MUTATION*1000.0)
             {
                 adn[j] = (1u << rand()%32) ^ adn[j];
-                cout << "M";
+                //cout << "M";
             }
         }
-        cout << " & " << endl;
+        //cout << " & " << endl;
         //set adn
         setAdn(_listeBrains[i].m,adn);
     }
