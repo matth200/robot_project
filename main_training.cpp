@@ -167,7 +167,7 @@ int main(int argc, char **argv){
 		MachineLearning *m = &(selection.m);
 		m->open(4);
 		m->addColumn(20);
-		m->addColumn(20);
+		//m->addColumn(20);
 		m->addColumn(4);
 
 		selection.best = false;
