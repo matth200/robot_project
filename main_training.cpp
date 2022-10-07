@@ -1,4 +1,4 @@
-//#define NO_GUI
+#define NO_GUI
 
 #include <fstream>
 #include <iostream>
@@ -39,6 +39,13 @@
 #include "src/display.h"
 #endif
 
+//multithread
+#include "src/multithread.h"
+#define NBR_THREAD 25
+
+#include "src/utils.h"
+#include "src/genetic_algorithm_const.h"
+
 //include fs
 #include <filesystem>
 #include <regex>
@@ -60,34 +67,15 @@ typedef chrono::high_resolution_clock::time_point time_point;
 #define FPS 40.0
 
 //parametre GENETIC_ALGORITHM
-#define NBR_POPULATION 100
-#define FRQ_MUTATION 0.08
-#define NBR_SELECTION 100
-#define NBR_RANDOM 30
-#define TIMEOUT 60000
+#include "src/genetic_algorithm_const.h"
 
-//parametre machine learning
-#define RANDOM_VALUE_W 10
-#define RANDOM_VALUE_B 10
+//utils
+#include "src/utils.h"
+
 
 //variable pour effectuer la selection
-struct VarSelection
-{
-	MachineLearning m;
-	int score;
-	bool best;
-};
 #define SAVE_NAME "brain_2_20_"
 
-//genetic algorithm
-void getAdn(MachineLearning &m, vector<unsigned int> &adn);
-void setAdn(MachineLearning &m, vector<unsigned int> &adn);
-void makeBabys(MachineLearning &m1, MachineLearning &m2);
-VarSelection selectionRandomly(vector<VarSelection> &players, int &a);
-double distance(int x1, int y1, int x2, int y2);
-
-void evaluateRobot(Robot &r, VarSelection *player, bool &f);
-void robotInit(Robot &robot);
 
 int main(int argc, char **argv){
 
@@ -113,7 +101,7 @@ int main(int argc, char **argv){
 	string filename = "";
 	string path = TRAINMODEL_FOLDER;
 	cout << "Selection du meilleur réseau de neurones dans "<< path << endl;
-	int max_score_folder = 0;
+	int max_score_folder = 500000;
 	smatch m;
 	regex r(string(SAVE_NAME)+"([0-9]+).ml");
 	for (const auto & entry : fs::directory_iterator(path)){
@@ -224,6 +212,10 @@ int main(int argc, char **argv){
 	}
 	#endif
 
+	//multithread
+	//on enleve un thread car on a déjà le principal ici dans main()
+	ManagerThread managerThread(NBR_THREAD, &max_score);
+
 
 	//speed
 	bool state_space = false, state_enter = false;
@@ -321,134 +313,37 @@ int main(int argc, char **argv){
 			universe.nextStep();
 			if(!universe.isFinished()){
 				robotInit(robot);
+				#ifndef NO_GUI
 				this_thread::sleep_for(chrono::milliseconds(200));
+				#endif
 			}
 			//sinon on gere tous les autres en arriere plan
 			if(universe.isFinished()){
-				//on determine les scores de chaque brain
-				cout << "affichage non classé" << endl;
+				//mettre le manager ici
+				ManagerThread manager(NBR_THREAD,&max_score);
+				manager.createPopulation(&listeBrains, universe, robot);
 
-				cout << 0 << ", score:" << player->score << endl;
-				for(int i(1);i<listeBrains.size();i++){
-					player = &(listeBrains[i]);
-					player->score = 0;
-					robot.setBrain(&(player->m));
-					universe.initStep();
-					//on le fait jouer tout seul
-					while(!universe.isFinished()){
-						finish = false;
-						robotInit(robot);
-						while(!finish){
-							evaluateRobot(robot, player, finish);
-						}
-						universe.nextStep();
-					}
-					cout << i << ", score:" << player->score << endl;
+				while(!manager.isFinished()){
+					manager.displayStat();
+					this_thread::sleep_for(chrono::milliseconds(100));
 				}
-				universe.initStep();
-				//on les classe par rapport à leur score
-				vector<VarSelection> listeBrainsTmp;
-				while(listeBrainsTmp.size()<NBR_SELECTION){
-					int max = listeBrains[0].score, index_max = 0;
-					for(int i(1);i<listeBrains.size();i++){
-						if(listeBrains[i].score>max){
-							index_max = i;
-							max = listeBrains[i].score;
-						}
-					}
-					listeBrainsTmp.push_back(listeBrains[index_max]);
-					listeBrains[index_max].score = 0;
-				}
+
 				listeBrains.clear();
+				listeBrains = manager.getNewGeneration();
 
-				cout << "liste triée" << endl;
-				for(int i(0);i<listeBrainsTmp.size();i++){
-					cout << i << ", " << listeBrainsTmp[i].score << endl;
-				}
-				cout << "fin de liste triée" << endl;
-
-				//on construit la nouvelle selection
-
-				//on mets le premier sans aucun changement
-				listeBrains.push_back(listeBrainsTmp[0]);
-				max_score = listeBrains[0].score;
-				listeBrains[0].score = 0;
-
-				//puis on complete avec des petits babyyys
-				while(listeBrains.size()<NBR_POPULATION-NBR_RANDOM)
-				{
-					//init parent
-					int b = 0, a = 0;
-					VarSelection parent1 = selectionRandomly(listeBrainsTmp,b), parent2 = selectionRandomly(listeBrainsTmp,a);
-					//on crée une boucle qui permet d'éviter qu'un parent se croise avec lui même
-					while(b==a)
-						parent2 = selectionRandomly(listeBrainsTmp,a);
-
-					cout << b << "&" << a << " --> BB" << endl;
-					//init babys
-					parent1.best=0;
-					parent2.best=0;
-					parent1.score=0;
-					parent2.score=0;
-
-					//parents become babyssss
-					makeBabys(parent1.m,parent2.m);
-
-					//ajout dans la liste
-					listeBrains.push_back(parent1);
-				}
-				cout << "baby okayy" << endl;
-
-				//mutation i commence à 1 pour ne pas mettre de mutation sur le premier
-				for(int i(1);i<listeBrains.size();i++)
-				{
-					//get adn
-					vector<unsigned int> adn;
-					getAdn(listeBrains[i].m,adn);
-
-					//we gonna mutate this babyyyy
-					for(int j(0);j<adn.size();j++){
-						if(rand()%1000+1<=FRQ_MUTATION*1000.0)
-						{
-							adn[j] = (1u << rand()%32) ^ adn[j];
-							cout << "M";
-						}
-					}
-					cout << " & " << endl;
-					//set adn
-					setAdn(listeBrains[i].m,adn);
-				}
-
-				cout << "mutation okay " << endl;
-
-				//on en ajoute aux hasards
-				for(int i(0);i<NBR_RANDOM;i++){
-					VarSelection selection(listeBrains[0]);
-					selection.m.setWeightRandom(RANDOM_VALUE_W,RANDOM_VALUE_B);
-					selection.score = 0;
-					selection.best = 0;
-					listeBrains.push_back(selection);
-				}
-				cout << "ajout aux hasards okayy" << endl;
-
-				//cout << "nombree" << listeBrains.size() << endl;
-
-				//on fait suivre l'évolution
-				file_evolution << generation << " " << max_score << endl;
-
-				//on passe à la génération d'après
+				//on prépare pour la prochaine génération
+				player = &(listeBrains[0]);
+				universe.initStep();
+				robotInit(robot);
+				robot.setBrain(&player->m);
 				generation++;
 
-				//on relance avec le premier
-				robotInit(robot);
-				player = &(listeBrains[0]);
-				robot.setBrain(&(player->m));
-				cout << "Generation:" << generation << ", max_score:" << max_score << endl;
+				cout << "Generation:" << generation << ", score_max:" << max_score << endl << endl;
 			}
 		}
 
 		//pour éviter de perdre les bons éléments à chaque génération
-		if(max_score_folder!=0&&max_score>=max_score_folder){
+		if(max_score>=max_score_folder){
 			player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
 		}
 
@@ -467,156 +362,4 @@ int main(int argc, char **argv){
 		player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
 	}
     return 0;
-}
-
-void robotInit(Robot &robot){
-	//robot.setPos(1350.0,150.0+rand()%700);
-
-	//on place aux points décider dans l'univers
-	robot.setUniversePos();
-
-	//orientation aux hasards
-	robot.setRotation((rand()%360)/180.0*M_PI);
-	robot.clearTick();
-}
-
-
-void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
-	//si trop long, on arrete
-	robot.update();
-
-	if(robot.getDuration()>TIMEOUT){
-		robot.setAlive(false);
-	}
-	f = false;
-	//si il est mort ou à gagner, on gére la sélection
-	if(!robot.isAlive()||robot.getWin()){
-		//si il a reussi, il doit essayer d'avoir le chemin le plus court
-		if(robot.getWin()){
-			player->score += int(50000.0-robot.getDistanceDone());
-		//sinon le plus long
-		}else{
-			player->score += int(robot.getDistanceDone());
-		}
-		f = true;
-	}
-}
-
-
-
-void makeBabys(MachineLearning &m1, MachineLearning &m2)
-{
-	//get the adn 
-	vector<unsigned int> adn1, adn2, adnT1, adnT2;
-	//pour qu'il prenne les meme réseaux de neurone
-	getAdn(m1,adn1);
-	getAdn(m2,adn2);
-	ofstream log("../resources/logs/logBabys.txt");
-
-	//mix the adn <<<----
-	log << "adn |";
-	int cursor = 1+rand()%(adn1.size()-2);
-	for(int i(0);i<adn1.size();i++)
-	{
-		if(i<cursor)
-		{
-			log << "O";
-			adnT1.push_back(adn1[i]);
-			adnT2.push_back(adn2[i]);
-		}else{
-			log << "M";
-			adnT1.push_back(adn2[i]);
-			adnT2.push_back(adn1[i]);
-		}
-	}
-
-	//set the adn
-	setAdn(m1,adnT1);
-	setAdn(m2,adnT2);
-}
-
-void getAdn(MachineLearning &m, vector<unsigned int> &adn)
-{
-	adn.clear();
-	for(int l(0);l<m.getNumberColumn()-1;l++)
-	{
-		for(int j(0);j<m.getNetwork(l+1)->get_number_neuron();j++)
-		{
-			for(int i(0);i<m.getNetwork(l+1)->get_neuron(j)->numberConnection();i++)
-			{
-				adn.push_back((m.getNetwork(l+1)->get_neuron(j)->get_weight(i)+RANDOM_VALUE_W/2.0)/RANDOM_VALUE_W*4294967296);
-			}
-			adn.push_back((m.getNetwork(l+1)->get_neuron(j)->get_bias()+RANDOM_VALUE_B/2.0)/RANDOM_VALUE_B*4294967296);
-		}
-	}
-}
-
-void setAdn(MachineLearning &m, vector<unsigned int> &adn)
-{
-	int index = 0;
-	for(int l(0);l<m.getNumberColumn()-1;l++)
-	{
-		for(int j(0);j<m.getNetwork(l+1)->get_number_neuron();j++)
-		{
-			for(int i(0);i<m.getNetwork(l+1)->get_neuron(j)->numberConnection();i++)
-			{
-				//m.getNetwork(l+1)->get_neuron(j)->set_weight(i,adn[index]);
-				index++;
-			}
-			//m.getNetwork(l+1)->get_neuron(j)->set_bias(adn[index]);
-			index++;
-		}
-	}
-
-	if(adn.size()==index)
-	{
-		index = 0;
-		for(int l(0);l<m.getNumberColumn()-1;l++)
-		{
-			for(int j(0);j<m.getNetwork(l+1)->get_number_neuron();j++)
-			{
-				for(int i(0);i<m.getNetwork(l+1)->get_neuron(j)->numberConnection();i++)
-				{
-					m.getNetwork(l+1)->get_neuron(j)->set_weight(i,adn[index]/4294967296.0*RANDOM_VALUE_W-RANDOM_VALUE_W/2.0);
-					index++;
-				}
-				m.getNetwork(l+1)->get_neuron(j)->set_bias(adn[index]/4294967296.0*RANDOM_VALUE_B-RANDOM_VALUE_B/2.0);
-				index++;
-			}
-		}
-	}
-	else{
-		ofstream log("../resources/logs/errorSetADN.txt");
-		log << "error" << endl;
-	}
-}
-
-VarSelection selectionRandomly(vector<VarSelection> &players, int &a)
-{
-	int sum = 0;
-	
-	//selection with the index 
-	for(int i(0);i<players.size();i++)
-	{
-		sum+=pow(players.size()-(i+1),2);
-	}
-
-	int arrow = rand()%sum;
-	int valeurCum = 0;
-	bool done = 0;
-	for(int i(0);i<players.size()&&!done;i++)
-	{
-		valeurCum+=pow(players.size()-(i+1),2);
-		if(valeurCum>arrow)
-		{		
-			a = i;
-			return players[i];
-		}
-	}
-	return players[0];
-}
-
-double distance(int x1, int y1, int x2, int y2)
-{
-	return sqrt(pow(x2-x1,2)+pow(y2-y1,2));
 }
