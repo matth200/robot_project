@@ -1,4 +1,4 @@
-//#define NO_GUI
+#define NO_GUI
 
 #include <fstream>
 #include <iostream>
@@ -42,6 +42,9 @@
 //multithread
 #include "src/multithread.h"
 #define NBR_THREAD 25
+
+#include "src/utils.h"
+#include "src/genetic_algorithm_const.h"
 
 //include fs
 #include <filesystem>
@@ -98,7 +101,7 @@ int main(int argc, char **argv){
 	string filename = "";
 	string path = TRAINMODEL_FOLDER;
 	cout << "Selection du meilleur réseau de neurones dans "<< path << endl;
-	int max_score_folder = 0;
+	int max_score_folder = 500000;
 	smatch m;
 	regex r(string(SAVE_NAME)+"([0-9]+).ml");
 	for (const auto & entry : fs::directory_iterator(path)){
@@ -317,11 +320,30 @@ int main(int argc, char **argv){
 			//sinon on gere tous les autres en arriere plan
 			if(universe.isFinished()){
 				//mettre le manager ici
+				ManagerThread manager(NBR_THREAD,&max_score);
+				manager.createPopulation(&listeBrains, universe, robot);
+
+				while(!manager.isFinished()){
+					manager.displayStat();
+					this_thread::sleep_for(chrono::milliseconds(100));
+				}
+
+				listeBrains.clear();
+				listeBrains = manager.getNewGeneration();
+
+				//on prépare pour la prochaine génération
+				player = &(listeBrains[0]);
+				universe.initStep();
+				robotInit(robot);
+				robot.setBrain(&player->m);
+				generation++;
+
+				cout << "Generation:" << generation << ", score_max:" << max_score << endl << endl;
 			}
 		}
 
 		//pour éviter de perdre les bons éléments à chaque génération
-		if(max_score_folder!=0&&max_score>=max_score_folder){
+		if(max_score>=max_score_folder){
 			player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
 		}
 
