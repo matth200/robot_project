@@ -16,7 +16,7 @@ class Population{
         bool isFinished();
     protected:
         bool finished;
-        vector<VarSelection> _listeBrain;
+        std::vector<VarSelection> _listeBrain;
 };
 
 class ManagerThread{
@@ -24,15 +24,14 @@ class ManagerThread{
         ManagerThread(int nbr_thread, int *max_score);
         ~ManagerThread();
         void createPopulation();
-        vector<VarSelection> getNewGeneration();
+        std::vector<VarSelection> getNewGeneration();
         bool isFinished();
         void clear();
     protected:
         int _nbr_thread;
-        vector<thread*> _threads;
-        vector<Population> _listePopulation;
+        std::vector<thread*> _threads;
+        std::vector<Population> _listePopulation;
         int *_max_score;
-        
 };
 
 #endif

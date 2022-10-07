@@ -153,6 +153,5 @@ bool ManagerThread::isFinished(){
 }
 
 void ManagerThread::clear(){
-    _listeData.clear();
     _listePopulation.clear();
 }
