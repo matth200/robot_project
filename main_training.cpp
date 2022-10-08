@@ -1,4 +1,5 @@
 #define NO_GUI
+#define TRY_BEST true
 
 #include <fstream>
 #include <iostream>
@@ -98,10 +99,10 @@ int main(int argc, char **argv){
 	#endif
 
 	//on récupére le meilleur score
-	string filename = "";
+	string bestfilename = "";
 	string path = TRAINMODEL_FOLDER;
 	cout << "Selection du meilleur réseau de neurones dans "<< path << endl;
-	int max_score_folder = 500000;
+	int max_score_folder = 0;
 	smatch m;
 	regex r(string(SAVE_NAME)+"([0-9]+).ml");
 	for (const auto & entry : fs::directory_iterator(path)){
@@ -113,11 +114,11 @@ int main(int argc, char **argv){
 			score = stoi(v);
 			if(score>max_score_folder){
 				max_score_folder = score;
-				filename = name;
+				bestfilename = name;
 			}
 		}
 	}
-	cout << "Filename:" << filename <<  ", max_score:" << max_score_folder << endl;
+	cout << "Filename:" << bestfilename <<  ", max_score:" << max_score_folder << endl;
 
 
 	//on prepare le fichier de suivi de l'evolution
@@ -168,11 +169,11 @@ int main(int argc, char **argv){
 
 	//configuration ou non du premier machine learning
 	bool state_backup_data = false;
-	if(argc<=2){
+	if(argc<=2||TRY_BEST){
 		//si un fichier est proposé
-		if(argc==2){
+		if(argc==2||TRY_BEST){
 			cout << "Insertion du réseau de neurones déjà entrainé...." << endl;
-			const char *filename = argv[1];
+			const char *filename = (TRY_BEST)?bestfilename.c_str():argv[1];
 			if(listeBrains[0].m.backupTraining(filename)){
 				cout << "Récupération du réseau de neurones effectuée avec succèes" << endl;
 				state_backup_data = true;
@@ -208,7 +209,7 @@ int main(int argc, char **argv){
 
 	//on place le nom du fichier récupéré
 	if(state_backup_data){
-		display.setBackup(string(argv[1]));
+		display.setBackup(string((TRY_BEST)?bestfilename:argv[1]));
 	}
 	#endif
 
@@ -220,6 +221,7 @@ int main(int argc, char **argv){
 	//speed
 	bool state_space = false, state_enter = false;
 	bool behind_work = false;
+	bool state_save = false;
 
 	//boucle
 	bool continuer = true;
@@ -319,6 +321,7 @@ int main(int argc, char **argv){
 			}
 			//sinon on gere tous les autres en arriere plan
 			if(universe.isFinished()){
+				state_save = true;
 				//mettre le manager ici
 				ManagerThread manager(NBR_THREAD,&max_score);
 				manager.createPopulation(&listeBrains, universe, robot);
@@ -338,13 +341,20 @@ int main(int argc, char **argv){
 				robot.setBrain(&player->m);
 				generation++;
 
-				cout << "Generation:" << generation << ", score_max:" << max_score << endl << endl;
+				cout << "Generation:" << generation << ", score_max:" << max_score << ", max_score_folder:" << max_score_folder << endl << endl;
+				file_evolution << generation << " " << max_score << endl;
 			}
 		}
 
 		//pour éviter de perdre les bons éléments à chaque génération
-		if(max_score>=max_score_folder){
-			player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
+		if(max_score>max_score_folder-100000&&state_save){
+			string filename_maxscore = (string("../resources/trained_model/")+SAVE_NAME+to_string(max_score)+".ml");
+			player->m.saveTraining(filename_maxscore.c_str());
+			cout << "Enregistrement sur " << filename_maxscore << endl;
+			if(max_score>max_score_folder){
+				max_score_folder = max_score;
+			}
+			state_save = false;
 		}
 
 		#ifndef NO_GUI
@@ -359,7 +369,7 @@ int main(int argc, char **argv){
 
 	//sécurité pour ne pas perdre les bons entrainements
 	if(max_score>=600000){
-		player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(player->score)+".ml").c_str());
+		player->m.saveTraining((string("../resources/trained_model/")+SAVE_NAME+to_string(max_score)+".ml").c_str());
 	}
     return 0;
 }
