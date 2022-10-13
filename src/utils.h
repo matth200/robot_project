@@ -22,7 +22,7 @@ void makeBabys(MachineLearning &m1, MachineLearning &m2);
 VarSelection selectionRandomly(std::vector<VarSelection> &players, int &a);
 double distance(int x1, int y1, int x2, int y2);
 
-void evaluateRobot(Robot &r, VarSelection *player, bool &f);
+int evaluateRobot(Robot &r, VarSelection *player, bool &f);
 void robotInit(Robot &robot);
 
 #endif

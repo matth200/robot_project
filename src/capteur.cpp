@@ -59,9 +59,10 @@ void Capteur::setPos(double x, double y){
     initDetectionLines();
 }
 
-void Capteur::draw(SDL_Surface *screen){
+void Capteur::draw(SDL_Surface *screen, int x, int y){
     for(int i(0);i<_detectionLines.size();i++){
-        drawLine(screen, _detectionLines[i], COLOR_WHITE);
+        Line line = _detectionLines[i];
+        drawLine(screen, line.x1-x, line.y1-y, line.x2-x, line.y2-y, COLOR_WHITE);
     }
 }
 

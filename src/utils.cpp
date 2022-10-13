@@ -14,9 +14,10 @@ void robotInit(Robot &robot){
 }
 
 
-void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
+int evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	//si trop long, on arrete
 	robot.update();
+	int score = 0;
 
 	if(robot.getDuration()>TIMEOUT){
 		robot.setAlive(false);
@@ -26,13 +27,17 @@ void evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	if(!robot.isAlive()||robot.getWin()){
 		//si il a reussi, il doit essayer d'avoir le chemin le plus court
 		if(robot.getWin()){
-			player->score += int(50000.0-robot.getDistanceDone());
+			score += int(50000.0-robot.getDistanceDone());
 		//sinon le plus long
 		}else{
-			player->score += int(robot.getDistanceDone());
+			score += int(robot.getDistanceDone());
 		}
 		f = true;
 	}
+	if(player!=NULL){
+		player->score = score;
+	}
+	return score;
 }
 
 

@@ -61,9 +61,6 @@ using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
 //parametre d'affichage
-#define SCREEN_WIDTH 1500
-#define SCREEN_HEIGHT 1000
-#define OUTSCREEN_W 400
 #define MAX_TIME_ESC 500
 #define FPS 40.0
 
@@ -219,7 +216,7 @@ int main(int argc, char **argv){
 
 
 	//speed
-	bool state_space = false, state_enter = false;
+	bool state_space = true, state_enter = false;
 	bool behind_work = false;
 	bool state_save = false;
 
@@ -250,10 +247,10 @@ int main(int argc, char **argv){
 							}
 							break;
 						case SDLK_RIGHT:
-							//robot.setMotor2(ROBOT_SPEED);
+							robot.setMotor2(ROBOT_SPEED);
 							break;
 						case SDLK_LEFT:
-							//robot.setMotor1(ROBOT_SPEED);
+							robot.setMotor1(ROBOT_SPEED);
 							break;
 					}
 					break;
@@ -266,10 +263,10 @@ int main(int argc, char **argv){
 							state_enter = false;
 							break;
 						case SDLK_RIGHT:
-							//robot.setMotor2(0);
+							robot.setMotor2(0);
 							break;
 						case SDLK_LEFT:
-							//robot.setMotor1(0);
+							robot.setMotor1(0);
 							break;
 					}
 					break;
@@ -284,7 +281,7 @@ int main(int argc, char **argv){
 		bool finish = false;
 		if(!behind_work){
 			//viens faire avancer le robot et remplir si terminé le score du player
-			evaluateRobot(robot, player, finish);
+			evaluateRobot(robot, NULL, finish);
 
 			//on récupère le meilleur score en live aussi
 			if(max_score<player->score){

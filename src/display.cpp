@@ -66,7 +66,9 @@ void Display::setBackup(string filename)
 void Display::draw(SDL_Surface *screen){
 	//barre qui sépare le score du jeu
 	drawSquare(screen,_x,0,3,_height,COLOR_WHITE);
-	drawNeuralNetwork(screen, *_machine, _x+60, 200);
+    if(_machine!=NULL){
+	    drawNeuralNetwork(screen, *_machine, _x+60, 200);
+    }
 
     //informations sur l'univers
     int level = _universe->getLevel()+1;

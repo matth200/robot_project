@@ -8,7 +8,13 @@
 #include "draw.h"
 #include "capteur.h"
 #include "m_learning.h"
+#include "genetic_algorithm_const.h"
 #include "world.h"
+
+#include <thread>
+#include <chrono>
+
+typedef std::chrono::high_resolution_clock::time_point time_point;
 
 #define COLOR_CAR SDL_MapRGB(screen->format, 200,10,100)
 #define ROBOT_SPEED 5
@@ -22,7 +28,7 @@ class Trajectoire{
         void setOrigin(int x, int y);
         void addPoint(int x, int y);
         void clearTrajectoire();
-        void draw(SDL_Surface *screen);
+        void draw(SDL_Surface *screen, int x =0, int y=0);
     private:
         double distance(Pos pos1, Pos pos2);
     protected:
@@ -42,7 +48,7 @@ class Car{
         void setRotation(double rotation);
         double getRotation();
         double getRotation(double x1, double y1, double x2, double y2);
-        void draw(SDL_Surface *screen);
+        void draw(SDL_Surface *screen, int x = 0, int y = 0);
     private:
         void calcCenter(double x1, double y1, double x2, double y2, double &x, double &y);
     protected:
@@ -78,6 +84,29 @@ class Robot: public Car{
         unsigned int _tick;
         unsigned char _memoire, _memoire2;
         Universe *_universe;
+};
+
+
+class RobotArduino: public Robot{
+    public:
+        RobotArduino();
+        void updateMotor();
+        void loop();
+        void setup();
+    protected:
+        double _ard_rotation;
+        int _ard_speedl;
+        int _ard_speedr;
+        double _ard_distance;
+        time_point _old_time;
+
+        double ARD_FULL_SPEED;
+        double ARD_RAYON_BASE;
+    private:
+        void ard_updateRotation(double &rotation, double speed_l, double speed_r, unsigned long tm);
+        Line ard_setRotation(double rotation);
+        double ard_getRotation(double x1, double y1, double x2, double y2);
+        void ard_goTo(double angle, double &rotation, int &speed_r, int &speed_l, bool sens=false);
 };
 
 #endif

@@ -23,7 +23,7 @@ class Capteur{
         void setPos(double x, double y);
         double getDistance();
         void initDetectionLines();
-        void draw(SDL_Surface *screen);
+        void draw(SDL_Surface *screen, int x = 0, int y = 0);
         void connectToWorld(World &world);
     private:
         double getAngleTriangle(double a, double b, double c);

@@ -3,6 +3,10 @@ using namespace std;
 
 World::World(int w, int h){
     real_map.setSize(w,h);
+    _w = w;
+    _h = h;
+    _x = 0;
+    _y = 0;
 }
 
 World::~World(){
@@ -16,17 +20,30 @@ vector<Pos> *World::getPoints(){
 void World::draw(SDL_Surface *screen){
         //affichage de carte
         for(int i(0);i<_carte.size();i++){
-            drawLine(screen, _carte[i], COLOR_WHITE);
+            Line line = _carte[i];
+            drawLine(screen, line.x1-_x, line.y1-_y, line.x2-_x, line.y2-_y , COLOR_WHITE);
         }
 
         //même chose mais rouge
         for(int i(0);i<_carte_red.size();i++){
-            drawLine(screen, _carte_red[i], COLOR_RED);
+            Line line = _carte_red[i];
+            drawLine(screen, line.x1-_x, line.y1-_y, line.x2-_x, line.y2-_y, COLOR_RED);
         }
         //même chose mais vert
         for(int i(0);i<_carte_green.size();i++){
-            drawLine(screen, _carte_green[i], COLOR_GREEN);
+            Line line = _carte_green[i];
+            drawLine(screen, line.x1-_x, line.y1-_y, line.x2-_x, line.y2-_y, COLOR_GREEN);
         }
+}
+Pos World::getView(){
+    Pos pos;
+    pos.x = _x;
+    pos.y = _y;
+    return pos;
+}
+void World::setView(int x, int y){
+    _x = x;
+    _y = y;
 }
 
 bool World::loadMap(const char* filename){
@@ -35,6 +52,9 @@ bool World::loadMap(const char* filename){
         return false;
     }
 
+    int w = _w;
+    int h = _h;
+
     Line line;
     int size=0;
     //white lines
@@ -42,18 +62,39 @@ bool World::loadMap(const char* filename){
     for(int i(0);i<size;i++){
         file.read((char*)&line, sizeof(line));
         _carte.push_back(Line(line));
+        //on trouve le max
+        if(line.x1>w||line.x2>w){
+            w = (line.x1>line.x2)?line.x1:line.x2;
+        }
+        if(line.y1>h||line.y2>h){
+            h = (line.y1>line.y2)?line.y1:line.y2;
+        }
     }
     //red lines
     file.read((char*)&size, sizeof(size));
     for(int i(0);i<size;i++){
         file.read((char*)&line, sizeof(line));
         _carte_red.push_back(Line(line));
+        //on trouve le max
+        if(line.x1>w||line.x2>w){
+            w = (line.x1>line.x2)?line.x1:line.x2;
+        }
+        if(line.y1>h||line.y2>h){
+            h = (line.y1>line.y2)?line.y1:line.y2;
+        }
     }
     //green lines
     file.read((char*)&size, sizeof(size));
     for(int i(0);i<size;i++){
         file.read((char*)&line, sizeof(line));
         _carte_green.push_back(Line(line));
+        //on trouve le max
+        if(line.x1>w||line.x2>w){
+            w = (line.x1>line.x2)?line.x1:line.x2;
+        }
+        if(line.y1>h||line.y2>h){
+            h = (line.y1>line.y2)?line.y1:line.y2;
+        }
     }
     //purple points
     file.read((char*)&size, sizeof(size));
@@ -61,7 +102,19 @@ bool World::loadMap(const char* filename){
     for(int i(0);i<size;i++){
         file.read((char*)&pos, sizeof(pos));
         _points.push_back(Pos(pos));
+        //on trouve le max
+        if(pos.x>w){
+            w = pos.x;
+        }
+        if(pos.y>h){
+            h = pos.y;
+        }
     }
+    //10 pixels de sureté
+    w+=10;
+    h+=10;
+    real_map.setSize(w,h);
+    cout << "Real w:" << w << ", h:" << h << endl;
     return true;
 }
 
