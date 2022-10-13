@@ -1,4 +1,4 @@
-#define NO_GUI
+//#define NO_GUI
 #define TRY_BEST true
 
 #include <fstream>
@@ -275,6 +275,7 @@ int main(int argc, char **argv){
 					break;
 			}
 		}
+		//cout << "On entre dans la boucle !" << endl;
 		//affichage
 		#ifndef NO_GUI
 		SDL_FillRect(screen, NULL, COLOR_BLACK);
@@ -333,6 +334,7 @@ int main(int argc, char **argv){
 
 				listeBrains.clear();
 				listeBrains = manager.getNewGeneration();
+				cout << listeBrains.size() << endl;
 
 				//on prépare pour la prochaine génération
 				player = &(listeBrains[0]);
@@ -341,6 +343,12 @@ int main(int argc, char **argv){
 				robot.setBrain(&player->m);
 				generation++;
 
+				#ifndef NO_GUI
+				display.setNeuralNetwork(&(player->m));
+				display.setRobot(&robot);
+				display.setUniverse(&universe);
+				#endif
+			
 				cout << "Generation:" << generation << ", score_max:" << max_score << ", max_score_folder:" << max_score_folder << endl << endl;
 				file_evolution << generation << " " << max_score << endl;
 			}
