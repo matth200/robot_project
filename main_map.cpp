@@ -46,6 +46,7 @@ struct Pos{
 };
 
 bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3, vector<Pos> &points);
+bool loadDataInFile(const char *filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3, vector<Pos> &points);
 void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color);
 void drawLine(SDL_Surface *screen, Line line, Uint32 color);
 void setPixel(SDL_Surface *screen, int x, int y, Uint32 color);
@@ -93,6 +94,16 @@ int main(int argc, char **argv){
 
     //on gere les positions
     vector<Pos> points;
+
+
+    if(argc==2){
+        cout << "On récupére une ancienne carte à " << argv[1] << endl;
+        if(loadDataInFile(argv[1], carte, carte_green, carte_red, points)){
+            cout << "Chargé avec succées" << endl;
+        }else{
+            cout << "Erreur le fichier n'existe pas ou n'est pas compatible..." << endl;
+        }
+    }
 
     //on gere la vue
     Pos viewPos;
@@ -417,6 +428,42 @@ int main(int argc, char **argv){
 
     TTF_CloseFont(police);
     return 0;
+}
+
+bool loadDataInFile(const char *filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3, vector<Pos> &points){
+     ifstream file(filename, ios::binary);
+    if(!file.is_open()){
+        return false;
+    }
+
+    Line line;
+    int size=0;
+    //white lines
+    file.read((char*)&size,sizeof(size));
+    for(int i(0);i<size;i++){
+        file.read((char*)&line, sizeof(line));
+        liste1.push_back(Line(line));
+    }
+    //red lines
+    file.read((char*)&size, sizeof(size));
+    for(int i(0);i<size;i++){
+        file.read((char*)&line, sizeof(line));
+        liste2.push_back(Line(line));
+    }
+    //green lines
+    file.read((char*)&size, sizeof(size));
+    for(int i(0);i<size;i++){
+        file.read((char*)&line, sizeof(line));
+        liste3.push_back(Line(line));
+    }
+    //purple points
+    file.read((char*)&size, sizeof(size));
+    Pos pos;
+    for(int i(0);i<size;i++){
+        file.read((char*)&pos, sizeof(pos));
+        points.push_back(Pos(pos));
+    }
+    return true;
 }
 
 bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &liste2, vector<Line> &liste3, vector<Pos> &points){
