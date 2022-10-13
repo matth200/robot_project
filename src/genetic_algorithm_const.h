@@ -13,4 +13,9 @@
 #define RANDOM_VALUE_W 20
 #define RANDOM_VALUE_B 20
 
+
+#define SCREEN_WIDTH 1500
+#define SCREEN_HEIGHT 1000
+#define OUTSCREEN_W 400
+
 #endif

@@ -8,6 +8,7 @@
 #include "draw.h"
 #include "capteur.h"
 #include "m_learning.h"
+#include "genetic_algorithm_const.h"
 #include "world.h"
 
 #define COLOR_CAR SDL_MapRGB(screen->format, 200,10,100)
@@ -22,7 +23,7 @@ class Trajectoire{
         void setOrigin(int x, int y);
         void addPoint(int x, int y);
         void clearTrajectoire();
-        void draw(SDL_Surface *screen);
+        void draw(SDL_Surface *screen, int x =0, int y=0);
     private:
         double distance(Pos pos1, Pos pos2);
     protected:
@@ -42,7 +43,7 @@ class Car{
         void setRotation(double rotation);
         double getRotation();
         double getRotation(double x1, double y1, double x2, double y2);
-        void draw(SDL_Surface *screen);
+        void draw(SDL_Surface *screen, int x = 0, int y = 0);
     private:
         void calcCenter(double x1, double y1, double x2, double y2, double &x, double &y);
     protected:

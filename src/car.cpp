@@ -58,7 +58,7 @@ void Trajectoire::clearTrajectoire(){
     _liste.clear();
     _sum = 0;
 }
-void Trajectoire::draw(SDL_Surface *screen){
+void Trajectoire::draw(SDL_Surface *screen, int x, int y){
     int size = _liste.size()-1;
     for(int i(0);i<size;i++){
         Line line;
@@ -67,7 +67,7 @@ void Trajectoire::draw(SDL_Surface *screen){
 
         line.x2 = _liste[i+1].x;
         line.y2 = _liste[i+1].y;
-        drawLine(screen, line, COLOR_RED);
+        drawLine(screen, line.x1-x, line.y1-y, line.x2-x, line.y2-y, COLOR_RED);
     }
 
 }
@@ -158,16 +158,16 @@ void Car::forward(){
     _rotation = getRotation(_line.x1,_line.y1,_line.x2,_line.y2);
 }
 
-void Car::draw(SDL_Surface *screen){
+void Car::draw(SDL_Surface *screen, int x, int y){
     //roue gauche
-    drawCircle(screen,(int)(_x+(_rayon+5.0)*cos(M_PI+_rotation)),(int)(_y-(_rayon+5)*sin(M_PI+_rotation)),5,COLOR_CAR);
+    drawCircle(screen,(int)(_x+(_rayon+5.0)*cos(M_PI+_rotation))-x,(int)(_y-(_rayon+5)*sin(M_PI+_rotation))-y,5,COLOR_CAR);
     //roue droite
-    drawCircle(screen,(int)(_x+(_rayon+5.0)*cos(_rotation)),(int)(_y-(_rayon+5)*sin(_rotation)),5,COLOR_CAR);
+    drawCircle(screen,(int)(_x+(_rayon+5.0)*cos(_rotation))-x,(int)(_y-(_rayon+5)*sin(_rotation))-y,5,COLOR_CAR);
     //corps
-    drawCircle(screen, (int)(_x), (int)(_y), _rayon, COLOR_CAR);
+    drawCircle(screen, (int)(_x)-x, (int)(_y)-y, _rayon, COLOR_CAR);
     //Line
-    drawLine(screen, _line, COLOR_CAR);
-    _trajectoire.draw(screen);
+    drawLine(screen, _line.x1-x, _line.y1-y, _line.x2-x, _line.y2-y, COLOR_CAR);
+    _trajectoire.draw(screen, x, y);
 }
 
 
@@ -224,6 +224,7 @@ void Robot::update(){
     //on connecte au monde en question
     if(_universe!=NULL){
         connectToWorld(*_universe->getCurrentWorld());
+        _universe->getCurrentWorld()->setView(_x-SCREEN_WIDTH/2,_y-SCREEN_HEIGHT/2);
     }
 
     //ensuite on avance
@@ -305,8 +306,9 @@ void Robot::setBrain(MachineLearning *brain){
 }
 
 void Robot::draw(SDL_Surface *screen){
-    Car::draw(screen);
-    _capteur.draw(screen);
+    Pos viewPos = _universe->getCurrentWorld()->getView();
+    Car::draw(screen, viewPos.x, viewPos.y);
+    _capteur.draw(screen, viewPos.x, viewPos.y);
     //_trajectoire.draw(screen);
     //_capteur_ext.draw(screen);
 }

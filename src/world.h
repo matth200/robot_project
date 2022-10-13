@@ -45,12 +45,16 @@ class World{
         VirtualWorld* getRealWorld();
         void buildVirtualWorld();
         void draw(SDL_Surface *screen);
+        void setView(int x, int y);
+        Pos getView();
         bool loadMap(const char* filename);
         std::vector<Pos>* getPoints();
     protected:
         std::vector<Line> _carte, _carte_red, _carte_green;
         VirtualWorld real_map;
         std::vector<Pos> _points;
+        int _w, _h;
+        int _x, _y;
 };
 
 

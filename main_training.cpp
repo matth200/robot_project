@@ -61,9 +61,6 @@ using namespace std;
 typedef chrono::high_resolution_clock::time_point time_point;
 
 //parametre d'affichage
-#define SCREEN_WIDTH 1500
-#define SCREEN_HEIGHT 1000
-#define OUTSCREEN_W 400
 #define MAX_TIME_ESC 500
 #define FPS 40.0
 
@@ -219,7 +216,7 @@ int main(int argc, char **argv){
 
 
 	//speed
-	bool state_space = false, state_enter = false;
+	bool state_space = true, state_enter = false;
 	bool behind_work = false;
 	bool state_save = false;
 
