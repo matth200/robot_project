@@ -49,7 +49,7 @@ bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &li
 void drawLine(SDL_Surface *screen, int x1, int y1, int x2, int y2, Uint32 color);
 void drawLine(SDL_Surface *screen, Line line, Uint32 color);
 void setPixel(SDL_Surface *screen, int x, int y, Uint32 color);
-void drawCross(SDL_Surface *screen, Pos pos, Uint32 color);
+void drawCross(SDL_Surface *screen, int x, int y, Uint32 color);
 
 
 int main(int argc, char **argv){
@@ -94,6 +94,11 @@ int main(int argc, char **argv){
     //on gere les positions
     vector<Pos> points;
 
+    //on gere la vue
+    Pos viewPos;
+    viewPos.x = 0;
+    viewPos.y = 0;
+
 
     //on gere la souris
     SDL_Rect rectMouse;
@@ -126,6 +131,7 @@ int main(int argc, char **argv){
 
     //button
     bool status_esc = 0, status_enter = 0, state_space  = 0, state_u = 0;
+    bool status_ctrl = false;
 
     int counter_esc = 0;
     time_point start_point_esc;
@@ -139,11 +145,25 @@ int main(int argc, char **argv){
                     continuer = false;
                     break;
                 case SDL_MOUSEMOTION:
+                    if(status_ctrl){
+                        viewPos.x += event.motion.x - rectMouse.x;
+                        viewPos.y += event.motion.y - rectMouse.y;
+                        if(viewPos.x>0){
+                            viewPos.x = 0;
+                        }
+                        if(viewPos.y>0){
+                            viewPos.y = 0;
+                        }
+                    }
                     rectMouse.x = event.motion.x;
                     rectMouse.y = event.motion.y;
                     break;
                 case SDL_KEYDOWN:
-                    if(event.key.keysym.sym==SDLK_RETURN){
+                    if(event.key.keysym.sym==SDLK_m){
+                        //on initialise la vue
+                        viewPos.x = 0;
+                        viewPos.y = 0;
+                    }else if(event.key.keysym.sym==SDLK_RETURN){
                         if(status_enter==0){
                             //on enregistre le fichier
                             if(saveDataInFile("../resources/map/map.level", carte, carte_red, carte_green, points)){
@@ -208,6 +228,10 @@ int main(int argc, char **argv){
                         state_space=1;
                     }else if(event.key.keysym.sym==SDLK_u){
                         state_u = 1;
+                    }else if(event.key.keysym.sym==SDLK_LCTRL){
+                        if(!status_ctrl){
+                            status_ctrl = true;
+                        }
                     }
                     break;
                 case SDL_KEYUP:
@@ -224,6 +248,9 @@ int main(int argc, char **argv){
                     }else if(event.key.keysym.sym==SDLK_u){
                         state_u = 0;
                     }
+                    else if(event.key.keysym.sym==SDLK_LCTRL){
+                        status_ctrl = false;
+                    }
                     break;
                 case SDL_MOUSEBUTTONDOWN:
                     if(event.button.button == SDL_BUTTON_LEFT){
@@ -231,43 +258,43 @@ int main(int argc, char **argv){
                         if(state_space){
                             switch(state_line_green){
                                 case 0:
-                                    line_green.x1 = event.motion.x;
-                                    line_green.y1 = event.motion.y;
+                                    line_green.x1 = event.motion.x-viewPos.x;
+                                    line_green.y1 = event.motion.y-viewPos.y;
                                     break;
                                 case 1:
-                                    line_green.x2 = event.motion.x;
-                                    line_green.y2 = event.motion.y;
+                                    line_green.x2 = event.motion.x-viewPos.x;
+                                    line_green.y2 = event.motion.y-viewPos.y;
                                     break;
                             }
                         //line white
                         }else if(state_u){
                             Pos pos;
-                            pos.x = event.motion.x;
-                            pos.y = event.motion.y;
+                            pos.x = event.motion.x-viewPos.x;
+                            pos.y = event.motion.y-viewPos.y;
                             points.push_back(pos);
                             state_u = 0;
                         }
                         else{
                             switch(state_line){
                                 case 0:
-                                    line.x1 = event.motion.x;
-                                    line.y1 = event.motion.y;
+                                    line.x1 = event.motion.x-viewPos.x;
+                                    line.y1 = event.motion.y-viewPos.y;
                                     break;
                                 case 1:
-                                    line.x2 = event.motion.x;
-                                    line.y2 = event.motion.y;
+                                    line.x2 = event.motion.x-viewPos.x;
+                                    line.y2 = event.motion.y-viewPos.y;
                                     break;
                             }
                         }
                     }else if(event.button.button==SDL_BUTTON_RIGHT){
                          switch(state_line_red){
                             case 0:
-                                line_red.x1 = event.motion.x;
-                                line_red.y1 = event.motion.y;
+                                line_red.x1 = event.motion.x-viewPos.x;
+                                line_red.y1 = event.motion.y-viewPos.y;
                                 break;
                             case 1:
-                                line_red.x2 = event.motion.x;
-                                line_red.y2 = event.motion.y;
+                                line_red.x2 = event.motion.x-viewPos.x;
+                                line_red.y2 = event.motion.y-viewPos.y;
                                 break;
                         }
                     }
@@ -335,40 +362,46 @@ int main(int argc, char **argv){
         SDL_FillRect(screen, NULL, COLOR_BLACK);
 
         //SDL_FillRect(screen, &rectMouse, SDL_MapRGB(screen->format,100,100,100));
+        //drawCross(screen, rectMouse.x, rectMouse.y, COLOR_PURPLE);
 
         //ligne actuel
         if(line.x1!=-1&&line.y1!=-1){
-            drawLine(screen, line.x1, line.y1, rectMouse.x, rectMouse.y, COLOR_WHITE);
+            drawLine(screen, line.x1+viewPos.x, line.y1+viewPos.y, rectMouse.x, rectMouse.y, COLOR_WHITE);
         }
 
         //même chose mais rouge
         if(line_red.x1!=-1&&line_red.y1!=-1){
-            drawLine(screen, line_red.x1, line_red.y1, rectMouse.x, rectMouse.y, COLOR_RED);
+            drawLine(screen, line_red.x1+viewPos.x, line_red.y1+viewPos.y, rectMouse.x, rectMouse.y, COLOR_RED);
         }
 
         //même chose mais vert
         if(line_green.x1!=-1&&line_green.y1!=-1){
-            drawLine(screen, line_green.x1, line_green.y1, rectMouse.x, rectMouse.y, COLOR_GREEN);
+            drawLine(screen, line_green.x1+viewPos.x, line_green.y1+viewPos.y, rectMouse.x, rectMouse.y, COLOR_GREEN);
         }
 
         //affichage de carte
         for(int i(0);i<carte.size();i++){
-            drawLine(screen, carte[i], COLOR_WHITE);
+            Line line = carte[i];
+
+            drawLine(screen, line.x1+viewPos.x, line.y1+viewPos.y, line.x2+viewPos.x, line.y2+viewPos.y, COLOR_WHITE);
         }
 
         //même chose mais rouge
         for(int i(0);i<carte_red.size();i++){
-            drawLine(screen, carte_red[i], COLOR_RED);
+            Line line = carte_red[i];
+            drawLine(screen, line.x1+viewPos.x, line.y1+viewPos.y, line.x2+viewPos.x, line.y2+viewPos.y, COLOR_RED);
         }
 
         //même chose mais vert
         for(int i(0);i<carte_green.size();i++){
-            drawLine(screen, carte_green[i], COLOR_GREEN);
+            Line line = carte_green[i];
+            drawLine(screen, line.x1+viewPos.x, line.y1+viewPos.y, line.x2+viewPos.x, line.y2+viewPos.y, COLOR_GREEN);
         }
 
         //affichage des points
         for(int i(0);i<points.size();i++){
-            drawCross(screen, points[i], COLOR_PURPLE);
+            Pos pos = points[i];
+            drawCross(screen, pos.x+viewPos.x, pos.y+viewPos.y, COLOR_PURPLE);
         }
 
         SDL_Flip(screen);
@@ -437,7 +470,9 @@ bool saveDataInFile(const char* filename, vector<Line> &liste1, vector<Line> &li
 }
 
 void setPixel(SDL_Surface *screen, int x, int y, Uint32 color){
-    *((Uint32*)(screen->pixels) + x + y * screen->w) = color;
+    if(screen->w>x&&x>=0&&screen->h>y&&y>=0){
+        *((Uint32*)(screen->pixels) + x + y * screen->w) = color;
+    }
 }
 
 
@@ -459,7 +494,10 @@ void drawLine(SDL_Surface *screen, Line line, Uint32 color){
     drawLine(screen, line.x1, line.y1, line.x2, line.y2, color);
 }
 
-void drawCross(SDL_Surface *screen, Pos pos, Uint32 color){
+void drawCross(SDL_Surface *screen, int x, int y, Uint32 color){
+    Pos pos;
+    pos.x = x;
+    pos.y = y;
     Line line1, line2;
     line1.x1 = pos.x-10;
     line1.y1 = pos.y-10;
