@@ -224,6 +224,7 @@ void Robot::update(){
     //on connecte au monde en question
     if(_universe!=NULL){
         connectToWorld(*_universe->getCurrentWorld());
+        //on centre le robot
         _universe->getCurrentWorld()->setView(_x-SCREEN_WIDTH/2,_y-SCREEN_HEIGHT/2);
     }
 
@@ -311,4 +312,97 @@ void Robot::draw(SDL_Surface *screen){
     _capteur.draw(screen, viewPos.x, viewPos.y);
     //_trajectoire.draw(screen);
     //_capteur_ext.draw(screen);
+}
+
+
+
+RobotArduino::RobotArduino():Robot(){
+    ARD_RAYON_BASE = 10.0;
+    ARD_FULL_SPEED = 1.0;
+    setup();
+}
+
+void RobotArduino::setup(){
+    _ard_rotation = 0;
+    _ard_speedl = 0;
+    _ard_speedr = 0;
+    _ard_distance = 0;
+    _old_time = chrono::high_resolution_clock::now();
+}
+
+void RobotArduino::loop(){
+    //on récupére la distance
+    _ard_distance = _capteur.getDistance();
+    unsigned long tm = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now()-_old_time).count();
+    _old_time = chrono::high_resolution_clock::now();
+    
+    ard_updateRotation(_ard_rotation,_ard_speedl,_ard_speedr, tm);
+    cout << "Rotation arduino: " << _ard_rotation/M_PI*180.0 << endl;
+    //cout << "speedr:" << _ard_speedr << ", speedl:" << _ard_speedl << endl;
+
+
+    ard_goTo(270.0/180.0*M_PI, _ard_rotation, _ard_speedl, _ard_speedr);
+
+    //update motor
+    updateMotor();
+}
+
+void RobotArduino::updateMotor(){
+    setMotor1(double(_ard_speedl)/100.0*ARD_FULL_SPEED);
+    setMotor2(double(_ard_speedr)/100.0*ARD_FULL_SPEED);
+    Robot::update();
+}
+
+//fonction arduino
+void RobotArduino::ard_updateRotation(double &rotation, double speed_l, double speed_r, unsigned long tm){
+    //intégration de la vitesse de la roue pour trouver l'angle de rotation
+
+    //modif sur la vitesse pour qu'elle soit angulaire
+    speed_r = speed_r/100.0*ARD_FULL_SPEED/ARD_RAYON_BASE;
+    speed_l = -speed_l/100.0*ARD_FULL_SPEED/ARD_RAYON_BASE;
+
+    //on tourne autour de la roue gaguche
+    double angle = rotation;
+    Line line = ard_setRotation(angle);
+
+    if(speed_r!=0){
+        angle+=speed_r*double(tm)/1000.0;
+        line.x2 = line.x1+2.0*ARD_RAYON_BASE*cos(angle);
+        line.y2 = line.y1-2.0*ARD_RAYON_BASE*sin(angle);
+    }
+
+    if(speed_l!=0){
+        angle-=speed_l*double(tm)/1000.0;
+        line.x1 = line.x2+2.0*ARD_RAYON_BASE*cos(M_PI+angle);
+        line.y1 = line.y2-2.0*ARD_RAYON_BASE*sin(M_PI+angle);
+    }
+    
+    //on enregistre la rotation
+    rotation = ard_getRotation(line.x1,line.y1,line.x2,line.y2);
+}
+
+Line RobotArduino::ard_setRotation(double rotation){
+    Line line;
+    //on place le baton
+    line.x1 =(0+ARD_RAYON_BASE*cos(M_PI+rotation));
+    line.y1 = (0-ARD_RAYON_BASE*sin(M_PI+rotation));
+    line.x2 = (0+ARD_RAYON_BASE*cos(rotation));
+    line.y2 = (0-ARD_RAYON_BASE*sin(rotation));
+    return line;
+}
+
+
+double RobotArduino::ard_getRotation(double x1, double y1, double x2, double y2){
+    return getRotation(x1,y1,x2,y2);
+}
+
+void RobotArduino::ard_goTo(double angle, double &rotation, int &speed_r, int &speed_l, bool sens){
+  //si la différence est de plus de 5 degres, on fait tout bouger
+  if(int(abs(angle-rotation)/M_PI*180.0)%360>5){
+    speed_r = (sens)?100.0:-100.0;
+    speed_l = (sens)?-100.0:100.0;
+  }else{
+    speed_r = 0;
+    speed_l = 0;
+  }
 }

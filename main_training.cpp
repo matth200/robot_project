@@ -247,10 +247,10 @@ int main(int argc, char **argv){
 							}
 							break;
 						case SDLK_RIGHT:
-							//robot.setMotor2(ROBOT_SPEED);
+							robot.setMotor2(ROBOT_SPEED);
 							break;
 						case SDLK_LEFT:
-							//robot.setMotor1(ROBOT_SPEED);
+							robot.setMotor1(ROBOT_SPEED);
 							break;
 					}
 					break;
@@ -263,10 +263,10 @@ int main(int argc, char **argv){
 							state_enter = false;
 							break;
 						case SDLK_RIGHT:
-							//robot.setMotor2(0);
+							robot.setMotor2(0);
 							break;
 						case SDLK_LEFT:
-							//robot.setMotor1(0);
+							robot.setMotor1(0);
 							break;
 					}
 					break;
@@ -281,7 +281,7 @@ int main(int argc, char **argv){
 		bool finish = false;
 		if(!behind_work){
 			//viens faire avancer le robot et remplir si terminé le score du player
-			evaluateRobot(robot, player, finish);
+			evaluateRobot(robot, NULL, finish);
 
 			//on récupère le meilleur score en live aussi
 			if(max_score<player->score){

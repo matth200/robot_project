@@ -5,7 +5,7 @@ FLAGS=-lSDL -lSDL_ttf -pthread
 BIN_DIRECTORY=bin
 SRC_DIRECTORY=src
 
-all: $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training $(BIN_DIRECTORY)/extract_nn
+all: $(BIN_DIRECTORY)/app_map $(BIN_DIRECTORY)/app_training $(BIN_DIRECTORY)/extract_nn $(BIN_DIRECTORY)/app_algo
 
 #extract_nn
 $(BIN_DIRECTORY)/extract_nn: $(BIN_DIRECTORY)/extract_nn.o  $(SRC_DIRECTORY)/m_learning.o
@@ -20,6 +20,13 @@ $(BIN_DIRECTORY)/app_map: $(BIN_DIRECTORY)/main_map.o
 	$(GXX) $^ -o $@ $(FLAGS)
 
 $(BIN_DIRECTORY)/main_map.o: main_map.cpp
+	$(GXX) -o $@ -c $< $(FLAGS)
+
+#app_algo
+$(BIN_DIRECTORY)/app_algo: $(BIN_DIRECTORY)/main_algo.o $(SRC_DIRECTORY)/world.o $(SRC_DIRECTORY)/draw.o $(SRC_DIRECTORY)/car.o  $(SRC_DIRECTORY)/utils.o $(SRC_DIRECTORY)/m_learning.o $(SRC_DIRECTORY)/capteur.o $(SRC_DIRECTORY)/display.o
+	$(GXX) $^ -o $@ $(FLAGS)
+
+$(BIN_DIRECTORY)/main_algo.o: main_algo.cpp
 	$(GXX) -o $@ -c $< $(FLAGS)
 
 #app_training
