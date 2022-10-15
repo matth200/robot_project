@@ -48,6 +48,12 @@
         "string_view": "cpp",
         "ranges": "cpp",
         "span": "cpp",
-        "deque": "cpp"
+        "deque": "cpp",
+        "cctype": "cpp",
+        "cstdarg": "cpp",
+        "cwchar": "cpp",
+        "streambuf": "cpp",
+        "cinttypes": "cpp",
+        "system_error": "cpp"
     }
 }

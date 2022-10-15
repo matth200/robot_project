@@ -17,7 +17,7 @@ void robotInit(Robot &robot){
 int evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	//si trop long, on arrete
 	robot.update();
-	int score = 0;
+	int score = (player!=NULL)?player->score:0;
 
 	if(robot.getDuration()>TIMEOUT){
 		robot.setAlive(false);

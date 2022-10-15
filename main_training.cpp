@@ -281,7 +281,7 @@ int main(int argc, char **argv){
 		bool finish = false;
 		if(!behind_work){
 			//viens faire avancer le robot et remplir si terminé le score du player
-			evaluateRobot(robot, NULL, finish);
+			evaluateRobot(robot, player, finish);
 
 			//on récupère le meilleur score en live aussi
 			if(max_score<player->score){

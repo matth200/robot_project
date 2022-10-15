@@ -87,6 +87,20 @@ class Robot: public Car{
 };
 
 
+
+
+
+//arduino program
+// class ManagerArduino{
+//     public:
+//         ManagerArduino();
+//         ~ManagerArduino();
+//         bool sleep();
+//     protected:
+//         time_point _tm;
+// };
+
+
 class RobotArduino: public Robot{
     public:
         RobotArduino();
@@ -98,15 +112,19 @@ class RobotArduino: public Robot{
         int _ard_speedl;
         int _ard_speedr;
         double _ard_distance;
+        double _ard_old_rotation;
+        double _ard_done;
+
         time_point _old_time;
 
+        //define on arduino
         double ARD_FULL_SPEED;
         double ARD_RAYON_BASE;
     private:
         void ard_updateRotation(double &rotation, double speed_l, double speed_r, unsigned long tm);
-        Line ard_setRotation(double rotation);
+        LineD ard_setRotation(double rotation);
         double ard_getRotation(double x1, double y1, double x2, double y2);
-        void ard_goTo(double angle, double &rotation, int &speed_r, int &speed_l, bool sens=false);
+        bool ard_goTo(double angle, double rotation, int &speed_r, int &speed_l,double &old_rotation, double &done, bool sens=false);
 };
 
 #endif

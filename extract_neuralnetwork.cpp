@@ -7,6 +7,7 @@
 
 #define TRAINMODEL_FOLDER "../resources/trained_model/"
 #define SAVE_FILE "../resources/extracted/data.txt"
+#define BRAIN_NAME "brain_1_20_"
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -32,7 +33,7 @@ int main(int argc, char **argv){
         cout << "Selection du meilleur réseau de neurones dans "<< path << endl;
         int max_score = 0;
         smatch m;
-        regex r("_([0-9]+).ml");
+        regex r((string(BRAIN_NAME)+"([0-9]+).ml").c_str());
         for (const auto & entry : fs::directory_iterator(path)){
             string name = entry.path();
             regex_search(name,m,r);

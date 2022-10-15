@@ -317,8 +317,8 @@ void Robot::draw(SDL_Surface *screen){
 
 
 RobotArduino::RobotArduino():Robot(){
-    ARD_RAYON_BASE = 10.0;
-    ARD_FULL_SPEED = 1.0;
+    ARD_RAYON_BASE = 7.0;
+    ARD_FULL_SPEED = 35.0;
     setup();
 }
 
@@ -327,6 +327,8 @@ void RobotArduino::setup(){
     _ard_speedl = 0;
     _ard_speedr = 0;
     _ard_distance = 0;
+    _ard_done = 0;
+    _ard_old_rotation = 0;
     _old_time = chrono::high_resolution_clock::now();
 }
 
@@ -337,19 +339,20 @@ void RobotArduino::loop(){
     _old_time = chrono::high_resolution_clock::now();
     
     ard_updateRotation(_ard_rotation,_ard_speedl,_ard_speedr, tm);
-    cout << "Rotation arduino: " << _ard_rotation/M_PI*180.0 << endl;
-    //cout << "speedr:" << _ard_speedr << ", speedl:" << _ard_speedl << endl;
+    cout << "Rotation arduino: " << _ard_rotation/M_PI*180.0 <<  ", fps:" << 1000.0/tm << endl;
 
-
-    ard_goTo(270.0/180.0*M_PI, _ard_rotation, _ard_speedl, _ard_speedr);
+    //faire un tour
+    if(ard_goTo(2*M_PI, _ard_rotation, _ard_speedl,_ard_speedr, _ard_old_rotation, _ard_done)){
+        cout << "le tour a été fait" << endl;
+    }
 
     //update motor
     updateMotor();
 }
 
 void RobotArduino::updateMotor(){
-    setMotor1(double(_ard_speedl)/100.0*ARD_FULL_SPEED);
-    setMotor2(double(_ard_speedr)/100.0*ARD_FULL_SPEED);
+    setMotor1(double(_ard_speedl)/100.0*ROBOT_SPEED);
+    setMotor2(double(_ard_speedr)/100.0*ROBOT_SPEED);
     Robot::update();
 }
 
@@ -359,11 +362,11 @@ void RobotArduino::ard_updateRotation(double &rotation, double speed_l, double s
 
     //modif sur la vitesse pour qu'elle soit angulaire
     speed_r = speed_r/100.0*ARD_FULL_SPEED/ARD_RAYON_BASE;
-    speed_l = -speed_l/100.0*ARD_FULL_SPEED/ARD_RAYON_BASE;
+    speed_l = speed_l/100.0*ARD_FULL_SPEED/ARD_RAYON_BASE;
 
     //on tourne autour de la roue gaguche
     double angle = rotation;
-    Line line = ard_setRotation(angle);
+    LineD line = ard_setRotation(angle);
 
     if(speed_r!=0){
         angle+=speed_r*double(tm)/1000.0;
@@ -381,8 +384,8 @@ void RobotArduino::ard_updateRotation(double &rotation, double speed_l, double s
     rotation = ard_getRotation(line.x1,line.y1,line.x2,line.y2);
 }
 
-Line RobotArduino::ard_setRotation(double rotation){
-    Line line;
+LineD RobotArduino::ard_setRotation(double rotation){
+    LineD line;
     //on place le baton
     line.x1 =(0+ARD_RAYON_BASE*cos(M_PI+rotation));
     line.y1 = (0-ARD_RAYON_BASE*sin(M_PI+rotation));
@@ -393,16 +396,43 @@ Line RobotArduino::ard_setRotation(double rotation){
 
 
 double RobotArduino::ard_getRotation(double x1, double y1, double x2, double y2){
-    return getRotation(x1,y1,x2,y2);
+    double deltaX = x2-x1;
+    double deltaY = y1-y2;
+    double rotation;
+    if(deltaX!=0){
+        rotation = atan((double)(deltaY)/deltaX);
+    }else{
+        //h n'est jamais nul ici
+        double h = sqrt(deltaX*deltaX+deltaY*deltaY);
+        rotation = asin((double)(deltaY)/h);
+    }
+
+    if(deltaX<0){
+        rotation+=M_PI;
+    }
+
+    if(rotation<0) rotation+=2*M_PI;
+    
+    return rotation;
 }
 
-void RobotArduino::ard_goTo(double angle, double &rotation, int &speed_r, int &speed_l, bool sens){
-  //si la différence est de plus de 5 degres, on fait tout bouger
-  if(int(abs(angle-rotation)/M_PI*180.0)%360>5){
-    speed_r = (sens)?100.0:-100.0;
-    speed_l = (sens)?-100.0:100.0;
-  }else{
-    speed_r = 0;
-    speed_l = 0;
-  }
+bool RobotArduino::ard_goTo(double angle, double rotation, int &speed_r, int &speed_l, double &old_rotation, double &done, bool sens){
+    if(done==0){
+        old_rotation = rotation;
+    }
+    angle = double(int(abs(angle)/M_PI*180.0*100.0)%(360*100))/100.0;
+    double speed_angle = double(int(abs(rotation-old_rotation)/M_PI*180.0*100.0)%(360*100))/100.0;
+    done += speed_angle;
+    old_rotation = rotation;
+    cout << "done:" << done << ", angle:" << angle << endl;
+    if(angle<=done){
+        //on a atteint le bon angle
+        speed_r = 0;
+        speed_l = 0;
+        return true;
+    }else{
+        speed_r = 100.0;
+        speed_l = -100.0;
+    }
+    return false;
 }
