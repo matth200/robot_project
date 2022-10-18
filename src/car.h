@@ -84,6 +84,7 @@ class Robot: public Car{
         unsigned int _tick;
         unsigned char _memoire, _memoire2;
         Universe *_universe;
+        double _noise_rotation_start;
 };
 
 

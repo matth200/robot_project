@@ -176,6 +176,7 @@ Robot::Robot():Car()
 {
     _brain = NULL;
     _universe = NULL;
+    _noise_rotation_start = double(rand()%360);
 
     _capteur_ext.setMaxAngle(M_PI*2.0);
     _capteur_ext.setNbrLineDetection(6);
@@ -259,7 +260,7 @@ void Robot::update(){
 
     if(_brain!=NULL){
         //on donne les infos au cerveau
-        int rotation = int(double(int(_rotation/M_PI*180)%360)/360.0*255.0);
+        int rotation = int(double(int((_rotation+_noise_rotation_start)/M_PI*180)%360)/360.0*255.0);
         //cout << "rot:" << rotation << endl;
         unsigned char data[2];
         data[0] = (unsigned char)(rotation);
@@ -341,9 +342,12 @@ void RobotArduino::loop(){
     ard_updateRotation(_ard_rotation,_ard_speedl,_ard_speedr, tm);
     cout << "Rotation arduino: " << _ard_rotation/M_PI*180.0 <<  ", fps:" << 1000.0/tm << endl;
 
-    //faire un tour
-    if(ard_goTo(2*M_PI, _ard_rotation, _ard_speedl,_ard_speedr, _ard_old_rotation, _ard_done)){
-        cout << "le tour a été fait" << endl;
+    _ard_speedl = 100;
+    _ard_speedr = 100;
+    cout << _ard_distance << endl;
+    if(_ard_distance<500){
+        _ard_speedl = 0;
+        _ard_speedr = 100;
     }
 
     //update motor

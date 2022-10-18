@@ -72,7 +72,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 
 //variable pour effectuer la selection
-#define SAVE_NAME "brain_2_20_"
+#define SAVE_NAME "brain_oneroom_"
 
 
 int main(int argc, char **argv){
@@ -132,13 +132,13 @@ int main(int argc, char **argv){
 	//on construit l'univers
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
 	cout << "Ouverture des maps..." << endl;
-	universe.addLevel("../resources/map/map_1.level");
-	universe.addLevel("../resources/map/map_2.level");
-	universe.addLevel("../resources/map/map_3.level");
-	universe.addLevel("../resources/map/map_4.level");
-	universe.addLevel("../resources/map/map_5.level");
-	universe.addLevel("../resources/map/map_6.level");
-	// universe.addLevel("../resources/map/map.level");
+	// universe.addLevel("../resources/map/map_1.level");
+	// universe.addLevel("../resources/map/map_2.level");
+	// universe.addLevel("../resources/map/map_3.level");
+	// universe.addLevel("../resources/map/map_4.level");
+	// universe.addLevel("../resources/map/map_5.level");
+	// universe.addLevel("../resources/map/map_6.level");
+	universe.addLevel("../resources/map/map_oneroom.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
 	//construction des mondes virtuels pour la détection
@@ -170,7 +170,7 @@ int main(int argc, char **argv){
 		//si un fichier est proposé
 		if(argc==2||TRY_BEST){
 			cout << "Insertion du réseau de neurones déjà entrainé...." << endl;
-			const char *filename = (TRY_BEST)?bestfilename.c_str():argv[1];
+			const char *filename = (argc!=2)?bestfilename.c_str():argv[1];
 			if(listeBrains[0].m.backupTraining(filename)){
 				cout << "Récupération du réseau de neurones effectuée avec succèes" << endl;
 				state_backup_data = true;

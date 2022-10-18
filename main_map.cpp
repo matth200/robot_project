@@ -98,7 +98,7 @@ int main(int argc, char **argv){
 
     if(argc==2){
         cout << "On récupére une ancienne carte à " << argv[1] << endl;
-        if(loadDataInFile(argv[1], carte, carte_green, carte_red, points)){
+        if(loadDataInFile(argv[1], carte, carte_red, carte_green, points)){
             cout << "Chargé avec succées" << endl;
         }else{
             cout << "Erreur le fichier n'existe pas ou n'est pas compatible..." << endl;
