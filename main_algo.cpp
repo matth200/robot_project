@@ -112,6 +112,7 @@ int main(int argc, char **argv){
 	bool state_save = false;
 
     int score = 0;
+	int max_score = 0;
 
 	//boucle
 	bool continuer = true;
@@ -168,7 +169,10 @@ int main(int argc, char **argv){
 		score += evaluateRobotArduino(robot, finish);
 
 		//on gère les infos
-		display.setInfo(0, score);
+		if(max_score<score){
+			max_score = score;
+		}
+		display.setInfo(0, max_score, score);
 
         //affichage de l'environement
         universe.getCurrentWorld()->draw(screen);

@@ -213,6 +213,10 @@ void Robot::setAlive(bool state){
     _alive = state;
 }
 
+void Robot::setNoiseStart(double angle){
+    _noise_rotation_start = angle;
+}
+
 double Robot::getDistanceDone(){
     return _trajectoire.getDistanceDone();
 }

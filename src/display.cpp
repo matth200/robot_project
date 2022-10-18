@@ -10,6 +10,7 @@ Display::Display(int x, int y, int width, int height):_x(x),_y(y),_width(width),
     _generation = 0;
     _max_score = 0;
     _save = false;
+    _score = 0;
     _filename = "";
 
 
@@ -84,6 +85,11 @@ void Display::draw(SDL_Surface *screen){
     _pos.y = _y+_height-100;
     SDL_BlitSurface(_texte, NULL, screen, &_pos);
     SDL_FreeSurface(_texte);
+    _texte = TTF_RenderText_Solid(_police, (string("score:")+to_string(_score)).c_str(), SDL_Color({255,255,255}));
+    _pos.x = _x+50;
+    _pos.y = _y+_height-50;
+    SDL_BlitSurface(_texte, NULL, screen, &_pos);
+    SDL_FreeSurface(_texte);
 
     //affichage de la sauvegarde
     if(_save){
@@ -144,10 +150,11 @@ void Display::draw(SDL_Surface *screen){
 
 }
 
-void Display::setInfo(int generation, int max_score){
+void Display::setInfo(int generation, int max_score, int score){
     if(_generation!=generation){
         _save = false;
     }
+    _score = score;
     _generation = generation;
     _max_score = max_score;
 }

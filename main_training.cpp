@@ -169,8 +169,8 @@ int main(int argc, char **argv){
 	if(argc<=2||TRY_BEST){
 		//si un fichier est proposé
 		if(argc==2||TRY_BEST){
-			cout << "Insertion du réseau de neurones déjà entrainé...." << endl;
-			const char *filename = (argc!=2)?bestfilename.c_str():argv[1];
+			const char *filename = (argc==2)?argv[1]:bestfilename.c_str();
+			cout << "Insertion du réseau de neurones déjà entrainé portant le nom:" << filename << endl;
 			if(listeBrains[0].m.backupTraining(filename)){
 				cout << "Récupération du réseau de neurones effectuée avec succèes" << endl;
 				state_backup_data = true;
@@ -291,7 +291,7 @@ int main(int argc, char **argv){
 
 		#ifndef NO_GUI
 		//on gère les infos
-		display.setInfo(generation, max_score);
+		display.setInfo(generation, max_score, player->score);
 		if(state_enter==true){
 			display.setSave(true);
 		}

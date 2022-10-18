@@ -17,7 +17,7 @@ class Display{
         ~Display();
         void setNeuralNetwork(MachineLearning *machine);
         void setFont(TTF_Font *police);
-        void setInfo(int generation, int max_score);
+        void setInfo(int generation, int max_score, int score);
         void setBigFont(TTF_Font *police);
         void setMiniFont(TTF_Font *police);
         void draw(SDL_Surface *screen);
@@ -36,6 +36,7 @@ class Display{
         Universe *_universe;
         bool _save;
         std::string _filename;
+        int _score;
 };
 
 

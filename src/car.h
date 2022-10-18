@@ -76,6 +76,7 @@ class Robot: public Car{
         unsigned int getDuration();
         void setAlive(bool state);
         bool getWin();
+        void setNoiseStart(double angle);
     protected:
         Capteur _capteur_ext;
         Capteur _capteur;

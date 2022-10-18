@@ -9,7 +9,9 @@ void robotInit(Robot &robot){
 	robot.setUniversePos();
 
 	//orientation aux hasards
-	robot.setRotation((rand()%360)/180.0*M_PI);
+	double angle = (rand()%360)/180.0*M_PI;
+	robot.setRotation(angle);
+	robot.setNoiseStart(angle);
 	robot.clearTick();
 }
 
