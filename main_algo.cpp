@@ -104,8 +104,6 @@ int main(int argc, char **argv){
 	display.setUniverse(&universe);
 
 
-
-
 	//speed
 	bool state_space = true, state_enter = false;
 	bool behind_work = false;

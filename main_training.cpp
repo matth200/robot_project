@@ -72,7 +72,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 
 //variable pour effectuer la selection
-#define SAVE_NAME "brain_oneroom_"
+#define SAVE_NAME "brain_oneroom_multiplelayers_"
 
 
 int main(int argc, char **argv){
@@ -152,8 +152,9 @@ int main(int argc, char **argv){
 		VarSelection selection;
 		MachineLearning *m = &(selection.m);
 		m->open(4);
-		m->addColumn(20);
-		//m->addColumn(20);
+		m->addColumn(5);
+		m->addColumn(5);
+		m->addColumn(5);
 		m->addColumn(4);
 
 		selection.best = false;
