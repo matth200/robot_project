@@ -319,11 +319,11 @@ void Robot::draw(SDL_Surface *screen){
     //_capteur_ext.draw(screen);
 }
 
-
+//ROBOT ARDUINO
 
 RobotArduino::RobotArduino():Robot(){
     ARD_RAYON_BASE = 7.0;
-    ARD_FULL_SPEED = 35.0;
+    ARD_FULL_SPEED = 32.5;
     setup();
 }
 
@@ -332,23 +332,31 @@ void RobotArduino::setup(){
     _ard_speedl = 0;
     _ard_speedr = 0;
     _ard_distance = 0;
-    _ard_done = 0;
+    _ard_done = -1;
     _ard_old_rotation = 0;
+    _ard_time_past = 0;
+    _ard_sens_dance = false;
     _old_time = chrono::high_resolution_clock::now();
 }
 
 void RobotArduino::loop(){
     //on récupére la distance
     _ard_distance = _capteur.getDistance();
-    unsigned long tm = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now()-_old_time).count();
+    //unsigned long tm = chrono::duration_cast<chrono::milliseconds>(chrono::high_resolution_clock::now()-_old_time).count();
+    unsigned long tm = 25;
     _old_time = chrono::high_resolution_clock::now();
     
     ard_updateRotation(_ard_rotation,_ard_speedl,_ard_speedr, tm);
-    cout << "Rotation arduino: " << _ard_rotation/M_PI*180.0 <<  ", fps:" << 1000.0/tm << endl;
+    _ard_time_past += tm;
+    //cout << "Rotation arduino: " << _ard_rotation/M_PI*180.0 <<  ", fps:" << 1000.0/tm << endl;
 
-    _ard_speedl = 100;
-    _ard_speedr = 100;
-    cout << _ard_distance << endl;
+    //ard_calibration_rotation();
+
+    ard_moveLikeSnake(_ard_speedl,_ard_speedr);
+
+    // _ard_speedl = 100;
+    // _ard_speedr = 100;
+    // cout << _ard_distance << endl;
     if(_ard_distance<500){
         _ard_speedl = 0;
         _ard_speedr = 100;
@@ -424,23 +432,53 @@ double RobotArduino::ard_getRotation(double x1, double y1, double x2, double y2)
     return rotation;
 }
 
+double RobotArduino::getSpeedAngle(double rotation, double old_rotation){
+    double speed_angle1 = double(int(abs(rotation-old_rotation)/M_PI*180.0*100.0)%(360*100))/100.0;
+    double speed_angle2 = double(int(abs(2*M_PI-rotation-old_rotation)/M_PI*180.0*100.0)%(360*100))/100.0;
+    return (speed_angle1<speed_angle2)?speed_angle1:speed_angle2;
+}
+
 bool RobotArduino::ard_goTo(double angle, double rotation, int &speed_r, int &speed_l, double &old_rotation, double &done, bool sens){
-    if(done==0){
+    if(done==-1){
         old_rotation = rotation;
+        done = 0;
     }
-    angle = double(int(abs(angle)/M_PI*180.0*100.0)%(360*100))/100.0;
-    double speed_angle = double(int(abs(rotation-old_rotation)/M_PI*180.0*100.0)%(360*100))/100.0;
+    angle = angle/M_PI*180.0;
+    double speed_angle = getSpeedAngle(rotation, old_rotation);
     done += speed_angle;
     old_rotation = rotation;
-    cout << "done:" << done << ", angle:" << angle << endl;
     if(angle<=done){
         //on a atteint le bon angle
         speed_r = 0;
         speed_l = 0;
         return true;
     }else{
-        speed_r = 100.0;
-        speed_l = -100.0;
+        //cout << "done:" << done << ", angle:" << angle << endl;
+        //cout << speed_angle << endl;
+        speed_r = sens?100.0:-100.0;
+        speed_l = sens?-100.0:100;
     }
     return false;
 }
+
+void RobotArduino::ard_moveLikeSnake(int &speed_l, int &speed_r){
+    const double periode = 1.5;
+    speed_l = 100.0*(sin((double(_ard_time_past)/1000.0+2.0/4.0)*2*M_PI*periode)+1.0)/2.0;
+    speed_r = 100.0*(sin((double(_ard_time_past)/1000.0+1.0/4.0)*2*M_PI*periode)+1.0)/2.0;
+}
+
+void RobotArduino::ard_calibration_rotation(){
+    if(ard_goTo(M_PI*2.0,_ard_rotation,_ard_speedr,_ard_speedl,_ard_old_rotation,_ard_done, _ard_sens_dance)){
+        _ard_done = -1;
+        _ard_sens_dance = !_ard_sens_dance;
+    }
+}
+
+// const string scan_data[] = [
+// "1111111111111111111111111111111100000000000000000000000000000",
+// "1111111111111111111111111111111100000000000000000000000000000",
+// "1111111111111111111111111111111000000000000000000000000000000",
+// "1111111111111111111111111111111000000000000000000000000000000",
+// "1111111111111111111111111111111000000000000000000000000000000",
+// "1111111111111111111111111111111000000000000000000000000000000"
+// ];

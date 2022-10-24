@@ -116,6 +116,8 @@ class RobotArduino: public Robot{
         double _ard_distance;
         double _ard_old_rotation;
         double _ard_done;
+        bool _ard_sens_dance;
+        int32_t _ard_time_past;
 
         time_point _old_time;
 
@@ -125,6 +127,9 @@ class RobotArduino: public Robot{
     private:
         void ard_updateRotation(double &rotation, double speed_l, double speed_r, unsigned long tm);
         LineD ard_setRotation(double rotation);
+        double getSpeedAngle(double rotation, double old_rotation);
+        void ard_moveLikeSnake(int &speed_l, int &speed_r);
+        void ard_calibration_rotation();
         double ard_getRotation(double x1, double y1, double x2, double y2);
         bool ard_goTo(double angle, double rotation, int &speed_r, int &speed_l,double &old_rotation, double &done, bool sens=false);
 };
