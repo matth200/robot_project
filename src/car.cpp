@@ -326,7 +326,6 @@ RobotArduino::RobotArduino():Robot(){
     ARD_FULL_SPEED = 32.5;
     setup();
 }
-
 void RobotArduino::setup(){
     _ard_rotation = 0;
     _ard_speedl = 0;
@@ -336,6 +335,8 @@ void RobotArduino::setup(){
     _ard_old_rotation = 0;
     _ard_time_past = 0;
     _ard_sens_dance = false;
+    //bzero((void*)_ard_list_scan,sizeof(int)*180);
+    //_ard_scan_list.assign(180,int(MAX_DIST));
     _old_time = chrono::high_resolution_clock::now();
 }
 
@@ -352,14 +353,31 @@ void RobotArduino::loop(){
 
     //ard_calibration_rotation();
 
-    ard_moveLikeSnake(_ard_speedl,_ard_speedr);
+    int angle_scan = ard_moveLikeSnake(_ard_speedl,_ard_speedr, _ard_time_past);
+    cout << "Affichage de l'angle" << angle_scan << endl;
 
     // _ard_speedl = 100;
     // _ard_speedr = 100;
     // cout << _ard_distance << endl;
-    if(_ard_distance<500){
-        _ard_speedl = 0;
-        _ard_speedr = 100;
+    if(_ard_distance<400){
+        if(angle_scan<-35){
+            _ard_speedl = 100;
+            _ard_speedr = 0;
+        }
+        else if(angle_scan>35){
+            _ard_speedl = 0;
+            _ard_speedr = 100;
+        }
+        if(_ard_distance<200){
+            _ard_speedl = -100;
+            _ard_speedr = 100;
+        }
+    }else if(_ard_distance<800){
+        _ard_speedl+=5;
+    }
+
+    if(_ard_speedl>100){
+        _ard_speedl = 100;
     }
 
     //update motor
@@ -461,10 +479,27 @@ bool RobotArduino::ard_goTo(double angle, double rotation, int &speed_r, int &sp
     return false;
 }
 
-void RobotArduino::ard_moveLikeSnake(int &speed_l, int &speed_r){
+//return angle between 0 and 180
+int RobotArduino::ard_moveLikeSnake(int &speed_l, int &speed_r, uint32_t time_past){
     const double periode = 1.5;
-    speed_l = 100.0*(sin((double(_ard_time_past)/1000.0+2.0/4.0)*2*M_PI*periode)+1.0)/2.0;
-    speed_r = 100.0*(sin((double(_ard_time_past)/1000.0+1.0/4.0)*2*M_PI*periode)+1.0)/2.0;
+    double angleg = (double(_ard_time_past)/1000.0+2.0/4.0)*2*M_PI*periode;
+    double angled = (double(_ard_time_past)/1000.0+1.0/4.0)*2*M_PI*periode;
+    speed_l = 100.0*(sin(angleg)+1.0)/2.0;
+    speed_r = 100.0*(sin(angled)+1.0)/2.0;
+
+
+    int angle = int(double(_ard_time_past)/1000.0*2.0*periode*180.0)%360;
+
+    //on map le scan
+    if(0<=angle&&angle<90){
+        return -angle;
+    }
+    else if(90<=angle&&angle<90+180){
+        return (angle-90)-90;
+    }
+
+    //angle entre 90+180 et 90+180+90
+    return 90-(angle-90-180);
 }
 
 void RobotArduino::ard_calibration_rotation(){
