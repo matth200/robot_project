@@ -4,6 +4,7 @@
 #include <SDL/SDL.h>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 #include "draw.h"
 #include "capteur.h"
@@ -115,7 +116,10 @@ class RobotArduino: public Robot{
         int _ard_speedr;
         double _ard_distance;
         double _ard_old_rotation;
+        //std::vector<int> _ard_scan_list;
         double _ard_done;
+        bool _ard_sens_dance;
+        int32_t _ard_time_past;
 
         time_point _old_time;
 
@@ -125,6 +129,9 @@ class RobotArduino: public Robot{
     private:
         void ard_updateRotation(double &rotation, double speed_l, double speed_r, unsigned long tm);
         LineD ard_setRotation(double rotation);
+        double getSpeedAngle(double rotation, double old_rotation);
+        int ard_moveLikeSnake(int &speed_l, int &speed_r, uint32_t time_past);
+        void ard_calibration_rotation();
         double ard_getRotation(double x1, double y1, double x2, double y2);
         bool ard_goTo(double angle, double rotation, int &speed_r, int &speed_l,double &old_rotation, double &done, bool sens=false);
 };
