@@ -72,7 +72,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 
 //variable pour effectuer la selection
-#define SAVE_NAME "brain_oneroom_best50_50_50_"
+#define SAVE_NAME "brain_oneroom_"
 
 
 int main(int argc, char **argv){
@@ -132,12 +132,12 @@ int main(int argc, char **argv){
 	//on construit l'univers
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
 	cout << "Ouverture des maps..." << endl;
-	// universe.addLevel("../resources/map/map_1.level");
-	// universe.addLevel("../resources/map/map_2.level");
-	// universe.addLevel("../resources/map/map_3.level");
-	// universe.addLevel("../resources/map/map_4.level");
-	// universe.addLevel("../resources/map/map_5.level");
-	// universe.addLevel("../resources/map/map_6.level");
+	universe.addLevel("../resources/map/map_1.level");
+	universe.addLevel("../resources/map/map_2.level");
+	universe.addLevel("../resources/map/map_3.level");
+	universe.addLevel("../resources/map/map_4.level");
+	universe.addLevel("../resources/map/map_5.level");
+	universe.addLevel("../resources/map/map_6.level");
 	universe.addLevel("../resources/map/map_oneroom.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
@@ -152,9 +152,7 @@ int main(int argc, char **argv){
 		VarSelection selection;
 		MachineLearning *m = &(selection.m);
 		m->open(4);
-		m->addColumn(50);
-		m->addColumn(50);
-		m->addColumn(50);
+		m->addColumn(20);
 		m->addColumn(4);
 
 		selection.best = false;

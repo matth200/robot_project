@@ -2,7 +2,7 @@
 #include <ArduinoSTL.h>
 #define DIST_MAX 315
 #define FPS 40.0
-
+#include <Array.h>
 
 #include <Servo.h>
 
@@ -44,6 +44,97 @@ struct Line{
 };
 
 //function
+double getRotation(double x1, double y1, double x2, double y2);
+void goTo(double angle, double &rotation, int &speed_r, int &speed_l, bool sens=false);
+Line setRotation(double rotation);
+double getDistance(int pin, int timeout);
+void updateRotation(double &rotation, double speed_l, double speed_r, unsigned long tm);
+void setSpeed(Servo &servo, int vitesse);
+int freeRam();
+
+//main
+void setup() {
+  srand(analogRead(0));
+  
+  Serial.begin(9600);
+  std::cout << "MemoireGe:" << freeRam() << std::endl;
+
+  std::cout << "Construction du modele" << std::endl;
+  //neural network
+  machine.open(4);
+  std::cout << "Memoire4:" << freeRam() << std::endl;
+  machine.addColumn(20);
+  std::cout << "Memoire10:" << freeRam() << std::endl;
+  machine.addColumn(20);
+  std::cout << "Memoire20:" << freeRam() << std::endl;
+  machine.addColumn(4);
+  std::cout << "Memoire4:" << freeRam() << std::endl;
+
+  //on charge le réseau de neurones
+  machine.backupTraining(neuralnetwork_data);
+  std::cout << "Reseau de neurones chargé." << std::endl;
+  
+  std::cout << "Memoire:" << freeRam() << std::endl;
+
+  //on gère les servommoteurs
+  servo_g.attach(SERVO_G_PIN);
+  servo_d.attach(SERVO_D_PIN);
+  pinMode(CAPTEUR_US, OUTPUT);
+  digitalWrite(CAPTEUR_US, LOW);
+  delay(100);
+}
+
+void loop() {
+  unsigned long tm = millis()-start_chrono;
+  start_chrono = millis();
+  updateRotation(rotation,speed_l,speed_r, tm);
+
+
+  std::cout << "fps:" << 1000.0/(double)tm << std::endl;
+  std::cout << "rotation:" << rotation/PI*180.0 << std::endl;
+  //on doit maintenir la loop a une certaine fréquence
+  distance = getDistance(CAPTEUR_US, TIMEOUT) * FACTEUR_DISTANCE;
+  if(distance>DIST_MAX) distance = DIST_MAX;
+  //Serial.println("distance:"+String(distance)+"cm");
+  
+  //info réel
+  data[0] = (unsigned char)(int(double(int(rotation)%360)/360.0*255.0));
+  data[1] = (unsigned char)(int(distance/DIST_MAX*255.0));
+
+  //info de memoire
+  memcpy((char*)(data+2), memoire, 2);
+  
+  //on donne les infos au réseau de neurones
+  machine.setInput((char*)data);
+  machine.calcul();
+  
+  //on remplit la mémoire pour prochain passage
+  memoire[0] = (unsigned char)machine.getOutput(2);
+  memoire[1] = (unsigned char)machine.getOutput(3);
+  
+  //std::cout << "Motor1:" << machine.getOutput(0) << std::endl;
+  //std::cout << "Motor2:" << machine.getOutput(1) << std::endl;
+
+  //on envoie les infos moteur
+  speed_l = int((machine.getOutput(0)-0.5)*2.0*100.0);
+  speed_r = int((machine.getOutput(1)-0.5)*2.0*100.0);
+
+  //goTo(90.0/180.0*PI, rotation, speed_l, speed_r);
+  
+  setSpeed(servo_g, int(speed_l*0.6)+G_CORREC);
+  setSpeed(servo_d, int(-speed_r)+D_CORREC);
+
+
+  //on gère la fréquence de rafraichissement
+  unsigned long duration = millis()-start_chrono;
+  if(double(duration)<1000.0/FPS){
+    delay(int(1000.0/FPS-double(duration)));
+  }
+}
+
+
+
+//fonctions
 double getRotation(double x1, double y1, double x2, double y2){
     double deltaX = x2-x1;
     double deltaY = y1-y2;
@@ -75,6 +166,7 @@ void goTo(double angle, double &rotation, int &speed_r, int &speed_l, bool sens=
     speed_l = 0;
   }
 }
+
 
 Line setRotation(double rotation){
     Line line;
@@ -133,76 +225,10 @@ void updateRotation(double &rotation, double speed_l, double speed_r, unsigned l
 void setSpeed(Servo &servo, int vitesse){
   servo.writeMicroseconds(map(vitesse, -100, 100, 1300, 1700));
 }
-//main
 
-void setup() {
-  srand(analogRead(0));
-  
-  Serial.begin(9600);
-
-  std::cout << "Construction du model" << std::endl;
-  //neural network
-  machine.open(4);
-  machine.addColumn(20);
-  //machine.addColumn(20);
-  machine.addColumn(4);
-
-  //on charge le réseau de neurones
-  machine.backupTraining(neuralnetwork_data);
-  std::cout << "Reseau de neurones chargé." << std::endl;
-
-  //on gère les servommoteurs
-  servo_g.attach(SERVO_G_PIN);
-  servo_d.attach(SERVO_D_PIN);
-  pinMode(CAPTEUR_US, OUTPUT);
-  digitalWrite(CAPTEUR_US, LOW);
-  delay(100);
-}
-
-void loop() {
-  unsigned long tm = millis()-start_chrono;
-  start_chrono = millis();
-  updateRotation(rotation,speed_l,speed_r, tm);
-
-
-  std::cout << "fps:" << 1000.0/(double)tm << std::endl;
-  std::cout << "rotation:" << rotation/PI*180.0 << std::endl;
-  //on doit maintenir la loop a une certaine fréquence
-  distance = getDistance(CAPTEUR_US, TIMEOUT) * FACTEUR_DISTANCE;
-  if(distance>DIST_MAX) distance = DIST_MAX;
-  //Serial.println("distance:"+String(distance)+"cm");
-  
-  //info réel
-  data[0] = (unsigned char)(int(double(int(rotation)%360)/360.0*255.0));
-  data[1] = (unsigned char)(int(distance/DIST_MAX*255.0));
-
-  //info de memoire
-  memcpy((char*)(data+2), memoire, 2);
-  
-  //on donne les infos au réseau de neurones
-  machine.setInput((char*)data);
-  machine.calcul();
-  
-  //on remplit la mémoire pour prochain passage
-  memoire[0] = (unsigned char)machine.getOutput(2);
-  memoire[1] = (unsigned char)machine.getOutput(3);
-  
-  //std::cout << "Motor1:" << machine.getOutput(0) << std::endl;
-  //std::cout << "Motor2:" << machine.getOutput(1) << std::endl;
-
-  //on envoie les infos moteur
-  speed_l = int((machine.getOutput(0)-0.5)*2.0*100.0);
-  speed_r = int((machine.getOutput(1)-0.5)*2.0*100.0);
-
-  //goTo(90.0/180.0*PI, rotation, speed_l, speed_r);
-  
-  setSpeed(servo_g, int(speed_l*0.6)+G_CORREC);
-  setSpeed(servo_d, int(-speed_r)+D_CORREC);
-
-
-  //on gère la fréquence de rafraichissement
-  unsigned long duration = millis()-start_chrono;
-  if(double(duration)<1000.0/FPS){
-    delay(int(1000.0/FPS-double(duration)));
-  }
+int freeRam ()
+{
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
 }
