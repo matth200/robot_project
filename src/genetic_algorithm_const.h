@@ -6,7 +6,7 @@
 #define FRQ_MUTATION 0.10
 #define NBR_SELECTION 1000
 #define NBR_RANDOM 100
-#define TIMEOUT 30000
+#define TIMEOUT 90000
 
 
 //parametre machine learning

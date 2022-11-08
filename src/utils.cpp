@@ -29,7 +29,7 @@ int evaluateRobot(Robot &robot, VarSelection *player, bool &f){
 	if(!robot.isAlive()||robot.getWin()){
 		//si il a reussi, il doit essayer d'avoir le chemin le plus court
 		if(robot.getWin()){
-			score += int(50000.0-robot.getDistanceDone());
+			score += int(100000.0-robot.getDistanceDone());
 		//sinon le plus long
 		}else{
 			score += int(robot.getDistanceDone());

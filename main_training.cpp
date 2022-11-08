@@ -1,4 +1,4 @@
-#define NO_GUI
+//#define NO_GUI
 #define TRY_BEST true
 
 #include <fstream>
@@ -72,7 +72,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 
 //variable pour effectuer la selection
-#define SAVE_NAME "brain_oneroom_20_20_"
+#define SAVE_NAME "brain_oneroom_20_20_newmap_"
 
 
 int main(int argc, char **argv){
@@ -132,13 +132,14 @@ int main(int argc, char **argv){
 	//on construit l'univers
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
 	cout << "Ouverture des maps..." << endl;
-	universe.addLevel("../resources/map/map_1.level");
-	universe.addLevel("../resources/map/map_2.level");
-	universe.addLevel("../resources/map/map_3.level");
-	universe.addLevel("../resources/map/map_4.level");
-	universe.addLevel("../resources/map/map_5.level");
-	universe.addLevel("../resources/map/map_6.level");
-	universe.addLevel("../resources/map/map_oneroom.level");
+	// universe.addLevel("../resources/map/map_1.level");
+	// universe.addLevel("../resources/map/map_2.level");
+	// universe.addLevel("../resources/map/map_3.level");
+	// universe.addLevel("../resources/map/map_4.level");
+	universe.addLevel("../resources/map/new_map/map_1.level");
+	universe.addLevel("../resources/map/new_map/map_2.level");
+	// universe.addLevel("../resources/map/map_6.level");
+	//universe.addLevel("../resources/map/map_oneroom_2.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
 	//construction des mondes virtuels pour la détection
@@ -218,7 +219,7 @@ int main(int argc, char **argv){
 	//speed
 	bool state_space = true, state_enter = false;
 	bool behind_work = false;
-	bool state_save = false;
+	bool state_save = true;
 
 	//boucle
 	bool continuer = true;

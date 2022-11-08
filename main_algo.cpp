@@ -206,7 +206,7 @@ int evaluateRobotArduino(RobotArduino &robot, bool &f){
 	robot.loop();
 	int score = 0;
 
-	if(robot.getDuration()>TIMEOUT){
+	if(robot.getDuration()>90000){
 		robot.setAlive(false);
 	}
 	f = false;
