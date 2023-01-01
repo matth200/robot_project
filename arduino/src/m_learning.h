@@ -65,7 +65,7 @@ public:
 	int get_number_neuron() const;
 	Neuron* get_neuron(int index);
 protected:
-	Array<Neuron*, MAX_NEURON_PER_LINE> neurons;
+	std::vector<Neuron*> neurons;
 	NetworkNeuron *beforeNetwork, *afterNetwork;
 };
 
@@ -88,9 +88,10 @@ public:
 	int getNumberColumn() const; 
 	double getPrecision(NetworkNeuron& result);
 	bool backupTraining(const char *data);
+	bool loadStructure(const char *data);
 	int getPrediction();
 protected:
-	Array<NetworkNeuron*,MAX_LINE_LEARNING> Lines;
+	std::vector<NetworkNeuron*> Lines;
 };
 
 #endif

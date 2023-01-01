@@ -54,6 +54,11 @@
         "cwchar": "cpp",
         "streambuf": "cpp",
         "cinttypes": "cpp",
-        "system_error": "cpp"
+        "system_error": "cpp",
+        "list": "cpp",
+        "unordered_map": "cpp",
+        "functional": "cpp",
+        "numeric": "cpp",
+        "optional": "cpp"
     }
 }

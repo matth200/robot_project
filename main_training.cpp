@@ -72,7 +72,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 
 //variable pour effectuer la selection
-#define SAVE_NAME "brain_oneroom_20_20_newmap_"
+#define SAVE_NAME "brain_kiki_big_"
 
 
 int main(int argc, char **argv){
@@ -136,9 +136,10 @@ int main(int argc, char **argv){
 	// universe.addLevel("../resources/map/map_2.level");
 	// universe.addLevel("../resources/map/map_3.level");
 	// universe.addLevel("../resources/map/map_4.level");
-	universe.addLevel("../resources/map/new_map/map_1.level");
-	universe.addLevel("../resources/map/new_map/map_2.level");
+	//universe.addLevel("../resources/map/new_map/map_1.level");
+	//universe.addLevel("../resources/map/new_map/map_2.level");
 	// universe.addLevel("../resources/map/map_6.level");
+	universe.addLevel("../resources/map/map_kiki.level");
 	//universe.addLevel("../resources/map/map_oneroom_2.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
@@ -292,7 +293,7 @@ int main(int argc, char **argv){
 
 		#ifndef NO_GUI
 		//on gère les infos
-		display.setInfo(generation, max_score, player->score);
+		display.setInfo(generation, max_score_folder, player->score);
 		if(state_enter==true){
 			display.setSave(true);
 		}

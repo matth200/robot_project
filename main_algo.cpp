@@ -80,12 +80,12 @@ int main(int argc, char **argv){
 	//on construit l'univers
 	Universe universe(SCREEN_WIDTH,SCREEN_HEIGHT);
 	cout << "Ouverture des maps..." << endl;
-	universe.addLevel("../resources/map/map_1.level");
-	universe.addLevel("../resources/map/map_2.level");
-	universe.addLevel("../resources/map/map_3.level");
-	universe.addLevel("../resources/map/map_4.level");
-	universe.addLevel("../resources/map/map_5.level");
-	universe.addLevel("../resources/map/map_6.level");
+	universe.addLevel("../resources/map/map_kiki.level");
+	// universe.addLevel("../resources/map/map_2.level");
+	// universe.addLevel("../resources/map/map_3.level");
+	// universe.addLevel("../resources/map/map_4.level");
+	// universe.addLevel("../resources/map/map_5.level");
+	// universe.addLevel("../resources/map/map_6.level");
 	// universe.addLevel("../resources/map/map.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
