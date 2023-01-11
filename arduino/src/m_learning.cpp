@@ -458,6 +458,32 @@ bool MachineLearning::backupTraining(const char *data)
 	return false;
 }
 
+bool MachineLearning::loadStructure(const char *data){
+	int cursor = 0;
+	
+	int32_t nbrColumn = 0;		
+
+	memcpy_P((char*)&nbrColumn,(char*)(data+cursor),sizeof(nbrColumn));
+	cursor+=sizeof(nbrColumn);
+	
+	Lines.clear();
+
+	//on récupere les tailles des couches
+	for(int i(0);i<nbrColumn;i++)
+	{
+		int32_t taille = 0;
+		memcpy_P((char*)&taille,(char*)(data+cursor),sizeof(taille));
+		if(i==0){
+			open(taille);
+		}else{
+			addColumn(taille);
+		}
+		cursor+=sizeof(taille);
+	}
+	return nbrColumn==getNumberColumn();
+}
+
+
 int MachineLearning::getPrediction()
 {
 	double max = 0;

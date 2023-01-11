@@ -116,7 +116,6 @@ class RobotArduino: public Robot{
         int _ard_speedr;
         double _ard_distance;
         double _ard_old_rotation;
-        //std::vector<int> _ard_scan_list;
         double _ard_done;
         bool _ard_sens_dance;
         int32_t _ard_time_past;

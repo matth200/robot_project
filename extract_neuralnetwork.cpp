@@ -7,7 +7,7 @@
 
 #define TRAINMODEL_FOLDER "../resources/trained_model/"
 #define SAVE_FILE "../resources/extracted/data.txt"
-#define BRAIN_NAME "brain_1_20_"
+#define BRAIN_NAME "brain_TP_"
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -72,7 +72,7 @@ int main(int argc, char **argv){
         string data = "";
         cout << "Code arduino:" <<endl;
         int size = filesize(filename.c_str());
-        data="const PROGMEM char data["+to_string(size)+"]={";
+        data="const PROGMEM char neuralnetwork_data["+to_string(size)+"]={";
         char buffer = 0;
         for(int i=0;i<size;i++){
             file.read(&buffer,1);

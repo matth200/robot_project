@@ -8,7 +8,7 @@
 //caractéristique d'un capteur ultrason
 #define MAX_DIST 800
 #define MAX_ANGLE 15.0/180.0*M_PI
-#define NBR_LINE_DETECTION 3
+#define NBR_LINE_DETECTION 4
 
 class Capteur{
     public:
