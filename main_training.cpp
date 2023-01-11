@@ -1,5 +1,6 @@
 //#define NO_GUI
 #define TRY_BEST true
+//#define ADD_TIME_PERCEPTION
 
 #include <fstream>
 #include <iostream>
@@ -72,7 +73,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 
 //variable pour effectuer la selection
-#define SAVE_NAME "brain_kiki_big_"
+#define SAVE_NAME "brain_TP_"
 
 
 int main(int argc, char **argv){
@@ -139,7 +140,7 @@ int main(int argc, char **argv){
 	//universe.addLevel("../resources/map/new_map/map_1.level");
 	//universe.addLevel("../resources/map/new_map/map_2.level");
 	// universe.addLevel("../resources/map/map_6.level");
-	universe.addLevel("../resources/map/map_kiki.level");
+	universe.addLevel("../resources/map/map_kiki_3.level");
 	//universe.addLevel("../resources/map/map_oneroom_2.level");
 	//on se mets premier niveau et première position
 	universe.initStep();
@@ -153,9 +154,18 @@ int main(int argc, char **argv){
 	for(int i(0);i<NBR_POPULATION;i++){
 		VarSelection selection;
 		MachineLearning *m = &(selection.m);
+
+		#ifdef ADD_TIME_PERCEPTION
+		m->open(5);
+		#else
 		m->open(4);
+		#endif
+
+		//couche caché
 		m->addColumn(20);
 		m->addColumn(20);
+
+
 		m->addColumn(4);
 
 		selection.best = false;

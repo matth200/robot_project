@@ -9,7 +9,7 @@
  
 #include <math.h>
 #include <string.h>
-#include <Array.h>
+//#include <Array.h>
 
 
 #define MAX_NEURON_PER_LINE 30

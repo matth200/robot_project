@@ -1,7 +1,7 @@
 .PHONY: all clean clean-all
 
 GXX=g++
-FLAGS=-lSDL -lSDL_ttf -pthread
+FLAGS=-lSDL -lSDL_ttf -pthread -lstdc++fs -lstdc++ -std=c++17 
 BIN_DIRECTORY=bin
 SRC_DIRECTORY=src
 
@@ -12,7 +12,7 @@ $(BIN_DIRECTORY)/extract_nn: $(BIN_DIRECTORY)/extract_nn.o  $(SRC_DIRECTORY)/m_l
 	$(GXX) -o $@ $^ 
 
 $(BIN_DIRECTORY)/extract_nn.o: extract_neuralnetwork.cpp
-	$(GXX) -o $@ -c $< 
+	$(GXX) -o $@ -c $< $(FLAGS) 
 
 
 #app_map
