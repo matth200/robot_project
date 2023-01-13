@@ -1,6 +1,6 @@
 //#define NO_GUI
 #define TRY_BEST true
-//#define ADD_TIME_PERCEPTION
+#define ADD_TIME_PERCEPTION
 
 #include <fstream>
 #include <iostream>
@@ -73,7 +73,7 @@ typedef chrono::high_resolution_clock::time_point time_point;
 
 
 //variable pour effectuer la selection
-#define SAVE_NAME "brain_TP_"
+#define SAVE_NAME "brain_TP_time_"
 
 
 int main(int argc, char **argv){
@@ -364,7 +364,7 @@ int main(int argc, char **argv){
 		}
 
 		//pour éviter de perdre les bons éléments à chaque génération
-		if(max_score>max_score_folder-100000&&state_save){
+		if(max_score>max_score_folder-300000&&state_save){
 			string filename_maxscore = (string("../resources/trained_model/")+SAVE_NAME+to_string(max_score)+".ml");
 			player->m.saveTraining(filename_maxscore.c_str());
 			cout << "Enregistrement sur " << filename_maxscore << endl;

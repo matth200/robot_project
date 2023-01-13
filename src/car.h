@@ -19,6 +19,7 @@ typedef std::chrono::high_resolution_clock::time_point time_point;
 
 #define COLOR_CAR SDL_MapRGB(screen->format, 200,10,100)
 #define ROBOT_SPEED 5
+#define ROBOT_TIME_PERCEPTION 15
 
 
 class Trajectoire{

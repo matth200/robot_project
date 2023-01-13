@@ -7,7 +7,7 @@
 
 #define TRAINMODEL_FOLDER "../resources/trained_model/"
 #define SAVE_FILE "../resources/extracted/data.txt"
-#define BRAIN_NAME "brain_TP_"
+#define BRAIN_NAME "brain_TP_time_"
 
 namespace fs = std::filesystem;
 using namespace std;
