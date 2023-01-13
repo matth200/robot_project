@@ -266,11 +266,16 @@ void Robot::update(){
         //on donne les infos au cerveau
         int rotation = int(double(int((_rotation-_noise_rotation_start)/M_PI*180.0)%360)/360.0*255.0);
         //cout << "rot:" << rotation << endl;
-        unsigned char data[4];
+        unsigned char data[5];
+
         data[0] = (unsigned char)(rotation);
         data[1] = (unsigned char)(int(double(_capteur.getDistance())/double(MAX_DIST)*255.0));
         data[2] = _memoire;
         data[3] = _memoire2;
+
+        data[4] = (unsigned char)((_tick%ROBOT_TIME_PERCEPTION)/double(ROBOT_TIME_PERCEPTION-1)*255.0);
+
+
         _brain->setInput((char*)data);
 
         //on calcul
