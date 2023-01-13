@@ -145,7 +145,9 @@ We have 5 entries on the neural network :<br/>
     <li>time perception //added later and that made the robot worked well</li>
 </ul>
 <br/>
+
 We also have two hidden layers of 20 neurons each.<br/>
+
 and finally, the output of the neural network : <br/>
 <ul>
     <li>motor 1</li>
@@ -168,6 +170,10 @@ To make it, we will use the program <mark>extract_nn</mark><br/>
 If it is not made, you just have to run<code> ~$ make</code><br/>
 So now, you just have to go the bin folder and run <code> ~$ ./extract_nn</code><br/>
 You will get this.<br/>
+And you can even specify to the extract_nn command a neural_network you want to use in the real world<br/>
+<code> ~$ ./extract_nn ../resources/trained_model/brain_TP_time_887000.ml</code><br/>
+It will give you a bunch of numbers, there are the neural network which can be put in the arduino<br/>
+If you pay attention, you will see the PROGMEM word it is used to put all the data in the script storage of the arduino, we can only get this data in read-only <br/>but we can store a lot more of memory in it<br/>
 
 ![My Images](documentation/6.png)
 
@@ -193,6 +199,24 @@ Then you will see this<br/>
 Once, you have choose your file, it will display the evolution<br/>
 
 ![My Images](documentation/9.png)
+
+
+<h3>Real robot</h3>
+
+Components : <br/>
+<ul>
+    <li>Ultrasonic sensor</li>
+    <li>2 motors</li>
+    <li>switch button on/off</li>
+    <li>2 LEDs (state of the two motors)</li>
+    <li>Battery</li>
+</ul>
+<br/>
+
+![My Images](documentation/15.png)
+
+![My Images](documentation/16.png)
+
 
 <br/>
 I have learn a lot of my own on this project, you can use it to do something on your own too !<br/>
