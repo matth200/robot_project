@@ -31,7 +31,9 @@ And even put an neural network already train in the universe, you created with t
 To make it, you have to specify the path to the neural network's file in argument<br/>
 For example, <code> ~$ ./app_training ../resources/trained_model/brain_599071.ml</code><br/>
 It will launch the simulation but the first neural network to train will be the neural network specify<br/>
-![My Images](documentation/4.png)
+![My Images](documentation/2.png)
+<br/>
+![My Images](documentation/1.png)
 
 <h3>How to make map (with app_map)</h3>
 
@@ -73,6 +75,10 @@ Here the list of them :<br/>
     <tr>
         <th>esc_key(two time)</th>
         <th>It will remove all the lines and points on the map</th>
+    </tr>
+    <tr>
+        <th>CTRL && move the mouse</th>
+        <th>You can travel the map and build a giant map if you want</th>
     </tr>
 </table>
 
@@ -122,9 +128,40 @@ And we fill the rest of the population with random new neural network<br/>
 <br/>
 We are on the next generation here, we do it in loop and it will evolve to create smart robot<br/>
 
+The used of multhreading helps to make quicker evolution... It reduces the time needed to have a neural network ready to go in real world ! <br/> 
+
+<h5>About the specification of the neural network</h5>
+
+![My Images](documentation/11.png)
+
+Here we have the structure of the neural network used in the final robot, over the project I had some changes about the structure of it.<br/>
+There are 3 things that can change the behavior of the neural network, it's the input, hidden layers and the output.<br/>
+We have 5 entries on the neural network :<br/>
+<ul>
+    <li>rotation of the robot</li>
+    <li>distance captured by the ultrasonic sensor</li>
+    <li>memory 1</li>
+    <li>memory 2</li>
+    <li>time perception //added later and that made the robot worked well</li>
+</ul>
+<br/>
+We also have two hidden layers of 20 neurons each.<br/>
+and finally, the output of the neural network : <br/>
+<ul>
+    <li>motor 1</li>
+    <li>motor 2</li>
+    <li>memory 1 (connected to the input 3)</li>
+    <li>memory 2 (connected to the input 4)</li>
+</ul>
 
 
 <h3>Transfer To Arduino</h3>
+
+After you have done a lot of neural network training, you will have a lot of trained model<br/>
+
+![My Images](documentation/14.png)
+
+Once, you have picked one to try in the real world, you just have to follow the step bellow.<br/>
 
 The neural network is trained so we want to transfer it to arduino<br/>
 To make it, we will use the program <mark>extract_nn</mark><br/>
@@ -140,6 +177,9 @@ Then you just have to copy and paste on your arduino program.<br/>
 
 It will load the neural_network trained on your computer on your robot !<br/>
 
+I changed the machine_learning library on the arduino to keep all the values of the neural network<br/>
+in the script storage, otherelse it would have be complicated to store all the data of the neural network (2500bytes=> ~2,5Kb) inside the live memory (ram which is small)<br/>
+
 <h3>Graph of the evolution</h3>
 
 There is a program <mark>display_stat.py</mark><br/>
@@ -154,6 +194,8 @@ Once, you have choose your file, it will display the evolution<br/>
 
 ![My Images](documentation/9.png)
 
+<br/>
+I have learn a lot of my own on this project, you can use it to do something on your own too !<br/>
 <br/>
 Have funnn!
 
